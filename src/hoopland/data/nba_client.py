@@ -13,6 +13,10 @@ class NBAClient:
                 return team['id']
         return None
 
+    def get_team_by_id(self, team_id):
+        # nba_api returns dict like {'id': 1610612737, 'full_name': 'Atlanta Hawks', 'abbreviation': 'ATL', 'nickname': 'Hawks', 'city': 'Atlanta', 'state': 'Georgia', 'year_founded': 1949}
+        return teams.find_team_name_by_id(team_id)
+
     def get_roster(self, team_id, season='2023-24'):
         # NBA API expects season in format '2023-24'
         roster = commonteamroster.CommonTeamRoster(team_id=team_id, season=season)
