@@ -177,11 +177,19 @@ class Generator:
 
     def generate_draft_class(self, year: str) -> structs.League:
         logger.info(f"Generating draft class for year: {year}")
+        print(f"Generating Draft Class {year}...")
+        
         # Use NBA Draft History
         try:
-            df = self.repo.nba_client.get_draft_history(league_id='00')
-            # Filter by year
-            df_year = df[df['SEASON'] == year]
+            print(f"Fetching draft history for {year}...")
+            df = self.repo.nba_client.get_draft_history(league_id='00', season_year=year)
+            
+            # Additional safety filter if API ignores arg
+            df_year = df
+            if 'SEASON' in df.columns:
+                 df_year = df[df['SEASON'] == year]
+            
+            print(f"Found {len(df_year)} draft picks for {year}.")
         except Exception as e:
             logger.error(f"Failed to fetch draft history: {e}")
             df_year = None
@@ -189,17 +197,60 @@ class Generator:
         draft_players = []
         if df_year is not None:
              for _, row in df_year.iterrows():
+                 # Mapping Draft Columns
+                 # PERSON_ID, PLAYER_NAME, SEASON, ROUND_NUMBER, ROUND_PICK, OVERALL_PICK, TEAM_ID, TEAM_ABBREVIATION
+                 
+                 # Heuristic for attributes based on pick number
+                 pick = int(row['OVERALL_PICK'])
+                 rating_base = 3.5 # average rookie
+                 pot_base = 5.0
+                 
+                 # Top picks are better
+                 if pick <= 5: 
+                     rating_base = 4.5
+                     pot_base = 9.0
+                 elif pick <= 15:
+                     rating_base = 4.0
+                     pot_base = 7.5
+                 elif pick <= 30:
+                     rating_base = 3.5
+                     pot_base = 6.0
+                 else:
+                     rating_base = 2.5
+                     pot_base = 5.0
+                     
+                 # Create Dummy Attributes for now (or randomize slightly)
+                 # Ideally we'd fetch college stats if we could link them!
+                 attrs = {k: int(rating_base) for k in ["shooting_inside", "shooting_mid", "shooting_3pt", "defense", "rebounding", "passing"]}
+                 
                  p = structs.Player(
-                     id=int(row['PERSON_ID']), tid=-1,
-                     fn=row['PLAYER_NAME'].split(" ")[0], ln=" ".join(row['PLAYER_NAME'].split(" ")[1:]),
-                     rating=6, pot=8 # Heuristic
+                     id=int(row['PERSON_ID']), tid=-1, # -1 for FA/Draft
+                     fn=row['PLAYER_NAME'].split(" ")[0] if " " in row['PLAYER_NAME'] else row['PLAYER_NAME'], 
+                     ln=" ".join(row['PLAYER_NAME'].split(" ")[1:]) if " " in row['PLAYER_NAME'] else "",
+                     age=20, # Default rookie age
+                     ht=78, # Default 6'6"
+                     wt=210, 
+                     pos=3, # Default Wing
+                     ctry=0, # Default USA
+                     rating=int(rating_base), 
+                     pot=int(pot_base),
+                     appearance=1,
+                     attributes=attrs,
+                     stats={} # No pro stats yet
                  )
                  draft_players.append(p)
                  
+        # Create a single "Draft Class" team or return compatible structure
+        # Usually Draft Class files in games are just a list of players.
+        # We will put them in a wrapper team with ID -1.
+        
+        draft_team = structs.Team(id=-1, city="Draft", name="Class", shortName="DRF", roster=draft_players)
+
         return structs.League(
-            leagueName=f"NBA {year} Draft",
+            leagueName=f"NBA {year} Draft Class",
+            shortName="Draft",
             settings=self._get_default_settings(),
-            teams=[], 
+            teams=[draft_team], 
             meta=structs.Meta(saveName=f"{year} Draft Class", dataType="Draft Class")
         )
 

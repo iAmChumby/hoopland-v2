@@ -33,8 +33,8 @@ class NBAClient:
         stats = leaguedashplayerstats.LeagueDashPlayerStats(season=season, timeout=10)
         return stats.get_data_frames()[0]
 
-    def get_draft_history(self, league_id='00'):
-        draft = drafthistory.DraftHistory(league_id=league_id, timeout=10)
+    def get_draft_history(self, league_id='00', season_year=None):
+        draft = drafthistory.DraftHistory(league_id=league_id, season_year_nullable=season_year, timeout=10)
         return draft.get_data_frames()[0]
 
     def fetch_player_headshot_url(self, player_id):

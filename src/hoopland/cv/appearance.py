@@ -1,5 +1,10 @@
-import cv2
-import numpy as np
+try:
+    import cv2
+    import numpy as np
+    CV_AVAILABLE = True
+except ImportError:
+    CV_AVAILABLE = False
+    
 import requests
 import logging
 
@@ -9,6 +14,10 @@ def get_skin_tone(image_url):
     """
     Determines skin tone code (1-10) from an image URL.
     """
+    if not CV_AVAILABLE:
+        # Fallback if libraries missing
+        return 1
+
     try:
         if not image_url:
             logger.warning("Empty image URL provided.")
@@ -60,5 +69,5 @@ def get_skin_tone(image_url):
         return int(round(scale))
 
     except Exception as e:
-        print(f"Error processing image {image_url}: {e}")
+        logger.error(f"Error processing image {image_url}: {e}")
         return 1

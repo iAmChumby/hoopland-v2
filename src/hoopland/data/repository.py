@@ -22,11 +22,79 @@ class DataRepository:
         return None
 
     def sync_ncaa_season_stats(self, season='2023'):
-        logger.info(f"Syncing NCAA stats for {season} (Stub)")
-        # Implement fetching from self.espn_client.get_all_teams()
-        # and then iterating to get rosters.
-        # For now, this is a placeholder to prevent crashes.
-        pass
+        import time
+        logger.info(f"Syncing NCAA stats for {season}...")
+        print(f"Syncing NCAA stats for {season}...")
+        
+        # 1. Fetch Teams
+        teams = self.espn_client.get_all_teams()
+        logger.info(f"Found {len(teams)} NCAA teams.")
+        print(f"Found {len(teams)} NCAA teams.")
+        
+        current = 0
+        total = len(teams)
+        
+        for team in teams:
+            current += 1
+            tid = team.get('id')
+            slug = team.get('slug', tid)
+            name = team.get('displayName', 'Unknown')
+            
+            # Optimization: Check existing
+            # We can check if any player exists for this team/season
+            exists = self.session.query(Player).filter_by(team_id=str(tid), season=season, league='NCAA').first()
+            if exists:
+                if current % 10 == 0:
+                    print(f"Skipping NCAA Team {current}/{total} (Data exists)...")
+                continue
+
+            print(f"Syncing NCAA Team {current}/{total}: {name}...")
+            
+            try:
+                time.sleep(0.5) # Politeness
+                roster_data = self.espn_client.get_team_roster(tid) # Using ID preferred
+                if not roster_data or 'athletes' not in roster_data:
+                    continue
+                
+                # ESPN API structure for roster:
+                # { "team": {...}, "athletes": [ { "id": "...", "fullName": "...", ... } ] }
+                # Note: The 'athletes' structure usually contains 'items' or is a list itself depending on endpoint version.
+                # Inspecting espn_client.py, it calls /roster.
+                # We need to handle the response safely.
+                
+                athletes = roster_data.get('athletes', [])
+                # Sometimes it's nested like athletes:[ {items: []} ] or just athletes:[] 
+                # Let's assume list of dicts for now based on typical ESPN V2 API.
+                
+                for ath in athletes:
+                    # Athlete fields: id, fullName, height, weight, position, birthPlace
+                    player_id = str(ath.get('id'))
+                    p_name = ath.get('fullName', 'Unknown')
+                    
+                    p = self.session.query(Player).filter_by(source_id=player_id, league='NCAA', season=season).first()
+                    
+                    # Convert stats/metadata
+                    raw_dump = ath # Store full object
+                    
+                    if not p:
+                        p = Player(
+                            source_id=player_id,
+                            league='NCAA',
+                            season=season,
+                            name=p_name,
+                            team_id=str(tid),
+                            raw_stats=raw_dump,
+                            appearance={}
+                        )
+                        self.session.add(p)
+                    else:
+                        p.raw_stats = raw_dump
+                
+                self.session.commit()
+            
+            except Exception as e:
+                logger.error(f"Failed to sync NCAA team {name}: {e}")
+                self.session.rollback()
 
 
     def sync_nba_season_stats(self, season='2023-24'):
@@ -150,11 +218,31 @@ class DataRepository:
                 self.session.commit() 
             
             except Exception as e:
-                logger.error(f"Failed to sync roster for team {tid}: {e}")
-                print(f"Failed to sync Team {tid}: {e}. Continuing...")
                 self.session.rollback()
         
         print("Roster Metadata Sync Complete.")
+
+    def backfill_appearance(self, cv_engine_func):
+        """
+        Iterates over players with missing appearance data and fills it.
+        """
+        # Filter in python to be safe against DB JSON quirks
+        all_players = self.session.query(Player).all()
+        players = [p for p in all_players if not p.appearance or 'skin_tone' not in p.appearance]
+        
+        logger.info(f"Found {len(players)} players missing appearance data.")
+        # print(f"Backfilling appearance for {len(players)} players...")
+        
+        for p in players:
+            try:
+                if p.league == 'NBA':
+                    url = self.nba_client.fetch_player_headshot_url(p.source_id)
+                    skin_tone = cv_engine_func(url)
+                    p.appearance = {'skin_tone': skin_tone}
+                    self.session.commit() 
+                    logger.debug(f"Backfilled appearance for player {p.name}: {skin_tone}")
+            except Exception as e:
+                logger.error(f"Error backfilling appearance for player {p.name}: {e}")
         """
         Iterates over players with missing appearance data and fills it.
         """
