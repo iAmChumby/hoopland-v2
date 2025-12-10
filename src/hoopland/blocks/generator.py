@@ -58,13 +58,49 @@ class Generator:
             name = f"Team {tid}"
             short_name = "TM"
             
-
             if team_info:
                  city = team_info.get('city', 'Unknown')
                  name = team_info.get('nickname', f"Team {tid}")
                  short_name = team_info.get('abbreviation', "TM")
             else:
                  logger.warning(f"Could not fetch info for team {tid} from NBA client.")
+
+            # Fetch Roster Data for Metadata (Height, Weight, Position, Age)
+            roster_data_map = {}
+            try:
+                roster_df = self.repo.nba_client.get_roster(team_id=int(tid), season=season_str)
+                # Map PlayerID -> Row Data (NBA API uses PLAYER_ID)
+                for _, row in roster_df.iterrows():
+                    roster_data_map[int(row['PLAYER_ID'])] = row
+            except Exception as e:
+                logger.error(f"Failed to fetch roster for team {tid}: {e}")
+
+            # Helper for Position Mapping
+            def parse_position(pos_str):
+                if not pos_str: return 1
+                p = pos_str.upper()
+                if "C" in p: return 5
+                if "F" in p:
+                    if "G" in p: return 3 # G-F -> SF
+                    return 4 # F
+                if "G" in p: return 1 # G
+                return 1
+
+            # Helper for Height Parsing (e.g. "6-6")
+            def parse_height(h_str):
+                try:
+                    if not h_str or '-' not in h_str: return 72 # Default 60
+                    ft, inches = h_str.split('-')
+                    return int(ft) * 12 + int(inches)
+                except:
+                    return 72
+            
+            # Helper for Weight
+            def parse_weight(w_str):
+                try:
+                    return int(w_str)
+                except:
+                    return 200
 
             # Use roster to build detailed player objects
             struct_roster = []
@@ -76,12 +112,55 @@ class Generator:
                 # Fetch appearance cache
                 app_data = p.appearance if p.appearance else {}
                 
+                # Get Metadata from Roster Map
+                try:
+                    meta = roster_data_map.get(int(p.source_id), {})
+                except:
+                    meta = {}
+                
+                # Parse Meta
+                age = 0
+                if 'AGE' in meta:
+                    try:
+                        age = int(float(meta['AGE'])) 
+                    except: pass
+                elif 'AGE' in raw_stats:
+                    try:
+                        age = int(float(raw_stats['AGE']))
+                    except: pass
+
+                # Log keys once to find Country field
+                if tid == list(team_map.keys())[0] and p == roster[0]:
+                    logger.info(f"Roster keys for debugging: {list(meta.keys())}")
+                
+                ht_val = parse_height(meta.get('HEIGHT', ''))
+                wt_val = parse_weight(meta.get('WEIGHT', ''))
+                pos_val = parse_position(meta.get('POSITION', ''))
+                
+                # Potential Logic
+                # Heuristic: Young players have higher potential.
+                # Base potential = rating
+                # Bonus = (28 - age) * 0.5 (approx)
+                # Clamp to [rating, 10]
+                pot_bonus = max(0, (28 - age) / 2) if age > 0 else 0
+                avg_rating = sum(ratings.values()) / len(ratings) if ratings else 5
+                pot_val = min(10, int(round(avg_rating + pot_bonus)))
+
+                # Country Logic placeholder (logging keys to find real field)
+                ctry_val = 0 
+
                 # Safely parse stats
                 struct_player = structs.Player(
                     id=p.id, # Internal DB ID
                     tid=int(tid),
                     fn=p.name.split(" ")[0] if " " in p.name else p.name,
                     ln=" ".join(p.name.split(" ")[1:]) if " " in p.name else "",
+                    age=age,
+                    ht=ht_val,
+                    wt=wt_val,
+                    pos=pos_val,
+                    ctry=ctry_val,
+                    pot=pot_val,
                     appearance=app_data.get('skin_tone', 1),
                     stats=raw_stats,
                     attributes=ratings # Need to map to specific schema keys if strict

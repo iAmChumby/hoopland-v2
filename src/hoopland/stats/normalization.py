@@ -28,21 +28,36 @@ class StatsConverter:
     @staticmethod
     def calculate_ratings(stats):
         """
-        Takes a dict of raw stats (per game) and returns Hoop Land ratings.
+        Takes a dict of raw stats and returns Hoop Land ratings.
+        Handles both Per Game and Total stats if 'GP' is present.
         """
         ratings = {}
         
-        # Example mapping
-        ratings['shooting_inside'] = StatsConverter._calc_shooting_inside(stats)
-        ratings['shooting_mid'] = StatsConverter._calc_shooting_mid(stats) # Approximation
-        ratings['shooting_3pt'] = normalize_rating(stats.get('FG3_PCT', 0), *StatsConverter.RANGES['fg3_pct'])
+        # Determine if we need to convert totals to per-game
+        pg_stats = stats.copy()
+        gp = stats.get('GP', 0)
+        
+        # List of keys to average
+        stat_keys = ['PTS', 'REB', 'AST', 'STL', 'BLK', 'FGM', 'FGA', 'FG3M', 'FG3A', 'FTM', 'FTA']
+        
+        if gp > 0:
+            for k in stat_keys:
+                if k in stats:
+                    pg_stats[k] = stats[k] / gp
+        
+        # Use pg_stats for volume-based ratings, but keep percentages from original (they are usually already %)
+        # Note: NBA API usually gives percentages as 0.XYZ, checking range might be needed but assuming 0-1 or 0-100 logic in converter
+        
+        ratings['shooting_inside'] = StatsConverter._calc_shooting_inside(pg_stats)
+        ratings['shooting_mid'] = StatsConverter._calc_shooting_mid(pg_stats)
+        ratings['shooting_3pt'] = normalize_rating(pg_stats.get('FG3_PCT', 0), *StatsConverter.RANGES['fg3_pct'])
         
         # Defense: STL + BLK roughly
-        def_impact = stats.get('STL', 0) + stats.get('BLK', 0)
-        ratings['defense'] = normalize_rating(def_impact, 0, 5) 
+        def_impact = pg_stats.get('STL', 0) + pg_stats.get('BLK', 0)
+        ratings['defense'] = normalize_rating(def_impact, 0, 3) # Reduced max from 5 to 3 for tighter distribution
         
-        ratings['rebounding'] = normalize_rating(stats.get('REB', 0), *StatsConverter.RANGES['reb'])
-        ratings['passing'] = normalize_rating(stats.get('AST', 0), *StatsConverter.RANGES['ast'])
+        ratings['rebounding'] = normalize_rating(pg_stats.get('REB', 0), *StatsConverter.RANGES['reb'])
+        ratings['passing'] = normalize_rating(pg_stats.get('AST', 0), *StatsConverter.RANGES['ast'])
         
         return ratings
 

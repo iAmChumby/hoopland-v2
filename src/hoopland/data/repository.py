@@ -77,7 +77,10 @@ class DataRepository:
         """
         Iterates over players with missing appearance data and fills it.
         """
-        players = self.session.query(Player).filter(Player.appearance == {}).all()
+        # Filter in python to be safe against DB JSON quirks
+        all_players = self.session.query(Player).all()
+        players = [p for p in all_players if not p.appearance or 'skin_tone' not in p.appearance]
+        
         logger.info(f"Found {len(players)} players missing appearance data.")
         for p in players:
             try:
