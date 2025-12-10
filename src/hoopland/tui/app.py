@@ -63,6 +63,32 @@ class HooplandApp(App):
         text-align: center;
         width: 100%;
     }
+    
+
+    
+    .log_label {
+        margin-top: 1;
+        text-align: center;
+        text-style: bold;
+        width: 100%;
+    }
+    
+    .log_box {
+        height: 1fr;
+        min-height: 10;
+        width: 60;
+        border: solid $accent;
+        margin: 1;
+        background: $surface;
+        scrollbar-gutter: stable;
+    }
+    
+    .copy_btn {
+        margin: 1;
+        width: 60;
+        background: $panel;
+        color: $text;
+    }
     """
 
     SCREENS = {
