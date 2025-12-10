@@ -1,8 +1,12 @@
 from sqlalchemy.orm import Session
 from ..db import Player, init_db
 from .nba_client import NBAClient
+
 from .espn_client import ESPNClient
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DataRepository:
     def __init__(self, db_session: Session):
@@ -28,11 +32,21 @@ class DataRepository:
             
         return None
 
+
     def sync_nba_season_stats(self, season='2023-24'):
         """
         Fetches all NBA player stats for the season and updates the DB.
         """
-        df = self.nba_client.get_league_stats(season=season)
+        logger.info(f"Fetching NBA league stats for season {season}")
+        try:
+            df = self.nba_client.get_league_stats(season=season)
+        except Exception as e:
+            logger.error(f"Failed to fetch league stats from NBA API: {e}")
+            raise
+
+        count = 0
+        new_count = 0
+        logger.info(f"Processing {len(df)} players from API...")
         
         for index, row in df.iterrows():
             player_id = str(row['PLAYER_ID'])
@@ -54,17 +68,24 @@ class DataRepository:
             else:
                 player.raw_stats = json.loads(raw_stats)
                 # update other fields if needed
+            count += 1
         
         self.session.commit()
+        logger.info(f"Sync complete. Processed {count} players. Added {new_count} new players.")
     
     def backfill_appearance(self, cv_engine_func):
         """
         Iterates over players with missing appearance data and fills it.
         """
         players = self.session.query(Player).filter(Player.appearance == {}).all()
+        logger.info(f"Found {len(players)} players missing appearance data.")
         for p in players:
-            if p.league == 'NBA':
-                url = self.nba_client.fetch_player_headshot_url(p.source_id)
-                skin_tone = cv_engine_func(url)
-                p.appearance = {'skin_tone': skin_tone}
-                self.session.commit() # Commit proactively or batch it
+            try:
+                if p.league == 'NBA':
+                    url = self.nba_client.fetch_player_headshot_url(p.source_id)
+                    skin_tone = cv_engine_func(url)
+                    p.appearance = {'skin_tone': skin_tone}
+                    self.session.commit() # Commit proactively or batch it
+                    logger.debug(f"Backfilled appearance for player {p.name}: {skin_tone}")
+            except Exception as e:
+                logger.error(f"Error backfilling appearance for player {p.name}: {e}")

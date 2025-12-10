@@ -4,6 +4,16 @@ from textual.widgets import Header, Footer
 from .screens.home import MainMenu
 from .screens.league import LeagueConfig
 from .screens.draft import DraftConfig
+import logging
+
+# Configure logging
+logging.basicConfig(
+    filename='hoopland.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    filemode='w'
+)
+
 
 class HooplandApp(App):
     """A TUI for generating Hoopland V2 files."""

@@ -1,6 +1,9 @@
 
 import sys
 import os
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 # Ensure src is in path
 sys.path.append('src')

@@ -56,10 +56,13 @@ class Generator:
             name = f"Team {tid}"
             short_name = "TM"
             
+
             if team_info:
                  city = team_info.get('city', 'Unknown')
                  name = team_info.get('nickname', f"Team {tid}")
                  short_name = team_info.get('abbreviation', "TM")
+            else:
+                 logger.warning(f"Could not fetch info for team {tid} from NBA client.")
 
             # Use roster to build detailed player objects
             struct_roster = []

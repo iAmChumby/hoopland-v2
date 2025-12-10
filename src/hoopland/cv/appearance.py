@@ -1,15 +1,26 @@
 import cv2
 import numpy as np
 import requests
+import logging
+
+logger = logging.getLogger(__name__)
 
 def get_skin_tone(image_url):
     """
     Determines skin tone code (1-10) from an image URL.
     """
     try:
-        resp = requests.get(image_url, stream=True)
-        resp.raise_for_status()
+        if not image_url:
+            logger.warning("Empty image URL provided.")
+            return 1
+            
+        logger.debug(f"Fetching image: {image_url}")
+        resp = requests.get(image_url, stream=True, timeout=5)
         
+        if resp.status_code != 200:
+            logger.warning(f"Failed to fetch image {image_url}: Status {resp.status_code}")
+            return 1
+            
         # Convert to numpy array
         arr = np.asarray(bytearray(resp.content), dtype=np.uint8)
         img = cv2.imdecode(arr, -1)
