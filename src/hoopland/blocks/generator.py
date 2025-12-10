@@ -40,6 +40,7 @@ class Generator:
         
         # 3. Fetch Players form DB
         players = self.session.query(Player).filter_by(season=season_str, league='NBA').all()
+        logger.info(f"Fetched {len(players)} players from database for {season_str}.")
         
         # 4. Group by Team
         team_map = defaultdict(list)
@@ -49,6 +50,7 @@ class Generator:
         # 5. Build Teams
         league_teams = []
         for tid, roster in team_map.items():
+            logger.info(f"Building team {tid} with {len(roster)} players...")
             # Get Team Info
             # Attempt to fetch team details using the NBA client in repo
             team_info = self.repo.nba_client.get_team_by_id(int(tid))

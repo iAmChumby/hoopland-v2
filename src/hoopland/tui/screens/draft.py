@@ -64,7 +64,6 @@ class DraftConfig(Screen):
             logging.error(f"Generation failed: {e}")
             self.app.call_from_thread(self.notify, f"Error: {str(e)}", severity="error")
         finally:
-        finally:
             self.app.call_from_thread(self.enable_button)
 
     def enable_button(self) -> None:
