@@ -1,4 +1,4 @@
-from nba_api.stats.endpoints import commonteamroster, leaguedashplayerstats, drafthistory
+from nba_api.stats.endpoints import commonteamroster, leaguedashplayerstats, drafthistory, playercareerstats
 from nba_api.stats.static import teams
 import pandas as pd
 
@@ -36,6 +36,17 @@ class NBAClient:
     def get_draft_history(self, league_id='00', season_year=None):
         draft = drafthistory.DraftHistory(league_id=league_id, season_year_nullable=season_year, timeout=10)
         return draft.get_data_frames()[0]
+
+    def get_player_career_stats(self, player_id):
+        # Fetches career stats summary
+        career = playercareerstats.PlayerCareerStats(player_id=player_id, timeout=10)
+        # 0: SeasonTotalsRegularSeason, 1: CareerTotalsRegularSeason, ...
+        # We want SeasonTotals to find Rookie year, and CareerTotals for Potential.
+        dfs = career.get_data_frames()
+        return {
+            'season_totals': dfs[0] if len(dfs) > 0 else pd.DataFrame(),
+            'career_totals': dfs[1] if len(dfs) > 1 else pd.DataFrame() 
+        }
 
     def fetch_player_headshot_url(self, player_id):
         return f"https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/{player_id}.png"

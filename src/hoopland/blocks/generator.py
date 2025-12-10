@@ -196,47 +196,99 @@ class Generator:
         
         draft_players = []
         if df_year is not None:
-             for _, row in df_year.iterrows():
-                 # Mapping Draft Columns
-                 # PERSON_ID, PLAYER_NAME, SEASON, ROUND_NUMBER, ROUND_PICK, OVERALL_PICK, TEAM_ID, TEAM_ABBREVIATION
+             for i, row in df_year.iterrows():
+                 if i < 30: # Only fetch stats for top 30 to save time? User wants quality. Let's do all but sleep.
+                     pass 
                  
-                 # Heuristic for attributes based on pick number
+                 import time
+                 time.sleep(1.0) # Increased to 1.0s for stability
+                 
+                 pid = int(row['PERSON_ID'])
+                 p_name = row['PLAYER_NAME']
                  pick = int(row['OVERALL_PICK'])
-                 rating_base = 3.5 # average rookie
-                 pot_base = 5.0
+                 print(f"Processing Pick {pick}: {p_name}...")
                  
-                 # Top picks are better
-                 if pick <= 5: 
-                     rating_base = 4.5
-                     pot_base = 9.0
-                 elif pick <= 15:
-                     rating_base = 4.0
-                     pot_base = 7.5
-                 elif pick <= 30:
-                     rating_base = 3.5
-                     pot_base = 6.0
-                 else:
-                     rating_base = 2.5
-                     pot_base = 5.0
+                 try:
+                     stats_data = self.repo.nba_client.get_player_career_stats(pid)
+                     career_df = stats_data.get('career_totals')
+                     season_df = stats_data.get('season_totals')
+                     stats_found = True
+                 except Exception as e:
+                     logger.error(f"Failed to fetch stats for {p_name}: {e}")
+                     print(f"  > Stats failed for {p_name}, using fallback.")
+                     stats_found = False
+                     career_df = None
+                     season_df = None
+                 
+                 # 1. Calculate Potential from Career
+                 eff = 0
+                 gp = 0
+                 
+                 if stats_found and career_df is not None and not career_df.empty:
+                     pts = career_df['PTS'].sum()
+                     reb = career_df['REB'].sum()
+                     ast = career_df['AST'].sum()
+                     stl = career_df['STL'].sum() if 'STL' in career_df else 0
+                     blk = career_df['BLK'].sum() if 'BLK' in career_df else 0
+                     gp = career_df['GP'].sum()
                      
-                 # Create Dummy Attributes for now (or randomize slightly)
-                 # Ideally we'd fetch college stats if we could link them!
-                 attrs = {k: int(rating_base) for k in ["shooting_inside", "shooting_mid", "shooting_3pt", "defense", "rebounding", "passing"]}
+                     if gp > 0:
+                         # Weighted Efficiency per game
+                         eff = (pts + 1.2*reb + 1.5*ast + 2*stl + 2*blk) / gp
+                 
+                 # Map Eff to Potential (1-10)
+                 if stats_found and gp > 0:
+                     if eff > 35: pot_val = 10
+                     elif eff > 25: pot_val = 9
+                     elif eff > 20: pot_val = 8
+                     elif eff > 15: pot_val = 7
+                     elif eff > 10: pot_val = 6
+                     elif eff > 5: pot_val = 5
+                     elif gp > 100: pot_val = 4 # Long career role player
+                     else: pot_val = 3 # Bust
+                 else:
+                     # Fallback Heuristic
+                     if pick <= 5: pot_val = 9
+                     elif pick <= 15: pot_val = 7
+                     elif pick <= 30: pot_val = 6
+                     else: pot_val = 5
+
+                 # 2. Calculate Ratings from Rookie Season
+                 rating_val = 3
+                 attrs = {k: 3 for k in ["shooting_inside", "shooting_mid", "shooting_3pt", "defense", "rebounding", "passing"]}
+                 
+                 if stats_found and season_df is not None and not season_df.empty:
+                     rookie = season_df.iloc[0] # First season
+                     rgp = rookie['GP']
+                     if rgp > 0:
+                        r_pts = rookie['PTS'] / rgp
+                        r_reb = rookie['REB'] / rgp
+                        r_ast = rookie['AST'] / rgp
+                        r_stl = rookie['STL'] / rgp
+                        r_blk = rookie['BLK'] / rgp
+                        
+                        # Simple mapping
+                        attrs['shooting_inside'] = min(10, int(r_pts / 2.5))
+                        attrs['shooting_mid'] = min(10, int(r_pts / 3.0))
+                        attrs['shooting_3pt'] = min(10, int(r_pts / 4.0)) # Crude
+                        attrs['defense'] = min(10, int((r_stl + r_blk) * 3))
+                        attrs['rebounding'] = min(10, int(r_reb * 1.5))
+                        attrs['passing'] = min(10, int(r_ast * 2.0))
+                        
+                        avg_attr = sum(attrs.values()) / 6
+                        rating_val = int(avg_attr)
                  
                  p = structs.Player(
-                     id=int(row['PERSON_ID']), tid=-1, # -1 for FA/Draft
-                     fn=row['PLAYER_NAME'].split(" ")[0] if " " in row['PLAYER_NAME'] else row['PLAYER_NAME'], 
-                     ln=" ".join(row['PLAYER_NAME'].split(" ")[1:]) if " " in row['PLAYER_NAME'] else "",
-                     age=20, # Default rookie age
-                     ht=78, # Default 6'6"
-                     wt=210, 
-                     pos=3, # Default Wing
-                     ctry=0, # Default USA
-                     rating=int(rating_base), 
-                     pot=int(pot_base),
+                     id=pid, tid=-1, 
+                     fn=p_name.split(" ")[0] if " " in p_name else p_name, 
+                     ln=" ".join(p_name.split(" ")[1:]) if " " in p_name else "",
+                     age=20, 
+                     ht=78, wt=210, pos=3, ctry=0, 
+                     rating=rating_val, 
+                     pot=pot_val,
                      appearance=1,
                      attributes=attrs,
-                     stats={} # No pro stats yet
+                     stats={} 
                  )
                  draft_players.append(p)
                  
