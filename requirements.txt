@@ -1,0 +1,7 @@
+nba_api
+sqlalchemy
+requests
+opencv-python-headless
+numpy
+pytest
+python-dotenv
