@@ -19,18 +19,14 @@ class DataRepository:
         player = self.session.query(Player).filter_by(source_id=str(source_id), league=league, season=season).first()
         if player:
             return player
-
-        # Fetch from API
-        if league == 'NBA':
-            # This is tricky because NBA API fetches lists, not single players easily by ID for stats
-            # Implementation detail: we might need to fetch the whole league and cache it, 
-            # or just fetch the roster. 
-            # For this MVP, let's assume we are calling this as part of a bulk load or we implement a fetch.
-            pass
-        elif league == 'NCAA':
-            pass
-            
         return None
+
+    def sync_ncaa_season_stats(self, season='2023'):
+        logger.info(f"Syncing NCAA stats for {season} (Stub)")
+        # Implement fetching from self.espn_client.get_all_teams()
+        # and then iterating to get rosters.
+        # For now, this is a placeholder to prevent crashes.
+        pass
 
 
     def sync_nba_season_stats(self, season='2023-24'):
@@ -38,6 +34,15 @@ class DataRepository:
         Fetches all NBA player stats for the season and updates the DB.
         """
         logger.info(f"Fetching NBA league stats for season {season}")
+        print(f"Fetching NBA stats for {season}...")
+        
+        # Optimization: Check if data already exists
+        existing_count = self.session.query(Player).filter_by(season=season, league='NBA').count()
+        if existing_count > 400:
+            logger.info(f"Data for {season} already exists ({existing_count} players). Skipping sync.")
+            print(f"Data exists ({existing_count} players). Skipping sync.")
+            return
+
         try:
             df = self.nba_client.get_league_stats(season=season)
         except Exception as e:
@@ -46,9 +51,14 @@ class DataRepository:
 
         count = 0
         new_count = 0
-        logger.info(f"Processing {len(df)} players from API...")
+        total = len(df)
+        logger.info(f"Processing {total} players from API...")
+        print(f"Processing {total} players...")
         
         for index, row in df.iterrows():
+            if index % 50 == 0:
+                print(f"Processed {index}/{total} players...")
+            
             player_id = str(row['PLAYER_ID'])
             player = self.session.query(Player).filter_by(source_id=player_id, league='NBA', season=season).first()
             
@@ -73,7 +83,78 @@ class DataRepository:
         self.session.commit()
         logger.info(f"Sync complete. Processed {count} players. Added {new_count} new players.")
     
-    def backfill_appearance(self, cv_engine_func):
+    def sync_nba_roster_data(self, season='2023-24'):
+        """
+        Fetches roster data (Age, Height, Weight, Pos, Country) for all teams and merges into player.raw_stats.
+        """
+        import time 
+        logger.info(f"Syncing NBA roster metadata for {season}...")
+        print(f"Syncing Roster Metadata for {season}...")
+
+        # 1. Get unique Team IDs from existing players
+        players = self.session.query(Player).filter_by(season=season, league='NBA').all()
+        team_ids = set()
+        for p in players:
+            if p.team_id:
+                team_ids.add(p.team_id)
+        
+        total_teams = len(team_ids)
+        logger.info(f"Found {total_teams} teams to sync rosters for.")
+        print(f"Found {total_teams} teams to sync.")
+
+        current = 0
+        for tid in team_ids:
+            current += 1
+            
+            # Optimization: Check if data already exists for at least one player on this team
+            sample_p = self.session.query(Player).filter_by(team_id=str(tid), season=season, league='NBA').first()
+            if sample_p and sample_p.raw_stats and 'ROSTER_POS' in sample_p.raw_stats:
+                # Using ROSTER_POS as a marker that sync happened
+                print(f"Skipping Team {tid} (Metadata exists)...")
+                continue
+                
+            print(f"Syncing Roster {current}/{total_teams} (TeamID: {tid})...")
+            try:
+                # Rate Limit Protection
+                time.sleep(1.0)
+                
+                # Fetch Roster
+                roster_df = self.nba_client.get_roster(team_id=int(tid), season=season)
+                
+                # Check for Country Key (Debug once)
+                if current == 1 and not roster_df.empty:
+                    keys = roster_df.columns.tolist()
+                    logger.info(f"Roster Keys: {keys}")
+                
+                # Update Players
+                for _, row in roster_df.iterrows():
+                    pid = str(row['PLAYER_ID'])
+                    # Find player in DB
+                    p = self.session.query(Player).filter_by(source_id=pid, season=season, league='NBA').first()
+                    if p:
+                        # Merge metadata into raw_stats
+                        meta = row.to_dict()
+                        current_stats = p.raw_stats if p.raw_stats else {}
+                        
+                        current_stats['ROSTER_AGE'] = meta.get('AGE')
+                        current_stats['ROSTER_HEIGHT'] = meta.get('HEIGHT')
+                        current_stats['ROSTER_WEIGHT'] = meta.get('WEIGHT')
+                        current_stats['ROSTER_POSITION'] = meta.get('POSITION')
+                        # Use ROSTER_POS as a completion marker
+                        current_stats['ROSTER_POS'] = meta.get('POSITION') 
+                        current_stats['ROSTER_COUNTRY'] = meta.get('BIRTH_COUNTRY', meta.get('COUNTRY', 'USA'))
+                        current_stats['ROSTER_SCHOOL'] = meta.get('SCHOOL', '')
+                        
+                        p.raw_stats = current_stats
+                
+                self.session.commit() 
+            
+            except Exception as e:
+                logger.error(f"Failed to sync roster for team {tid}: {e}")
+                print(f"Failed to sync Team {tid}: {e}. Continuing...")
+                self.session.rollback()
+        
+        print("Roster Metadata Sync Complete.")
         """
         Iterates over players with missing appearance data and fills it.
         """

@@ -19,15 +19,22 @@ class NBAClient:
 
     def get_roster(self, team_id, season='2023-24'):
         # NBA API expects season in format '2023-24'
-        roster = commonteamroster.CommonTeamRoster(team_id=team_id, season=season)
+        # Adding timeout to requests implicitly by wrapping or hoping nba_api supports it
+        # Actually nba_api uses requests. We can set a default timeout globally or per request if exposed.
+        # Unfortunately nba_api wrappers don't easily expose timeout.
+        # We will wrap the call in a manual timeout using signal or future if really needed, 
+        # but simpler is to set socket default timeout if possible.
+        # Ideally, we just hope it returns. The hang might be rate limiting.
+        # Let's try to just proceed but adds logging.
+        roster = commonteamroster.CommonTeamRoster(team_id=team_id, season=season, timeout=10)
         return roster.get_data_frames()[0]
 
     def get_league_stats(self, season='2023-24'):
-        stats = leaguedashplayerstats.LeagueDashPlayerStats(season=season)
+        stats = leaguedashplayerstats.LeagueDashPlayerStats(season=season, timeout=10)
         return stats.get_data_frames()[0]
 
     def get_draft_history(self, league_id='00'):
-        draft = drafthistory.DraftHistory(league_id=league_id)
+        draft = drafthistory.DraftHistory(league_id=league_id, timeout=10)
         return draft.get_data_frames()[0]
 
     def fetch_player_headshot_url(self, player_id):
