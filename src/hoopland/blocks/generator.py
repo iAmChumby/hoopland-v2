@@ -39,7 +39,8 @@ class Generator:
         # 3. Backfill Appearance
         logger.info("Backfilling appearance data...")
         try:
-             self.repo.backfill_appearance(appearance.get_skin_tone)
+             # Use advanced appearance analysis (Skin, Hair, Facial Hair)
+             self.repo.backfill_appearance(appearance.analyze_player_appearance)
         except Exception as e:
              logger.error(f"Failed to backfill appearance: {e}")
         
@@ -118,13 +119,25 @@ class Generator:
                 pot_bonus = max(0, (28 - age) / 2) if age > 0 else 0
                 avg_rating = sum(ratings.values()) / len(ratings) if ratings else 5
                 pot_val = min(10, int(round(avg_rating + pot_bonus)))
+                
+                # Appearance & Accessories
+                skin_val = app_data.get('skin_tone', 1)
+                hair_val = app_data.get('hair', 0)
+                beard_val = app_data.get('facial_hair', 0)
+                
+                # Map to Struct
+                acc_dict = {
+                    "hair": hair_val,
+                    "beard": beard_val
+                }
 
                 struct_player = structs.Player(
                     id=p.id, tid=int(tid),
                     fn=p.name.split(" ")[0] if " " in p.name else p.name,
                     ln=" ".join(p.name.split(" ")[1:]) if " " in p.name else "",
                     age=age, ht=ht_val, wt=wt_val, pos=pos_val, ctry=ctry_val, pot=pot_val,
-                    appearance=app_data.get('skin_tone', 1),
+                    appearance=skin_val,
+                    accessories=acc_dict,
                     stats=raw_stats, attributes=ratings
                 )
                 struct_roster.append(struct_player)

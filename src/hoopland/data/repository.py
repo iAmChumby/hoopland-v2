@@ -237,27 +237,15 @@ class DataRepository:
             try:
                 if p.league == 'NBA':
                     url = self.nba_client.fetch_player_headshot_url(p.source_id)
-                    skin_tone = cv_engine_func(url)
-                    p.appearance = {'skin_tone': skin_tone}
+                    # Returns dict {'skin_tone', 'hair', 'facial_hair'} by convention now
+                    appearance_data = cv_engine_func(url)
+                    
+                    # Ensure compatibility if func returns just int (legacy)
+                    if isinstance(appearance_data, int):
+                        appearance_data = {'skin_tone': appearance_data}
+                        
+                    p.appearance = appearance_data
                     self.session.commit() 
-                    logger.debug(f"Backfilled appearance for player {p.name}: {skin_tone}")
-            except Exception as e:
-                logger.error(f"Error backfilling appearance for player {p.name}: {e}")
-        """
-        Iterates over players with missing appearance data and fills it.
-        """
-        # Filter in python to be safe against DB JSON quirks
-        all_players = self.session.query(Player).all()
-        players = [p for p in all_players if not p.appearance or 'skin_tone' not in p.appearance]
-        
-        logger.info(f"Found {len(players)} players missing appearance data.")
-        for p in players:
-            try:
-                if p.league == 'NBA':
-                    url = self.nba_client.fetch_player_headshot_url(p.source_id)
-                    skin_tone = cv_engine_func(url)
-                    p.appearance = {'skin_tone': skin_tone}
-                    self.session.commit() # Commit proactively or batch it
-                    logger.debug(f"Backfilled appearance for player {p.name}: {skin_tone}")
+                    logger.debug(f"Backfilled appearance for player {p.name}: {appearance_data}")
             except Exception as e:
                 logger.error(f"Error backfilling appearance for player {p.name}: {e}")
