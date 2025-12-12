@@ -1,8 +1,8 @@
-
 from textual.app import ComposeResult
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Button, Static, Label
 from textual.containers import Container, Vertical
+
 
 class MainMenu(Screen):
     """The main menu screen."""
@@ -15,9 +15,9 @@ class MainMenu(Screen):
                 Button("Generate League File", id="btn_league", variant="primary"),
                 Button("Generate Draft Class", id="btn_draft", variant="primary"),
                 Button("Exit", id="btn_exit", variant="error"),
-                classes="menu_buttons"
+                classes="menu_buttons",
             ),
-            classes="main_menu_container"
+            classes="main_menu_container",
         )
         yield Footer()
 

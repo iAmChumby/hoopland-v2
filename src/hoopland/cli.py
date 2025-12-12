@@ -4,24 +4,37 @@ import sys
 import os
 from src.hoopland.blocks.generator import Generator
 
+# Ensure logs directory exists
+os.makedirs("logs", exist_ok=True)
+
 # Setup Logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler("logs/hoopland.log"),
+    ],
 )
 logger = logging.getLogger(__name__)
 
+
 def main():
     parser = argparse.ArgumentParser(description="Hoopland V2 Generator CLI")
-    parser.add_argument('--league', type=str, choices=['nba', 'ncaa', 'draft'], default='nba', help='Type of generation')
-    parser.add_argument('--year', type=str, required=True, help='Year to generate (e.g. 2003)')
-    parser.add_argument('--debug', action='store_true', help='Enable debug logging')
-    
+    parser.add_argument(
+        "--league",
+        type=str,
+        choices=["nba", "ncaa", "draft"],
+        default="nba",
+        help="Type of generation",
+    )
+    parser.add_argument(
+        "--year", type=str, required=True, help="Year to generate (e.g. 2003)"
+    )
+    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+
     args = parser.parse_args()
-    
+
     if args.debug:
         logging.getLogger().setLevel(logging.DEBUG)
         logger.debug("Debug mode enabled")
@@ -30,22 +43,22 @@ def main():
 
     try:
         generator = Generator()
-        
-        if args.league == 'nba':
+
+        if args.league == "nba":
             league = generator.generate_league(args.year)
             filename = f"NBA_{args.year}_League.txt"
-        elif args.league == 'draft':
+        elif args.league == "draft":
             league = generator.generate_draft_class(args.year)
             filename = f"NBA_{args.year}_Draft_Class.txt"
-        elif args.league == 'ncaa':
+        elif args.league == "ncaa":
             # Stub for now, will implement generator method next
-            if hasattr(generator, 'generate_ncaa_league'):
+            if hasattr(generator, "generate_ncaa_league"):
                 league = generator.generate_ncaa_league(args.year)
                 filename = f"NCAA_{args.year}_League.txt"
             else:
                 logger.error("NCAA generation not yet implemented in Generator.")
                 sys.exit(1)
-        
+
         # Save Output
         generator.to_json(league, filename)
         logger.info(f"Successfully generated {filename}")
@@ -53,6 +66,7 @@ def main():
     except Exception as e:
         logger.exception(f"Generation failed: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

@@ -4,6 +4,7 @@ from .stats.normalization import StatsConverter
 from .cv.appearance import get_skin_tone
 import json
 
+
 def refresh_nba_data():
     """
     Main workflow to sync NBA data and process it.
@@ -11,15 +12,16 @@ def refresh_nba_data():
     Session = init_db()
     session = Session()
     repo = DataRepository(session)
-    
+
     print("Syncing NBA season stats...")
     repo.sync_nba_season_stats()
-    
+
     print("Backfilling appearance data...")
     repo.backfill_appearance(get_skin_tone)
-    
+
     print("Data sync complete.")
     session.close()
+
 
 def export_player_json(player_name):
     """
@@ -29,20 +31,21 @@ def export_player_json(player_name):
     session = Session()
     # Simple query by name for demo
     from .db import Player
+
     player = session.query(Player).filter(Player.name.ilike(f"%{player_name}%")).first()
-    
+
     if not player:
         print(f"Player {player_name} not found.")
         return
-        
+
     ratings = StatsConverter.calculate_ratings(player.raw_stats)
-    
+
     output = {
         "name": player.name,
         "team": player.team_id,
         "appearance": player.appearance,
-        "attributes": ratings
+        "attributes": ratings,
     }
-    
+
     print(json.dumps(output, indent=2))
     session.close()

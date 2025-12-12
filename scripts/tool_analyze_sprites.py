@@ -1,9 +1,9 @@
-
 import os
 import cv2
 import glob
 
 IMAGE_DIR = r"c:\Users\73spi\mystuff\hoopland-v2\data\images"
+
 
 def analyze():
     files = glob.glob(os.path.join(IMAGE_DIR, "*.png"))
@@ -12,10 +12,10 @@ def analyze():
         if img is None:
             print(f"Failed to load {os.path.basename(f)}")
             continue
-        
+
         h, w = img.shape[:2]
         print(f"File: {os.path.basename(f)} | Size: {w}x{h}")
-        
+
         # Try to guess cell size
         # Hoop Land is 16-bit style. Char sprites might be ~32px?
         # Let's check common divisors
@@ -25,6 +25,7 @@ def analyze():
             if w % d == 0 and h % d == 0:
                 guesses.append(d)
         print(f"  > Possible cell sizes: {guesses}")
+
 
 if __name__ == "__main__":
     analyze()

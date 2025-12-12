@@ -33,13 +33,16 @@
                     "ln": "James",
                     "age": 0,
                     "ctry": 0,
-                    "ht": 0,
-                    "wt": 0,
-                    "pos": 0,
+                    "ht": 72,
+                    "wt": 200,
+                    "pos": 1,
                     "rating": 0,
-                    "pot": 0,
+                    "pot": 2,
                     "appearance": 8,
-                    "accessories": {},
+                    "accessories": {
+                        "hair": 0,
+                        "beard": 0
+                    },
                     "attributes": {
                         "shooting_inside": 1,
                         "shooting_mid": 1,

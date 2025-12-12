@@ -1,4 +1,3 @@
-
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer
 from .screens.home import MainMenu
@@ -8,10 +7,10 @@ import logging
 
 # Configure logging
 logging.basicConfig(
-    filename='hoopland.log',
+    filename="hoopland.log",
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    filemode='w'
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    filemode="w",
 )
 
 
@@ -98,6 +97,7 @@ class HooplandApp(App):
 
     def on_mount(self) -> None:
         self.push_screen(MainMenu())
+
 
 if __name__ == "__main__":
     app = HooplandApp()

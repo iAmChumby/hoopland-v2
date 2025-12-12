@@ -1,5 +1,6 @@
 import requests
 
+
 class ESPNClient:
     BASE_URL = "http://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball"
 
@@ -10,7 +11,7 @@ class ESPNClient:
         # This is a simplification. The ESPN API often requires traversing from a list of teams.
         # For now, let's assume we can fetch by team ID if known, or we iterate teams.
         # The spec mentions: "Fetch team rosters which include player stats in the JSON payload."
-        
+
         # Example: Fetching a specific team's roster
         url = f"{self.BASE_URL}/teams/{team_id_or_slug}/roster"
         resp = requests.get(url)
@@ -26,9 +27,9 @@ class ESPNClient:
             return []
         data = resp.json()
         teams = []
-        if 'sports' in data:
-            for sport in data['sports']:
-                for league in sport['leagues']:
-                    for team in league['teams']:
-                        teams.append(team['team'])
+        if "sports" in data:
+            for sport in data["sports"]:
+                for league in sport["leagues"]:
+                    for team in league["teams"]:
+                        teams.append(team["team"])
         return teams
