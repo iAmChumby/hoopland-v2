@@ -3,18 +3,16 @@ import logging
 import sys
 import os
 from src.hoopland.blocks.generator import Generator
+from src.hoopland.logger import setup_logger
 
-# Ensure logs directory exists
-os.makedirs("logs", exist_ok=True)
+# Ensure logs directory exists (handled by logger now, but keeping for safety if needed before logger init)
+# os.makedirs("logs", exist_ok=True) 
 
-# Setup Logging
+# Initial basic setup for stdout before args are parsed
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler("logs/hoopland.log"),
-    ],
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
@@ -39,6 +37,9 @@ def main():
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
 
     args = parser.parse_args()
+
+    # Setup file logging based on arguments
+    setup_logger(mode=args.league, year=args.year)
 
     if args.debug:
         logging.getLogger().setLevel(logging.DEBUG)

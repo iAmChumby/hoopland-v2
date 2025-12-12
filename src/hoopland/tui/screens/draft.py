@@ -6,6 +6,7 @@ from textual.containers import Container, Vertical, Horizontal
 from textual import work
 from ...blocks.generator import Generator
 from ..logging_handler import TextualLogHandler
+from ...logger import setup_logger
 import logging
 
 
@@ -62,6 +63,7 @@ class DraftConfig(Screen):
             self.notify, f"Generating Draft Class for {year}...", title="Status"
         )
         try:
+            setup_logger(mode="Draft", year=year)
             gen = Generator()
             league = gen.generate_draft_class(year)
 

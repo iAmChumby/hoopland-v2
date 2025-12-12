@@ -5,12 +5,11 @@ from .screens.league import LeagueConfig
 from .screens.draft import DraftConfig
 import logging
 
-# Configure logging
+# Configure logging - Initial setup for TUI (no file yet)
 logging.basicConfig(
-    filename="hoopland.log",
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    filemode="w",
+    handlers=[], # Handlers will be added by Textual or screens
 )
 
 

@@ -6,6 +6,7 @@ from textual.containers import Container, Vertical, Horizontal
 from textual import work
 from ...blocks.generator import Generator
 from ..logging_handler import TextualLogHandler
+from ...logger import setup_logger
 import logging
 
 
@@ -62,6 +63,13 @@ class LeagueConfig(Screen):
             self.notify, f"Generating League for {year}...", title="Status"
         )
         try:
+            # Setup logging for this run
+            # Note: We need to ensure the textual handler stays attached or is re-added
+            # The setup_logger clears FileHandlers but shouldn't touch StreamHandlers/Custom handlers attached to root
+            # BUT TextualLogHandler is attached to root.
+            # Let's import setup_logger inside the method or at top level
+            setup_logger(mode="NBA", year=year)
+            
             gen = Generator()
             league = gen.generate_league(year)
 
