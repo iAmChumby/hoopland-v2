@@ -166,7 +166,8 @@ class Generator:
                 # Potential
                 pot_bonus = max(0, (28 - age) / 2) if age > 0 else 0
                 avg_rating = sum(ratings.values()) / len(ratings) if ratings else 5
-                pot_val = min(10, int(round(avg_rating + pot_bonus)))
+                # Boost potential: Base + Bonus + 2 (Skew), Min 5 (2.5 stars)
+                pot_val = min(10, max(5, int(round(avg_rating + pot_bonus + 2))))
 
                 # Appearance & Accessories
                 skin_val = app_data.get("skin_tone", 1)
@@ -551,23 +552,25 @@ class Generator:
             eff = raw.get("CAREER_EFF", 0)
 
             # Calculate potential from career performance
+            # Calculate potential from career performance
             if gp > 0:
-                if eff > 35:
+                # Skewed thresholds for generous potential
+                if eff > 26:        # Was 35
                     pot_val = 10
-                elif eff > 25:
+                elif eff > 20:      # Was 25
                     pot_val = 9
-                elif eff > 20:
+                elif eff > 16:      # Was 20
                     pot_val = 8
-                elif eff > 15:
+                elif eff > 12:      # Was 15
                     pot_val = 7
-                elif eff > 10:
+                elif eff > 8:       # Was 10
                     pot_val = 6
-                elif eff > 5:
+                elif eff > 4:       # Was 5
                     pot_val = 5
                 elif gp > 100:
                     pot_val = 4
                 else:
-                    pot_val = 3
+                    pot_val = 4     # Bumped min from 3 to 4
             else:
                 # Fallback based on pick
                 if pick <= 5:

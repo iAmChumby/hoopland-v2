@@ -13,7 +13,7 @@ class TendencyRow(Horizontal):
     TendencyRow {
         height: auto;
         margin-bottom: 1;
-        align-y: center;
+        align: left middle;
     }
     TendencyRow Label {
         width: 40%;
