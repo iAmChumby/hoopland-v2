@@ -1,0 +1,88 @@
+{
+    "leagueName": "NBA 2004",
+    "shortName": "NBA",
+    "logoURL": "",
+    "logoSize": 0,
+    "leagueType": 0,
+    "meta": {
+        "saveName": "NBA 2004 Season",
+        "buildVersion": "1.0",
+        "uPID": "",
+        "uTID": "",
+        "uGID": "",
+        "dataType": "League",
+        "countryGeneration": 0,
+        "generatedCountries": 0,
+        "gender": 0,
+        "filesize": 0
+    },
+    "conferences": [],
+    "divisions": [],
+    "teams": [
+        {
+            "id": 101,
+            "city": "Cleveland",
+            "name": "Cavaliers",
+            "shortName": "CLE",
+            "abbrev": "",
+            "roster": [
+                {
+                    "id": 1,
+                    "tid": 101,
+                    "fn": "LeBron",
+                    "ln": "James",
+                    "age": 0,
+                    "ctry": 0,
+                    "ht": 72,
+                    "wt": 200,
+                    "pos": 1,
+                    "rating": 0,
+                    "pot": 2,
+                    "appearance": 8,
+                    "accessories": {
+                        "hair": 0,
+                        "beard": 0
+                    },
+                    "attributes": {
+                        "shooting_inside": 1,
+                        "shooting_mid": 1,
+                        "shooting_3pt": 1,
+                        "defense": 1,
+                        "rebounding": 3,
+                        "passing": 5
+                    },
+                    "skills": {},
+                    "tendencies": {},
+                    "stats": {
+                        "PTS": 25.0,
+                        "REB": 5.0,
+                        "AST": 6.0
+                    },
+                    "careerStats": [],
+                    "awards": [],
+                    "contract": {}
+                }
+            ],
+            "arenaName": "",
+            "logoURL": "",
+            "division": 0,
+            "teamColors": {},
+            "startingLineup": [],
+            "championships": 0,
+            "rnk": 0
+        }
+    ],
+    "freeAgents": [],
+    "draftClass": [],
+    "coaches": [],
+    "referee": {},
+    "commissioner": {},
+    "settings": {
+        "gameLength": 12,
+        "difficulty": 2
+    },
+    "rules": {},
+    "sliders": {},
+    "season": {},
+    "currentGame": null
+}

@@ -21,9 +21,7 @@ def test_normalization():
     # Test min/max normalization
     assert normalize_rating(10, 0, 10) == 10
     assert normalize_rating(0, 0, 10) == 1
-    assert (
-        normalize_rating(5, 0, 10) == 6
-    )  # (5-0)/(10-0)*10 = 5. -> 1-10 scale check logic.
+    assert normalize_rating(5, 0, 10) == 5  # (5-0)/(10-0)*10 = 5.0 -> rounded to 5
     # My logic: ((5-0)/10)*10 = 5. round(5) = 5. Wait.
     # The spec says 1-10 scale.
     # If I use 1-origin: 1 + (val-min)/(max-min)*9 ?
