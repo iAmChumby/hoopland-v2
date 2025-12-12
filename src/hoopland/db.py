@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, JSON
+from sqlalchemy import create_engine, Column, Integer, String, JSON, UniqueConstraint
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 Base = declarative_base()
@@ -6,9 +6,13 @@ Base = declarative_base()
 
 class Player(Base):
     __tablename__ = "players"
+    __table_args__ = (
+        # Allow same player in multiple seasons
+        UniqueConstraint("source_id", "season", "league", name="uq_player_season"),
+    )
 
     id = Column(Integer, primary_key=True)
-    source_id = Column(String, unique=True, nullable=False)  # NBA/ESPN ID
+    source_id = Column(String, nullable=False)  # NBA/ESPN ID (NOT unique alone)
     league = Column(String, nullable=False)  # 'NBA' or 'NCAA'
     season = Column(String, nullable=False)  # '2023-24'
     name = Column(String, nullable=False)

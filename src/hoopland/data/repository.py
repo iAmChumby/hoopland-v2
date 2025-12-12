@@ -115,36 +115,39 @@ class DataRepository:
     def sync_nba_season_stats(self, season="2023-24"):
         """
         Fetches all NBA player stats for the season and updates the DB.
+        Always fetches if season data is missing or incomplete.
         """
-        logger.info(f"Fetching NBA league stats for season {season}")
-        print(f"Fetching NBA stats for {season}...")
-
-        # Optimization: Check if data already exists
+        # Check if data already exists
         existing_count = (
             self.session.query(Player).filter_by(season=season, league="NBA").count()
         )
+        
         if existing_count > 400:
             logger.info(
-                f"Data for {season} already exists ({existing_count} players). Skipping sync."
+                f"Season {season} already cached ({existing_count} players). Skipping fetch."
             )
-            print(f"Data exists ({existing_count} players). Skipping sync.")
             return
+        
+        # New season or incomplete data - fetch from API
+        logger.info(f"Fetching NBA season {season} from API (not in cache)...")
 
         try:
             df = self.nba_client.get_league_stats(season=season)
         except Exception as e:
-            logger.error(f"Failed to fetch league stats from NBA API: {e}")
+            logger.error(f"Failed to fetch season {season} from NBA API: {e}")
             raise
 
-        count = 0
-        new_count = 0
         total = len(df)
-        logger.info(f"Processing {total} players from API...")
-        print(f"Processing {total} players...")
-
+        if total == 0:
+            logger.warning(f"NBA API returned 0 players for season {season}")
+            return
+            
+        logger.info(f"Processing {total} players for season {season}...")
+        
+        count = 0
         for index, row in df.iterrows():
-            if index % 50 == 0:
-                print(f"Processed {index}/{total} players...")
+            if index % 100 == 0 and index > 0:
+                logger.info(f"Processed {index}/{total} players for {season}...")
 
             player_id = str(row["PLAYER_ID"])
             player = (
@@ -173,7 +176,7 @@ class DataRepository:
 
         self.session.commit()
         logger.info(
-            f"Sync complete. Processed {count} players. Added {new_count} new players."
+            f"Season {season} sync complete: {count} players stored in database."
         )
 
     def sync_nba_roster_data(self, season="2023-24"):
@@ -183,7 +186,6 @@ class DataRepository:
         import time
 
         logger.info(f"Syncing NBA roster metadata for {season}...")
-        print(f"Syncing Roster Metadata for {season}...")
 
         # 1. Get unique Team IDs from existing players
         players = (
@@ -195,8 +197,7 @@ class DataRepository:
                 team_ids.add(p.team_id)
 
         total_teams = len(team_ids)
-        logger.info(f"Found {total_teams} teams to sync rosters for.")
-        print(f"Found {total_teams} teams to sync.")
+        logger.info(f"Found {total_teams} teams to sync rosters for season {season}.")
 
         current = 0
         for tid in team_ids:
@@ -210,10 +211,9 @@ class DataRepository:
             )
             if sample_p and sample_p.raw_stats and "ROSTER_POS" in sample_p.raw_stats:
                 # Using ROSTER_POS as a marker that sync happened
-                print(f"Skipping Team {tid} (Metadata exists)...")
                 continue
 
-            print(f"Syncing Roster {current}/{total_teams} (TeamID: {tid})...")
+            logger.info(f"Syncing roster {current}/{total_teams} (Team {tid})...")
             try:
                 # Rate Limit Protection
                 time.sleep(1.0)
@@ -258,7 +258,7 @@ class DataRepository:
             except Exception as e:
                 self.session.rollback()
 
-        print("Roster Metadata Sync Complete.")
+        logger.info(f"Roster metadata sync complete for {season}.")
 
     def backfill_appearance(self, cv_engine_func):
         """

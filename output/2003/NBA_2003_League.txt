@@ -140,8 +140,8 @@
                     "pot": 5,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 8,
@@ -340,8 +340,8 @@
                     "pot": 3,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -540,8 +540,8 @@
                     "pot": 2,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 19,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 2,
@@ -740,8 +740,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -840,8 +840,8 @@
                     "pot": 5,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 7,
@@ -940,8 +940,8 @@
                     "pot": 8,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -1240,8 +1240,8 @@
                     "pot": 4,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 17,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 1,
@@ -1340,8 +1340,8 @@
                     "pot": 6,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -1540,8 +1540,8 @@
                     "pot": 6,
                     "appearance": 4,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -1756,8 +1756,8 @@
                     "pot": 5,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -1956,8 +1956,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -2356,8 +2356,8 @@
                     "pot": 5,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 17,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -2456,8 +2456,8 @@
                     "pot": 5,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 19,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -2656,8 +2656,8 @@
                     "pot": 6,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -3472,8 +3472,8 @@
                     "pot": 1,
                     "appearance": 8,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 1,
@@ -3572,8 +3572,8 @@
                     "pot": 3,
                     "appearance": 8,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 2,
@@ -3972,8 +3972,8 @@
                     "pot": 6,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 17,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -4072,8 +4072,8 @@
                     "pot": 5,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 3,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -4272,8 +4272,8 @@
                     "pot": 7,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 7,
@@ -4372,8 +4372,8 @@
                     "pot": 3,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 3,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -4688,8 +4688,8 @@
                     "pot": 5,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -5388,8 +5388,8 @@
                     "pot": 5,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -5488,8 +5488,8 @@
                     "pot": 9,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 9,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 7,
@@ -5588,8 +5588,8 @@
                     "pot": 5,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 9,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 1,
@@ -5988,8 +5988,8 @@
                     "pot": 3,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -6404,8 +6404,8 @@
                     "pot": 2,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 17,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -6504,8 +6504,8 @@
                     "pot": 7,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -7004,8 +7004,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -7204,8 +7204,8 @@
                     "pot": 6,
                     "appearance": 4,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 7,
@@ -7404,8 +7404,8 @@
                     "pot": 5,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 8,
@@ -7504,8 +7504,8 @@
                     "pot": 5,
                     "appearance": 4,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 44,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -7704,8 +7704,8 @@
                     "pot": 3,
                     "appearance": 8,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -8020,8 +8020,8 @@
                     "pot": 5,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -8220,8 +8220,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 9,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -8320,8 +8320,8 @@
                     "pot": 6,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -8820,8 +8820,8 @@
                     "pot": 7,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -9020,8 +9020,8 @@
                     "pot": 4,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -10536,8 +10536,8 @@
                     "pot": 6,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -10836,8 +10836,8 @@
                     "pot": 2,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 9,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -10936,8 +10936,8 @@
                     "pot": 4,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 9,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -11136,8 +11136,8 @@
                     "pot": 6,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -11236,8 +11236,8 @@
                     "pot": 4,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -11352,8 +11352,8 @@
                     "pot": 4,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -12768,8 +12768,8 @@
                     "pot": 8,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -12868,8 +12868,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -12968,8 +12968,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 8,
@@ -13468,8 +13468,8 @@
                     "pot": 6,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -13668,8 +13668,8 @@
                     "pot": 2,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -13868,8 +13868,8 @@
                     "pot": 6,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -15484,8 +15484,8 @@
                     "pot": 5,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -15584,8 +15584,8 @@
                     "pot": 6,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -15684,8 +15684,8 @@
                     "pot": 3,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -15900,8 +15900,8 @@
                     "pot": 4,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -16300,8 +16300,8 @@
                     "pot": 8,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 7,
@@ -16400,8 +16400,8 @@
                     "pot": 4,
                     "appearance": 4,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -17816,8 +17816,8 @@
                     "pot": 4,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 7,
@@ -18116,8 +18116,8 @@
                     "pot": 5,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -18216,8 +18216,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -18932,8 +18932,8 @@
                     "pot": 4,
                     "appearance": 8,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -19032,8 +19032,8 @@
                     "pot": 7,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -19132,8 +19132,8 @@
                     "pot": 5,
                     "appearance": 4,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 19,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -19232,8 +19232,8 @@
                     "pot": 5,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 9,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -19832,8 +19832,8 @@
                     "pot": 5,
                     "appearance": 4,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -19932,8 +19932,8 @@
                     "pot": 3,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -20132,8 +20132,8 @@
                     "pot": 8,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -20348,8 +20348,8 @@
                     "pot": 5,
                     "appearance": 4,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 9,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -20548,8 +20548,8 @@
                     "pot": 2,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -20948,8 +20948,8 @@
                     "pot": 4,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -21248,8 +21248,8 @@
                     "pot": 5,
                     "appearance": 8,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -21764,8 +21764,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 7,
@@ -21864,8 +21864,8 @@
                     "pot": 6,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -22064,8 +22064,8 @@
                     "pot": 5,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -22564,8 +22564,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 2,
@@ -22864,8 +22864,8 @@
                     "pot": 3,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -23180,8 +23180,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -23580,8 +23580,8 @@
                     "pot": 2,
                     "appearance": 8,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 17,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -24480,8 +24480,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -24580,8 +24580,8 @@
                     "pot": 4,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -24696,8 +24696,8 @@
                     "pot": 4,
                     "appearance": 8,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -25096,8 +25096,8 @@
                     "pot": 5,
                     "appearance": 8,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -25696,8 +25696,8 @@
                     "pot": 5,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -25796,8 +25796,8 @@
                     "pot": 5,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -25896,8 +25896,8 @@
                     "pot": 4,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 19,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -26012,8 +26012,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -26312,8 +26312,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -26412,8 +26412,8 @@
                     "pot": 3,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -26512,8 +26512,8 @@
                     "pot": 7,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 7,
@@ -26712,8 +26712,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -26912,8 +26912,8 @@
                     "pot": 5,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 8,
@@ -27112,8 +27112,8 @@
                     "pot": 3,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -27212,8 +27212,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -27312,8 +27312,8 @@
                     "pot": 6,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -27428,8 +27428,8 @@
                     "pot": 5,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -28128,8 +28128,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -28328,8 +28328,8 @@
                     "pot": 6,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -28944,8 +28944,8 @@
                     "pot": 3,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -29144,8 +29144,8 @@
                     "pot": 5,
                     "appearance": 8,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -29444,8 +29444,8 @@
                     "pot": 5,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 9,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 8,
@@ -29544,8 +29544,8 @@
                     "pot": 3,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -29644,8 +29644,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -29944,8 +29944,8 @@
                     "pot": 5,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -30044,8 +30044,8 @@
                     "pot": 3,
                     "appearance": 8,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 19,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 1,
@@ -30144,8 +30144,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -30244,8 +30244,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -30344,8 +30344,8 @@
                     "pot": 7,
                     "appearance": 8,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 7,
@@ -30460,8 +30460,8 @@
                     "pot": 7,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -30760,8 +30760,8 @@
                     "pot": 4,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -30860,8 +30860,8 @@
                     "pot": 3,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -31460,8 +31460,8 @@
                     "pot": 5,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 8,
@@ -31976,8 +31976,8 @@
                     "pot": 6,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 17,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -32076,8 +32076,8 @@
                     "pot": 5,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -32376,8 +32376,8 @@
                     "pot": 3,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -32476,8 +32476,8 @@
                     "pot": 3,
                     "appearance": 8,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -32676,8 +32676,8 @@
                     "pot": 2,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -32776,8 +32776,8 @@
                     "pot": 4,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -32976,8 +32976,8 @@
                     "pot": 2,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -33276,8 +33276,8 @@
                     "pot": 6,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 9,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -33592,8 +33592,8 @@
                     "pot": 6,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 33,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -33792,8 +33792,8 @@
                     "pot": 6,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -33992,8 +33992,8 @@
                     "pot": 5,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 19,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -34092,8 +34092,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -34192,8 +34192,8 @@
                     "pot": 5,
                     "appearance": 8,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 7,
@@ -34492,8 +34492,8 @@
                     "pot": 6,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 33,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -34592,8 +34592,8 @@
                     "pot": 6,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 9,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -34792,8 +34792,8 @@
                     "pot": 5,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -34908,8 +34908,8 @@
                     "pot": 4,
                     "appearance": 4,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 2,
@@ -35008,8 +35008,8 @@
                     "pot": 4,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -35308,8 +35308,8 @@
                     "pot": 5,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -35908,8 +35908,8 @@
                     "pot": 6,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -36208,8 +36208,8 @@
                     "pot": 9,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 17,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 7,
@@ -36324,8 +36324,8 @@
                     "pot": 4,
                     "appearance": 8,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -36724,8 +36724,8 @@
                     "pot": 4,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -36824,8 +36824,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -36924,8 +36924,8 @@
                     "pot": 3,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -37124,8 +37124,8 @@
                     "pot": 6,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 9,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -37224,8 +37224,8 @@
                     "pot": 8,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 7,
@@ -37724,8 +37724,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -38340,8 +38340,8 @@
                     "pot": 8,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -38740,8 +38740,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 9,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -38840,8 +38840,8 @@
                     "pot": 6,
                     "appearance": 8,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 9,
@@ -39256,8 +39256,8 @@
                     "pot": 4,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -39456,8 +39456,8 @@
                     "pot": 4,
                     "appearance": 8,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 6,
@@ -39756,8 +39756,8 @@
                     "pot": 6,
                     "appearance": 4,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -40156,8 +40156,8 @@
                     "pot": 3,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -40256,8 +40256,8 @@
                     "pot": 2,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -40356,8 +40356,8 @@
                     "pot": 7,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 7,
@@ -40456,8 +40456,8 @@
                     "pot": 8,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -40872,8 +40872,8 @@
                     "pot": 7,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -41472,8 +41472,8 @@
                     "pot": 6,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 19,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -41672,8 +41672,8 @@
                     "pot": 4,
                     "appearance": 5,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 5,
@@ -42188,8 +42188,8 @@
                     "pot": 9,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 5,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 10,
@@ -42288,8 +42288,8 @@
                     "pot": 2,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 11,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 3,
@@ -42388,8 +42388,8 @@
                     "pot": 4,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -42488,8 +42488,8 @@
                     "pot": 6,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 19,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 4,
@@ -42988,8 +42988,8 @@
                     "pot": 5,
                     "appearance": 7,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 18,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 2,
@@ -43188,8 +43188,8 @@
                     "pot": 9,
                     "appearance": 6,
                     "accessories": {
-                        "hair": 52,
-                        "beard": 0
+                        "hair": 7,
+                        "beard": 8
                     },
                     "attributes": {
                         "shooting_inside": 8,
