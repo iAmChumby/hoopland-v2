@@ -474,17 +474,21 @@ def detect_facial_hair(
         np.count_nonzero(chin_edges) / chin_skin_count if chin_skin_count > 0 else 0
     )
 
+    # Use chin_skin_count as a variety seed (different for each player's unique face)
+    variety_seed = chin_skin_count
+    
     # Combine metrics to classify facial hair density
-    return select_facial_hair_style(facial_hair_ratio, edge_ratio)
+    return select_facial_hair_style(facial_hair_ratio, edge_ratio, player_id=variety_seed)
 
 
-def select_facial_hair_style(dark_ratio: float, edge_ratio: float) -> int:
+def select_facial_hair_style(dark_ratio: float, edge_ratio: float, player_id: int = 0) -> int:
     """
     Select facial hair style based on detection metrics.
 
     Args:
         dark_ratio: Ratio of dark pixels in chin region
         edge_ratio: Ratio of edge pixels in chin region (texture)
+        player_id: Optional player ID for deterministic variety
 
     Returns:
         Facial hair style index (0-24)
@@ -495,15 +499,19 @@ def select_facial_hair_style(dark_ratio: float, edge_ratio: float) -> int:
     # Determine density classification
     # Weight edge ratio higher as beards have significant texture
     combined_score = dark_ratio * 0.4 + edge_ratio * 0.6
+    
+    # Log for debugging
+    logger.debug(f"Facial hair detection: dark={dark_ratio:.3f}, edge={edge_ratio:.3f}, combined={combined_score:.3f}")
 
-    # Adjusted thresholds based on NBA player testing
-    if combined_score < 0.01:
+    # FIXED THRESHOLDS - more conservative to prevent over-classification
+    # Most NBA players have some edge texture even without beards
+    if combined_score < 0.02:
         density = "none"
-    elif combined_score < 0.03:
+    elif combined_score < 0.05:
         density = "stubble"
-    elif combined_score < 0.06:
-        density = "goatee"
     elif combined_score < 0.10:
+        density = "goatee"
+    elif combined_score < 0.18:
         density = "beard"
     else:
         density = "full_beard"
@@ -511,10 +519,17 @@ def select_facial_hair_style(dark_ratio: float, edge_ratio: float) -> int:
     # Get styles for this density
     candidates = fh_index.get(density, [0])
 
-    if candidates:
-        return candidates[0]  # Return first match for consistency
+    if not candidates:
+        return 0  # Clean shaven fallback
 
-    return 0  # Clean shaven fallback
+    # ADD VARIETY: Use player_id to deterministically select from candidates
+    # This ensures the same player always gets the same style, but different
+    # players get different styles within the same density category
+    if len(candidates) > 1:
+        selection_index = player_id % len(candidates)
+        return candidates[selection_index]
+    
+    return candidates[0]
 
 
 def detect_accessory(img: np.ndarray, h: int, w: int, mask_skin: np.ndarray) -> int:
