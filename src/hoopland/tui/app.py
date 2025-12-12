@@ -3,6 +3,8 @@ from textual.widgets import Header, Footer
 from .screens.home import MainMenu
 from .screens.league import LeagueConfig
 from .screens.draft import DraftConfig
+from .screens.ncaa import NCAAConfig
+from .screens.editor import EditorScreen
 import logging
 
 # Configure logging - Initial setup for TUI (no file yet)
@@ -134,11 +136,127 @@ class HooplandApp(App):
         background: $panel;
         color: $text;
     }
+
+    /* ============================================
+       Home Screen Layout
+       ============================================ */
+    
+    .home-layout {
+        layout: horizontal;
+        height: 1fr;
+        width: 100%;
+    }
+    
+    .home-actions {
+        width: 1fr;
+        min-width: 25;
+        max-width: 40;
+        height: 100%;
+        padding: 2;
+        border-right: solid $accent;
+    }
+    
+    .home-recent {
+        width: 2fr;
+        min-width: 35;
+        height: 100%;
+        padding: 2;
+    }
+    
+    .recent-list {
+        height: 1fr;
+        border: solid $accent;
+        background: $surface;
+        margin: 1 0;
+    }
+    
+    .section-header {
+        text-style: bold;
+        margin: 1 0;
+        color: $text-muted;
+    }
+    
+    .spacer {
+        height: 1;
+    }
+    
+    /* ============================================
+       Switch/Toggle Styles
+       ============================================ */
+    
+    .switch-row {
+        height: auto;
+        margin: 1 0;
+        align: left middle;
+    }
+    
+    .switch-label {
+        margin-left: 1;
+    }
+
+    /* ============================================
+       Editor Screen Layout
+       ============================================ */
+    
+    .editor-layout {
+        layout: horizontal;
+        height: 1fr;
+        width: 100%;
+    }
+    
+    .editor-sidebar {
+        width: 1fr;
+        min-width: 25;
+        max-width: 40;
+        height: 100%;
+        padding: 1;
+        border-right: solid $accent;
+    }
+    
+    .editor-main {
+        width: 3fr;
+        min-width: 50;
+        height: 100%;
+        padding: 1;
+    }
+    
+    .file-list {
+        height: auto;
+        max-height: 10;
+        border: solid $accent;
+        background: $surface;
+        margin: 1 0;
+    }
+    
+    .team-list {
+        height: 1fr;
+        border: solid $accent;
+        background: $surface;
+        margin: 1 0;
+    }
+    
+    .player-table {
+        height: 1fr;
+        border: solid $accent;
+        background: $surface;
+    }
+    
+    .editor-buttons {
+        height: auto;
+        margin-top: 1;
+    }
+    
+    .editor-buttons Button {
+        width: 1fr;
+        margin: 0 1;
+    }
     """
 
     SCREENS = {
         "league_config": LeagueConfig,
         "draft_config": DraftConfig,
+        "ncaa_config": NCAAConfig,
+        "editor": EditorScreen,
     }
 
     def on_mount(self) -> None:

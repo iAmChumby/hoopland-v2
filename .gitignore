@@ -27,4 +27,5 @@ coverage/
 htmlcov/
 site/
 .pytest_cache/
-.coverage
+.coverage.**
+.coverage**
