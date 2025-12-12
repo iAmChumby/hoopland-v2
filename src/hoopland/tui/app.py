@@ -11,7 +11,49 @@ import logging
 # ... (logging setup remains)
 
 class HooplandApp(App):
-    # ... (CSS remains)
+    CSS = """
+    Screen {
+        align: center middle;
+    }
+    .main_menu_container {
+        width: 100%;
+        height: 100%;
+        border: thick $background 80%;
+        background: $surface;
+    }
+    .split-layout {
+        width: 100%;
+        height: 100%;
+    }
+    .left-panel {
+        width: 35%;
+        height: 100%;
+        padding: 2;
+    }
+    .right-panel {
+        width: 65%;
+        height: 100%;
+        border-left: solid $primary;
+        padding: 2;
+    }
+    .left-panel Button {
+        width: 100%;
+        margin-bottom: 1;
+    }
+    .section-header, .log_label {
+        text-align: center;
+        text-style: bold;
+        padding-bottom: 1;
+    }
+    .log_box {
+        height: 1fr;
+        border: solid $accent;
+    }
+    .copy_btn {
+        width: 100%;
+        margin-top: 1;
+    }
+    """
 
     SCREENS = {
         "league_config": LeagueConfig,

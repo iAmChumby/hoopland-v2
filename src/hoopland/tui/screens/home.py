@@ -9,6 +9,45 @@ from pathlib import Path
 class MainMenu(Screen):
     """The main menu screen with actions and recent runs."""
 
+    CSS = """
+    MainMenu {
+        align: center middle;
+    }
+    .main_menu_container {
+        width: 100%;
+        height: 100%;
+        border: thick $background 80%;
+        background: $surface;
+    }
+    .home-layout {
+        width: 100%;
+        height: 100%;
+    }
+    .home-actions {
+        width: 35%;
+        height: 100%;
+        padding: 2;
+    }
+    .home-recent {
+        width: 65%;
+        height: 100%;
+        border-left: solid $primary;
+        padding: 2;
+    }
+    Button {
+        width: 100%;
+        margin-bottom: 1;
+    }
+    .section-header {
+        text-align: center;
+        text-style: bold;
+        padding-bottom: 1;
+    }
+    .spacer {
+        height: 2;
+    }
+    """
+
     def compose(self) -> ComposeResult:
         yield Header()
         yield Container(
