@@ -20,6 +20,49 @@ class EditorScreen(Screen):
         ("ctrl+s", "save", "Save"),
     ]
 
+    CSS = """
+    EditorScreen {
+        height: 100%;
+        align: center middle;
+    }
+    .main_menu_container {
+        width: 100%;
+        height: 100%;
+        border: thick $background 80%;
+        background: $surface;
+    }
+    .editor-layout {
+        width: 100%;
+        height: 100%;
+    }
+    .editor-sidebar {
+        width: 30%;
+        height: 100%;
+        padding-right: 1;
+    }
+    .editor-main {
+        width: 70%;
+        height: 100%;
+        padding-left: 1;
+    }
+    .section-header {
+        text-style: bold;
+        padding-top: 1;
+    }
+    #file_list {
+        height: 10;
+        border: solid $primary;
+    }
+    #team_list {
+        height: 1fr;
+        border: solid $accent;
+    }
+    .player-table {
+        height: 1fr;
+        border: solid $primary;
+    }
+    """
+
     def __init__(self, file_path: str = None, **kwargs):
         super().__init__(**kwargs)
         self.file_path = file_path
