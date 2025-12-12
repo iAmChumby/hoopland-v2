@@ -218,15 +218,14 @@ class DataRepository:
         for tid in team_ids:
             current += 1
 
-            # Optimization: Check if data already exists for at least one player on this team
-            sample_p = (
-                self.session.query(Player)
-                .filter_by(team_id=str(tid), season=season, league="NBA")
-                .first()
-            )
-            if sample_p and sample_p.raw_stats and "ROSTER_POS" in sample_p.raw_stats:
-                # Using ROSTER_POS as a marker that sync happened
-                continue
+            # Removed optimization to ensure all players are updated even if some have data
+            # sample_p = (
+            #    self.session.query(Player)
+            #    .filter_by(team_id=str(tid), season=season, league="NBA")
+            #    .first()
+            # )
+            # if sample_p and sample_p.raw_stats and "ROSTER_POS" in sample_p.raw_stats:
+            #    continue
 
             logger.info(f"Syncing roster {current}/{total_teams} (Team {tid})...")
             try:
@@ -242,6 +241,7 @@ class DataRepository:
                     logger.info(f"Roster Keys: {keys}")
 
                 # Update Players
+                updates_count = 0
                 for _, row in roster_df.iterrows():
                     pid = str(row["PLAYER_ID"])
                     # Find player in DB
@@ -253,7 +253,8 @@ class DataRepository:
                     if p:
                         # Merge metadata into raw_stats
                         meta = row.to_dict()
-                        current_stats = p.raw_stats if p.raw_stats else {}
+                        # IMPORTANT: Create a COPY to ensure SQLAlchemy detects the change
+                        current_stats = dict(p.raw_stats) if p.raw_stats else {}
 
                         current_stats["ROSTER_AGE"] = meta.get("AGE")
                         current_stats["ROSTER_HEIGHT"] = meta.get("HEIGHT")
@@ -267,10 +268,13 @@ class DataRepository:
                         current_stats["ROSTER_SCHOOL"] = meta.get("SCHOOL", "")
 
                         p.raw_stats = current_stats
+                        updates_count += 1
 
                 self.session.commit()
+                logger.debug(f"Updated {updates_count} players for Team {tid}")
 
             except Exception as e:
+                logger.error(f"Failed to sync roster for team {tid}: {e}")
                 self.session.rollback()
 
         logger.info(f"Roster metadata sync complete for {season}.")
