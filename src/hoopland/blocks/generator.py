@@ -40,7 +40,9 @@ class Generator:
         logger.info("Backfilling appearance data...")
         try:
             # Use advanced appearance analysis (Skin, Hair, Facial Hair)
-            self.repo.backfill_appearance(appearance.analyze_player_appearance)
+            self.repo.backfill_appearance(
+                appearance.analyze_player_appearance, season=season_str, league="NBA"
+            )
         except Exception as e:
             logger.error(f"Failed to backfill appearance: {e}")
 
@@ -182,45 +184,143 @@ class Generator:
             meta=structs.Meta(saveName=f"NBA {year} Season", dataType="League"),
         )
 
-    def generate_ncaa_league(self, year: str) -> structs.League:
-        logger.info(f"Generating NCAA league for year: {year}")
-        # Sync NCAA Data
+    def generate_ncaa_league(self, year: str, tournament_mode: bool = False) -> structs.League:
+        mode_str = "Tournament (64 teams)" if tournament_mode else "Full"
+        logger.info(f"Generating NCAA league for year: {year} [{mode_str}]")
+
+        # 1. Sync NCAA Data (pass tournament mode for filtering)
+        team_ids = []
         try:
-            self.repo.sync_ncaa_season_stats(season=year)
+            team_ids = self.repo.sync_ncaa_season_stats(season=year, tournament_only=tournament_mode)
         except Exception as e:
             logger.error(f"Failed to sync NCAA stats: {e}")
 
-        # Fetch Players
-        players = self.session.query(Player).filter_by(season=year, league="NCAA").all()
+        # 2. Backfill Appearance
+        logger.info("Backfilling appearance data for NCAA players...")
+        try:
+            self.repo.backfill_appearance(
+                appearance.analyze_player_appearance, 
+                season=year, 
+                league="NCAA",
+                team_ids=team_ids if tournament_mode else None
+            )
+        except Exception as e:
+            logger.error(f"Failed to backfill appearance: {e}")
 
+        # 3. Fetch Players from DB
+        query = self.session.query(Player).filter_by(season=year, league="NCAA")
+        if tournament_mode and team_ids:
+            query = query.filter(Player.team_id.in_(team_ids))
+        players = query.all()
+        logger.info(f"Fetched {len(players)} NCAA players from database.")
+
+        # 4. Group by Team
         team_map = defaultdict(list)
         for p in players:
             team_map[p.team_id].append(p)
 
+        # Helper functions
+        def parse_height(h_str):
+            """Convert height string like '6' 9"' to inches"""
+            try:
+                if not h_str:
+                    return 72
+                # Handle formats: "6' 9\"", "6-9", etc.
+                h_str = str(h_str).replace('"', '').replace("'", '-')
+                if '-' in h_str:
+                    parts = h_str.split('-')
+                    ft = int(parts[0].strip())
+                    inches = int(parts[1].strip()) if len(parts) > 1 and parts[1].strip() else 0
+                    return ft * 12 + inches
+                return 72
+            except:
+                return 72
+
+        def parse_weight(w_str):
+            """Convert weight string like '250 lbs' to int"""
+            try:
+                if not w_str:
+                    return 200
+                return int(str(w_str).split()[0])
+            except:
+                return 200
+
+        def parse_position(pos_data):
+            """Convert position to int (1-5)"""
+            if not pos_data:
+                return 3
+            abbrev = pos_data.get("abbreviation", "") if isinstance(pos_data, dict) else str(pos_data)
+            abbrev = abbrev.upper()
+            if "C" in abbrev:
+                return 5
+            if "F" in abbrev:
+                return 4
+            if "G" in abbrev:
+                return 1 if "PG" in abbrev else 2
+            return 3
+
+        # 5. Build Teams
         league_teams = []
+        total_teams = len(team_map)
+        current_team = 0
+
         for tid, roster in team_map.items():
-            # Basic Team Logic for NCAA
+            current_team += 1
+            if current_team % 50 == 0:
+                logger.info(f"Building team {current_team}/{total_teams}...")
+
+            # Get team name from first player's raw_stats if available
+            team_name = f"Team {tid}"
+            team_abbrev = f"T{str(tid)[-3:]}"
+
+            # Build roster
             struct_roster = []
             for p in roster:
-                # Basic Player logic (similar to NBA but might have less data)
+                raw = p.raw_stats if p.raw_stats else {}
+                app_data = p.appearance if p.appearance else {}
+
+                # Parse player metadata from ESPN data
+                ht_val = parse_height(raw.get("displayHeight"))
+                wt_val = parse_weight(raw.get("displayWeight"))
+                pos_val = parse_position(raw.get("position"))
+
+                # Appearance & Accessories
+                skin_val = app_data.get("skin_tone", 1)
+                hair_val = app_data.get("hair", 0)
+                beard_val = app_data.get("facial_hair", 0)
+                acc_dict = {"hair": hair_val, "beard": beard_val}
+
+                # Default ratings for NCAA (college players)
+                rating_val = 5
+                pot_val = 7
+
                 struct_player = structs.Player(
                     id=p.id,
                     tid=int(tid),
-                    fn=p.name.split(" ")[0],
-                    ln=" ".join(p.name.split(" ")[1:]),
-                    rating=5,
-                    pot=7,  # Placeholder
+                    fn=p.name.split(" ")[0] if " " in p.name else p.name,
+                    ln=" ".join(p.name.split(" ")[1:]) if " " in p.name else "",
+                    age=20,
+                    ht=ht_val,
+                    wt=wt_val,
+                    pos=pos_val,
+                    ctry=0,
+                    rating=rating_val,
+                    pot=pot_val,
+                    appearance=skin_val,
+                    accessories=acc_dict,
                 )
                 struct_roster.append(struct_player)
 
             t = structs.Team(
                 id=int(tid),
-                city="College",
-                name=f"Team {tid}",
-                shortName=f"C{tid}",
+                city="",
+                name=team_name,
+                shortName=team_abbrev,
                 roster=struct_roster,
             )
             league_teams.append(t)
+
+        logger.info(f"NCAA league generation complete: {len(league_teams)} teams, {len(players)} players")
 
         return structs.League(
             leagueName=f"NCAA {year}",
@@ -361,7 +461,9 @@ class Generator:
         # Backfill appearance data for draft picks
         logger.info("Backfilling appearance data for draft picks...")
         try:
-            self.repo.backfill_appearance(appearance.analyze_player_appearance)
+            self.repo.backfill_appearance(
+                appearance.analyze_player_appearance, season=draft_season, league="NBA"
+            )
         except Exception as e:
             logger.error(f"Failed to backfill appearance: {e}")
 

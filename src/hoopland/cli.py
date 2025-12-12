@@ -31,6 +31,11 @@ def main():
     parser.add_argument(
         "--year", type=str, required=True, help="Year to generate (e.g. 2003)"
     )
+    parser.add_argument(
+        "--tournament",
+        action="store_true",
+        help="NCAA only: Limit to 64 tournament teams instead of full 362",
+    )
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
 
     args = parser.parse_args()
@@ -51,13 +56,10 @@ def main():
             league = generator.generate_draft_class(args.year)
             filename = f"NBA_{args.year}_Draft_Class.txt"
         elif args.league == "ncaa":
-            # Stub for now, will implement generator method next
-            if hasattr(generator, "generate_ncaa_league"):
-                league = generator.generate_ncaa_league(args.year)
-                filename = f"NCAA_{args.year}_League.txt"
-            else:
-                logger.error("NCAA generation not yet implemented in Generator.")
-                sys.exit(1)
+            tournament_mode = args.tournament
+            league = generator.generate_ncaa_league(args.year, tournament_mode=tournament_mode)
+            suffix = "_Tournament" if tournament_mode else ""
+            filename = f"NCAA_{args.year}{suffix}_League.txt"
 
         # Save Output
         generator.to_json(league, filename)

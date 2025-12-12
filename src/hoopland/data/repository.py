@@ -26,23 +26,35 @@ class DataRepository:
             return player
         return None
 
-    def sync_ncaa_season_stats(self, season="2023"):
+    def sync_ncaa_season_stats(self, season="2023", tournament_only=False):
         import time
 
-        logger.info(f"Syncing NCAA stats for {season}...")
-        print(f"Syncing NCAA stats for {season}...")
+        mode_str = "Tournament (64 teams)" if tournament_only else "Full"
+        logger.info(f"Syncing NCAA stats for {season} [{mode_str}]...")
 
         # 1. Fetch Teams
-        teams = self.espn_client.get_all_teams()
-        logger.info(f"Found {len(teams)} NCAA teams.")
-        print(f"Found {len(teams)} NCAA teams.")
+        all_teams = self.espn_client.get_all_teams()
+        logger.info(f"Found {len(all_teams)} total NCAA teams.")
+
+        # 2. Filter for tournament mode (top 64 teams by roster size or first 64)
+        if tournament_only:
+            # Note: ESP API doesn't provide rankings, so we take first 64 teams
+            # These are typically the major programs (alphabetically or by ID)
+            teams = all_teams[:64]
+            logger.info(f"Tournament mode: Limited to {len(teams)} teams.")
+        else:
+            teams = all_teams
 
         current = 0
         total = len(teams)
 
+        processed_team_ids = []
         for team in teams:
             current += 1
             tid = team.get("id")
+            if tid:
+                 processed_team_ids.append(str(tid))
+            
             slug = team.get("slug", tid)
             name = team.get("displayName", "Unknown")
 
@@ -55,9 +67,10 @@ class DataRepository:
             )
             if exists:
                 if current % 10 == 0:
-                    print(f"Skipping NCAA Team {current}/{total} (Data exists)...")
+                    pass
+                    # logger.info(f"Skipping NCAA Team {current}/{total} (Data exists)...")
                 continue
-
+            
             print(f"Syncing NCAA Team {current}/{total}: {name}...")
 
             try:
@@ -111,6 +124,8 @@ class DataRepository:
             except Exception as e:
                 logger.error(f"Failed to sync NCAA team {name}: {e}")
                 self.session.rollback()
+        
+        return processed_team_ids
 
     def sync_nba_season_stats(self, season="2023-24"):
         """
@@ -260,36 +275,66 @@ class DataRepository:
 
         logger.info(f"Roster metadata sync complete for {season}.")
 
-    def backfill_appearance(self, cv_engine_func):
+    def backfill_appearance(self, cv_engine_func, season=None, league=None, team_ids=None):
         """
         Iterates over players with missing appearance data and fills it.
+        Supports both NBA and NCAA players.
+        
+        Args:
+            cv_engine_func: Function to analyze player headshot
+            season: Optional season filter (e.g. '2024', 'draft-2003')
+            league: Optional league filter (e.g. 'NBA', 'NCAA')
+            team_ids: Optional list of team IDs to filter by
         """
-        # Filter in python to be safe against DB JSON quirks
-        all_players = self.session.query(Player).all()
+        # Build query with optional filters
+        query = self.session.query(Player)
+        if season:
+            query = query.filter_by(season=season)
+        if league:
+            query = query.filter_by(league=league)
+        if team_ids:
+            query = query.filter(Player.team_id.in_(team_ids))
+        
+        all_players = query.all()
         players = [
             p
             for p in all_players
             if not p.appearance or "skin_tone" not in p.appearance
         ]
 
-        logger.info(f"Found {len(players)} players missing appearance data.")
-        # print(f"Backfilling appearance for {len(players)} players...")
+        if not players:
+            return
 
-        for p in players:
+        logger.info(f"Found {len(players)} players missing appearance data.")
+
+        for i, p in enumerate(players):
+            if i % 50 == 0 and i > 0:
+                logger.info(f"Backfilled appearance for {i}/{len(players)} players...")
+
             try:
+                url = None
+                
                 if p.league == "NBA":
                     url = self.nba_client.fetch_player_headshot_url(p.source_id)
-                    # Returns dict {'skin_tone', 'hair', 'facial_hair'} by convention now
-                    appearance_data = cv_engine_func(url)
+                elif p.league == "NCAA":
+                    # NCAA headshot URL is stored in raw_stats from ESPN API
+                    raw = p.raw_stats if p.raw_stats else {}
+                    headshot = raw.get("headshot", {})
+                    url = headshot.get("href") if isinstance(headshot, dict) else None
+                
+                if not url:
+                    continue
 
-                    # Ensure compatibility if func returns just int (legacy)
-                    if isinstance(appearance_data, int):
-                        appearance_data = {"skin_tone": appearance_data}
+                appearance_data = cv_engine_func(url)
 
-                    p.appearance = appearance_data
-                    self.session.commit()
-                    logger.debug(
-                        f"Backfilled appearance for player {p.name}: {appearance_data}"
-                    )
+                # Ensure compatibility if func returns just int (legacy)
+                if isinstance(appearance_data, int):
+                    appearance_data = {"skin_tone": appearance_data}
+
+                p.appearance = appearance_data
+                self.session.commit()
+                logger.debug(
+                    f"Backfilled appearance for {p.name}: {appearance_data}"
+                )
             except Exception as e:
-                logger.error(f"Error backfilling appearance for player {p.name}: {e}")
+                logger.debug(f"Could not backfill appearance for {p.name}: {e}")
