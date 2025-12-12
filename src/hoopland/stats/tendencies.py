@@ -37,6 +37,8 @@ def calculate_derived_stats(stats: Dict[str, Any], height: int = 75) -> Dict[str
     tov_per_min = safe_div(tov, min_played)
     ft_rate = safe_div(fta, fga) # Free Throw Attempt Rate
     three_pa_per_min = safe_div(fg3a, min_played) # [NEW] Volume Metric
+    two_pa_per_min = safe_div(fga - fg3a, min_played) # [NEW] Mid-Range Volume
+    fta_per_min = safe_div(fta, min_played) # [NEW] FT Volume
     
     # Special composites
     # Dunk tendency proxy: High FG% + Height + Low 3P Rate
@@ -46,6 +48,8 @@ def calculate_derived_stats(stats: Dict[str, Any], height: int = 75) -> Dict[str
         'three_rate': three_rate,
         'three_pa_per_min': three_pa_per_min,
         'mid_rate': mid_rate,
+        'two_pa_per_min': two_pa_per_min,
+        'fta_per_min': fta_per_min,
         'ast_per_min': ast_per_min,
         'oreb_per_min': oreb_per_min,
         'dreb_per_min': dreb_per_min,
@@ -122,8 +126,14 @@ def generate_player_tendencies(
     t['threePoint'] = map_z_to_tendency(z_3pt_final, scalar=2.5)
     
     # 2. Two Point
-    z_2pt = get_z_score(ds['mid_rate'], 'mid_rate', distribution)
-    t['twoPoint'] = map_z_to_tendency(z_2pt, scalar=2.0)
+    # Blend Rate (% of shots 2s) and Volume (2PA/min)
+    z_2pt_rate = get_z_score(ds['mid_rate'], 'mid_rate', distribution)
+    z_2pt_vol = get_z_score(ds['two_pa_per_min'], 'two_pa_per_min', distribution)
+    
+    # Weight volume slightly more (60/40)
+    z_2pt_final = (z_2pt_rate * 0.4) + (z_2pt_vol * 0.6)
+    
+    t['twoPoint'] = map_z_to_tendency(z_2pt_final, scalar=2.0)
     
     # 3. Dunk
     z_dunk = get_z_score(ds['dunk_score'], 'dunk_score', distribution)
@@ -170,8 +180,14 @@ def generate_player_tendencies(
         t['cross'] += 2
         
     # 9. Aggression / Drawing Fouls
-    z_ft = get_z_score(ds['ft_rate'], 'ft_rate', distribution)
-    t['pumpFake'] = map_z_to_tendency(z_ft, scalar=2.0)
+    # Blend Rate (FTr) and Volume (FTA/min)
+    z_ft_rate = get_z_score(ds['ft_rate'], 'ft_rate', distribution)
+    z_ft_vol = get_z_score(ds['fta_per_min'], 'fta_per_min', distribution)
+    
+    # Equal weight for aggression/fakes
+    z_ft_final = (z_ft_rate * 0.5) + (z_ft_vol * 0.5)
+    
+    t['pumpFake'] = map_z_to_tendency(z_ft_final, scalar=2.0)
     t['takeCharge'] = 0 
     
     # 10. Fill others
