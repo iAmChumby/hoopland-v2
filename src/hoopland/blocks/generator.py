@@ -3,7 +3,7 @@ from ..models import structs
 from ..data import repository
 from ..db import init_db, Player
 from ..cv import appearance
-from ..stats import normalization
+from ..stats import normalization, tendencies
 from dataclasses import asdict
 import json
 import logging
@@ -55,6 +55,33 @@ class Generator:
 
         # 5. Group by Team
         team_map = defaultdict(list)
+        
+        # [NEW] Calculate League Distribution for Tendencies
+        print("Calculating league stat distribution...")
+        # Check if p is SQL Model or Struct. Line 51 says "fetched form database", so it's SQL Model.
+        # DB Model usually has .raw_stats attribute.
+        all_raw_stats_dicts = [p.raw_stats if p.raw_stats else {} for p in players]
+        
+        # We need derived stats for distribution
+        all_derived = []
+        for raw in all_raw_stats_dicts:
+            # Need height for derived stats (dunk score)
+            h_str = raw.get("ROSTER_HEIGHT", raw.get("HEIGHT", ""))
+            # Need to parse height here or inside loop? 
+            # Helper function parse_height is strictly defined inside loop currently.
+            # Let's extract parsing logic or duplicate briefly for this pre-pass.
+            # Simplified height parse for distribution
+            ht = 75
+            try:
+                if h_str and "-" in str(h_str):
+                    f, i = str(h_str).split("-")
+                    ht = int(f)*12 + int(i)
+            except: pass
+            
+            all_derived.append(tendencies.calculate_derived_stats(raw, height=ht))
+            
+        distribution = tendencies.calculate_distribution(all_derived)
+
         for p in players:
             team_map[p.team_id].append(p)
 
@@ -149,6 +176,14 @@ class Generator:
                 # Map to Struct
                 acc_dict = {"hair": hair_val, "beard": beard_val}
 
+                # Tendencies
+                tends = tendencies.generate_player_tendencies(
+                    stats=raw_stats,
+                    height=ht_val,
+                    position=pos_val,
+                    distribution=distribution
+                )
+
                 struct_player = structs.Player(
                     id=p.id,
                     tid=int(tid),
@@ -164,6 +199,7 @@ class Generator:
                     accessories=acc_dict,
                     stats=raw_stats,
                     attributes=ratings,
+                    tendencies=tends
                 )
                 struct_roster.append(struct_player)
 
@@ -487,8 +523,23 @@ class Generator:
         players = (
             self.session.query(Player)
             .filter_by(season=draft_season, league="NBA")
+            .filter_by(season=draft_season, league="NBA")
             .all()
         )
+        
+        # Calculate Distribution for Draft Class (Using their own stats? Or NBA Standards?)
+        # Draft prospects have college/international stats, so distributions might differ from NBA.
+        # But we want to map them to NBA tendencies. 
+        # Ideally we compare them to NBA distribution, but we don't have that loaded here easily unless we passed it.
+        # For now, let's self-reference the draft class distribution to find relative strengths.
+        all_raw_stats_dicts = [p.raw_stats if p.raw_stats else {} for p in players]
+        all_derived = []
+        for raw in all_raw_stats_dicts:
+            # Draft picks have default height 78 in Loop below?
+            # Actually line 565 hardcodes ht=78.
+            # Let's use 78 for now.
+            all_derived.append(tendencies.calculate_derived_stats(raw, height=78))
+        distribution = tendencies.calculate_distribution(all_derived)
 
         # Build draft class output
         draft_players = []
@@ -556,6 +607,14 @@ class Generator:
             beard_val = app_data.get("facial_hair", 0)
             acc_dict = {"hair": hair_val, "beard": beard_val}
 
+            # Tendencies
+            tends = tendencies.generate_player_tendencies(
+                stats=raw,
+                height=78, # Hardcoded in loop below
+                position=3, # Hardcoded below
+                distribution=distribution
+            )
+
             draft_player = structs.Player(
                 id=int(p.source_id),
                 tid=-1,
@@ -571,6 +630,7 @@ class Generator:
                 appearance=skin_val,
                 accessories=acc_dict,
                 attributes=attrs,
+                tendencies=tends
             )
             draft_players.append(draft_player)
 
