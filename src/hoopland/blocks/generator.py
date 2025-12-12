@@ -170,6 +170,9 @@ class Generator:
                 # Boost potential: Base + Bonus + 2 (Skew), Min 5 (2.5 stars)
                 pot_val = min(10, max(5, int(round(avg_rating + pot_bonus + 2))))
 
+                # Rating (Current Ability)
+                rating_val = int(round(avg_rating))
+
                 # Appearance & Accessories
                 skin_val = app_data.get("skin_tone", 1)
                 hair_val = app_data.get("hair", 0)
@@ -196,6 +199,7 @@ class Generator:
                     wt=wt_val,
                     pos=pos_val,
                     ctry=ctry_val,
+                    rating=rating_val,
                     pot=pot_val,
                     appearance=skin_val,
                     accessories=acc_dict,

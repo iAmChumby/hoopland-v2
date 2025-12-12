@@ -5,11 +5,13 @@ from textual.widgets import (
     DataTable, OptionList, Input
 )
 from .player_editor import PlayerEditorScreen
+from .modals import TeamSelectModal, ConfirmationModal
 from textual.widgets.option_list import Option
 from textual.containers import Container, Vertical, Horizontal
 from pathlib import Path
 import json
 import os
+import copy
 
 
 class EditorScreen(Screen):
@@ -57,10 +59,6 @@ class EditorScreen(Screen):
         height: 1fr;
         border: solid $accent;
     }
-    #team_list {
-        height: 1fr;
-        border: solid $accent;
-    }
     .player-table {
         height: 1fr;
         border: solid $primary;
@@ -69,6 +67,15 @@ class EditorScreen(Screen):
         width: 100%;
         margin-bottom: 1;
     }
+    .roster-controls {
+        height: auto;
+        padding-top: 1;
+        padding-bottom: 1;
+    }
+    .roster-controls Button {
+        width: 1fr;
+        margin-right: 1;
+    }
     """
 
     def __init__(self, file_path: str = None, **kwargs):
@@ -76,6 +83,7 @@ class EditorScreen(Screen):
         self.file_path = file_path
         self.data = None
         self.current_team_idx = 0
+        self.selected_player_idx = -1
         self.modified = False
         self.sort_reverse = False
         self.last_sort_col = None
@@ -92,6 +100,7 @@ class EditorScreen(Screen):
                     Label("Teams:", classes="section-header"),
                     Label("Teams:", classes="section-header"),
                     Button("Sort A-Z", id="btn_sort_teams", variant="default"),
+
                     OptionList(id="team_list", classes="team-list"),
                     classes="editor-sidebar",
                 ),
@@ -99,6 +108,13 @@ class EditorScreen(Screen):
                 Vertical(
                     Label("Players", id="team_name_label", classes="section-header"),
                     DataTable(id="player_table", classes="player-table"),
+                    Horizontal(
+                        Button("Add Player", id="btn_add_player", variant="success"),
+                        Button("Edit Player", id="btn_edit_player", variant="default", disabled=True),
+                        Button("Move Player", id="btn_move_player", variant="primary", disabled=True),
+                        Button("Delete Player", id="btn_del_player", variant="error", disabled=True),
+                        classes="roster-controls"
+                    ),
                     Horizontal(
                         Button("💾 Save Changes", id="btn_save", variant="success"),
                         Button("Back", id="btn_back", variant="primary"),
@@ -118,7 +134,9 @@ class EditorScreen(Screen):
         
         # Setup player table columns
         table = self.query_one("#player_table", DataTable)
-        table.add_columns("Name", "Pos", "Age", "Ht", "Wt", "Pot", "Skin", "Hair", "Beard")
+        cols = ["Name", "Pos", "Age", "Ht", "Wt", "Pot", "Skin", "Hair", "Beard"]
+        for col in cols:
+            table.add_column(col, key=col)
         table.cursor_type = "row"
         
         # If file_path was provided, load it
@@ -185,11 +203,12 @@ class EditorScreen(Screen):
             self._show_team(0)
 
     def _show_team(self, idx: int) -> None:
-        """Display players for a team."""
         if not self.data or idx >= len(self.data["teams"]):
             return
         
         self.current_team_idx = idx
+        self.selected_player_idx = -1
+        self._update_button_states()
         team = self.data["teams"][idx]
         
         # Update header
@@ -283,33 +302,19 @@ class EditorScreen(Screen):
                 pass
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
-        """Open player editor on row selection."""
-        if not self.data:
-            return
-
+        """Handle row selection."""
         row_key = event.row_key.value
         try:
             player_id = int(row_key)
         except ValueError:
             return
 
-        # Find player in current team
         team = self.data["teams"][self.current_team_idx]
-        player = None
-        player_idx = -1
-        
         for i, p in enumerate(team.get("roster", [])):
             if p.get("id") == player_id:
-                player = p
-                player_idx = i
+                self.selected_player_idx = i
+                self._update_button_states()
                 break
-        
-        if player:
-            screen = PlayerEditorScreen(
-                player_data=player,
-                on_save=lambda data: self._update_player(player_idx, data)
-            )
-            self.app.push_screen(screen)
 
     def _update_player(self, player_idx: int, new_data: dict) -> None:
         """Callback to update player data after editing."""
@@ -338,7 +343,131 @@ class EditorScreen(Screen):
                 self.data["teams"].sort(key=lambda x: f"{x.get('city', '')} {x.get('name', '')}".strip())
                 self._populate_teams()
                 self.notify("Teams sorted A-Z")
+        elif event.button.id == "btn_add_player":
+            self._on_add_player()
+        elif event.button.id == "btn_edit_player":
+            self._on_edit_player()
+        elif event.button.id == "btn_move_player":
+            self._on_move_player()
+        elif event.button.id == "btn_del_player":
+            self._on_delete_player()
 
+    def _update_button_states(self) -> None:
+        """Enable/disable buttons based on selection."""
+        has_sel = self.selected_player_idx >= 0
+        self.query_one("#btn_edit_player", Button).disabled = not has_sel
+        self.query_one("#btn_move_player", Button).disabled = not has_sel
+        self.query_one("#btn_del_player", Button).disabled = not has_sel
+        
+        # Add is always enabled if a team is selected
+        self.query_one("#btn_add_player", Button).disabled = False
+
+    def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
+        """Handle row selection."""
+        row_key = event.row_key.value
+        try:
+            player_id = int(row_key)
+        except ValueError:
+            return
+
+        team = self.data["teams"][self.current_team_idx]
+        for i, p in enumerate(team.get("roster", [])):
+            if p.get("id") == player_id:
+                self.selected_player_idx = i
+                self._update_button_states()
+                break
+
+    def _on_add_player(self):
+        """Create a new player."""
+        # Template for new player
+        new_player = {
+            "id": int(os.urandom(4).hex(), 16), # Random ID
+            "fn": "New",
+            "ln": "Player",
+            "pos": "1",
+            "age": "20",
+            "ht": "78",
+            "wt": "200",
+            "pot": "5",
+            "appearance": "1",
+            "accessories": {"hair": "0", "beard": "0", "headAcc": "0"},
+            "attributes": {},
+            "tendencies": {}
+        }
+        
+        def on_save(data):
+            if not self.data: return
+            team = self.data["teams"][self.current_team_idx]
+            if "roster" not in team:
+                team["roster"] = []
+            team["roster"].append(data)
+            self.modified = True
+            self._show_team(self.current_team_idx)
+            self.notify("Player added")
+
+        self.app.push_screen(PlayerEditorScreen(new_player, on_save=on_save))
+
+    def _on_edit_player(self):
+        """Edit selected player."""
+        if self.selected_player_idx < 0: return
+        
+        team = self.data["teams"][self.current_team_idx]
+        player = team["roster"][self.selected_player_idx]
+        
+        self.app.push_screen(PlayerEditorScreen(
+            player_data=player,
+            on_save=lambda data: self._update_player(self.selected_player_idx, data)
+        ))
+
+    def _on_delete_player(self):
+        """Delete selected player."""
+        if self.selected_player_idx < 0: return
+
+        def do_delete():
+            team = self.data["teams"][self.current_team_idx]
+            player = team["roster"].pop(self.selected_player_idx)
+            self.modified = True
+            
+            # Reset selection
+            self.selected_player_idx = -1
+            self._update_button_states()
+            
+            self._show_team(self.current_team_idx)
+            self.notify(f"Deleted {player.get('fn')} {player.get('ln')}")
+
+        self.app.push_screen(ConfirmationModal("Are you sure you want to delete this player?", do_delete))
+
+    def _on_move_player(self):
+        """Move selected player to another team."""
+        if self.selected_player_idx < 0: return
+        
+        def do_move(target_team_idx):
+            if target_team_idx == self.current_team_idx: return
+            
+            # Remove from current
+            source_team = self.data["teams"][self.current_team_idx]
+            player = source_team["roster"].pop(self.selected_player_idx)
+            
+            # Add to target
+            target_team = self.data["teams"][target_team_idx]
+            if "roster" not in target_team:
+                target_team["roster"] = []
+            target_team["roster"].append(player)
+            
+            self.modified = True
+            self.selected_player_idx = -1
+            self._update_button_states()
+            self._show_team(self.current_team_idx)
+            
+            target_name = target_team.get("name", "Target Team")
+            self.notify(f"Moved player to {target_name}")
+
+        self.app.push_screen(TeamSelectModal(
+            teams=self.data["teams"],
+            current_team_idx=self.current_team_idx,
+            on_select=do_move
+        ))
+        
     def _save_file(self) -> None:
         """Save changes back to file."""
         if not self.file_path or not self.data:
@@ -346,8 +475,8 @@ class EditorScreen(Screen):
             return
         
         try:
-            with open(self.file_path, "w", encoding="utf-8") as f:
-                json.dump(self.data, f, indent=4)
+            from ...blocks.formatter import save_compact_json
+            save_compact_json(self.data, self.file_path)
             self.modified = False
             self.notify(f"Saved: {Path(self.file_path).name}", severity="information")
         except Exception as e:
