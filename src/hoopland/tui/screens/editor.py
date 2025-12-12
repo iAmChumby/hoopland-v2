@@ -4,6 +4,7 @@ from textual.widgets import (
     Header, Footer, Button, Static, Label, 
     DataTable, OptionList, Input
 )
+from .player_editor import PlayerEditorScreen
 from textual.widgets.option_list import Option
 from textual.containers import Container, Vertical, Horizontal
 from pathlib import Path
@@ -201,11 +202,11 @@ class EditorScreen(Screen):
                 break
         
         if player:
-            self.app.push_screen(
-                "player_editor", 
+            screen = PlayerEditorScreen(
                 player_data=player,
                 on_save=lambda data: self._update_player(player_idx, data)
             )
+            self.app.push_screen(screen)
 
     def _update_player(self, player_idx: int, new_data: dict) -> None:
         """Callback to update player data after editing."""
