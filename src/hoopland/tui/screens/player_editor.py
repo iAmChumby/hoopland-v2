@@ -73,12 +73,41 @@ class PlayerEditorScreen(ModalScreen):
     
     TabPane {
         padding: 1;
+        height: 1fr;
+    }
+
+    ScrollableContainer {
+        height: 100%;
+        overflow-y: auto;
     }
 
     .label {
         padding-top: 1;
         width: 100%;
+        color: $text;
     }
+    
+    Input {
+        width: 100%;
+        height: 3;
+        border: tall $primary;
+        background: $boost;
+        margin-bottom: 1;
+    }
+
+    Select {
+        width: 100%;
+        height: 3;
+        border: tall $primary;
+        background: $boost;
+        margin-bottom: 1;
+    }
+
+    .grid-row {
+        height: auto;
+        padding-bottom: 1;
+    }
+
     
     .input {
         width: 100%;
@@ -94,6 +123,12 @@ class PlayerEditorScreen(ModalScreen):
         layout: grid;
         grid-size: 2;
         grid-gutter: 1;
+        grid-rows: auto;
+        height: auto;
+    }
+
+    .grid-2 > Vertical {
+        height: auto;
     }
 
     #buttons {
