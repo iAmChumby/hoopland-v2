@@ -40,18 +40,18 @@ class MainMenu(Screen):
         )
         yield Footer()
 
-    def on_mount(self) -> None:
+    async def on_mount(self) -> None:
         """Load recent runs when screen mounts."""
-        self._load_recent_runs()
+        await self._load_recent_runs()
 
-    def _load_recent_runs(self) -> None:
+    async def _load_recent_runs(self) -> None:
         """Scan output directory for recent generations."""
         list_view = self.query_one("#recent_runs", ListView)
-        list_view.clear()
+        await list_view.clear()
         
         output_dir = Path("output")
         if not output_dir.exists():
-            list_view.append(ListItem(Label("No generations yet"), id="empty"))
+            await list_view.append(ListItem(Label("No generations yet"), id="empty"))
             return
         
         # Find all .txt files (generated leagues/drafts)
@@ -85,15 +85,16 @@ class MainMenu(Screen):
             
             label = f"{icon} {f['year']} {file_type}"
             # Sanitize ID - Textual IDs can't have dots or spaces
-            safe_id = f['name'].replace('.', '_').replace(' ', '_')
+            # Include year to avoid collisions if same filename exists in different years
+            safe_id = f"{f['year']}_{f['name']}".replace('.', '_').replace(' ', '_')
             item = ListItem(Label(label), id=f"file_{safe_id}")
             item.data = f["path"]  # Store path for later
-            list_view.append(item)
+            await list_view.append(item)
         
         if not files:
-            list_view.append(ListItem(Label("No generations yet"), id="empty"))
+            await list_view.append(ListItem(Label("No generations yet"), id="empty"))
 
-    def on_button_pressed(self, event: Button.Pressed) -> None:
+    async def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "btn_league":
             self.app.push_screen("league_config")
         elif event.button.id == "btn_ncaa":
@@ -103,7 +104,7 @@ class MainMenu(Screen):
         elif event.button.id == "btn_editor":
             self.app.push_screen("editor")
         elif event.button.id == "btn_refresh":
-            self._load_recent_runs()
+            await self._load_recent_runs()
             self.notify("Refreshed recent runs")
         elif event.button.id == "btn_exit":
             self.app.exit()
