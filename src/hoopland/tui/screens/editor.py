@@ -83,6 +83,8 @@ class EditorScreen(Screen):
         files = []
         for year_dir in output_dir.iterdir():
             if year_dir.is_dir():
+        for year_dir in output_dir.iterdir():
+            if year_dir.is_dir():
                 for f in year_dir.glob("*.txt"):
                     files.append({
                         "path": str(f),

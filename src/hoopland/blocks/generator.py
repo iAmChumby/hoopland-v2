@@ -4,6 +4,7 @@ from ..data import repository
 from ..db import init_db, Player
 from ..cv import appearance
 from ..stats import normalization, tendencies
+from .formatter import save_compact_json
 from dataclasses import asdict
 import json
 import logging
@@ -673,5 +674,4 @@ class Generator:
         os.makedirs(output_dir, exist_ok=True)
         filepath = os.path.join(output_dir, filename)
         data = asdict(league_obj)
-        with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=4)
+        save_compact_json(data, filepath)

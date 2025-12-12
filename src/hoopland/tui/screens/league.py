@@ -73,6 +73,7 @@ class LeagueConfig(Screen):
             gen = Generator()
             league = gen.generate_league(year)
 
+
             # Save to file
             filename = f"NBA_{year}_League.txt"
             gen.to_json(league, filename)
