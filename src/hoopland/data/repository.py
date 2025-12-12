@@ -144,7 +144,7 @@ class DataRepository:
             return
         
         # New season or incomplete data - fetch from API
-        logger.info(f"Fetching NBA season {season} from API (not in cache)...")
+        logger.info(f"[SYNC] Fetching NBA {season} player stats from API...")
 
         try:
             df = self.nba_client.get_league_stats(season=season)
@@ -157,12 +157,12 @@ class DataRepository:
             logger.warning(f"NBA API returned 0 players for season {season}")
             return
             
-        logger.info(f"Processing {total} players for season {season}...")
+        logger.info(f"[SYNC] Processing {total} NBA players for {season}...")
         
         count = 0
         for index, row in df.iterrows():
             if index % 100 == 0 and index > 0:
-                logger.info(f"Processed {index}/{total} players for {season}...")
+                logger.info(f"[SYNC] Processed {index}/{total} players...")
 
             player_id = str(row["PLAYER_ID"])
             player = (
@@ -191,7 +191,7 @@ class DataRepository:
 
         self.session.commit()
         logger.info(
-            f"Season {season} sync complete: {count} players stored in database."
+            f"[SYNC] Complete: {count} players stored for {season}."
         )
 
     def sync_nba_roster_data(self, season="2023-24"):
@@ -200,7 +200,7 @@ class DataRepository:
         """
         import time
 
-        logger.info(f"Syncing NBA roster metadata for {season}...")
+        logger.info(f"[SYNC] Fetching NBA roster metadata for {season}...")
 
         # 1. Get unique Team IDs from existing players
         players = (
@@ -227,7 +227,7 @@ class DataRepository:
             # if sample_p and sample_p.raw_stats and "ROSTER_POS" in sample_p.raw_stats:
             #    continue
 
-            logger.info(f"Syncing roster {current}/{total_teams} (Team {tid})...")
+            logger.info(f"[SYNC] Team {current}/{total_teams}: Fetching roster data...")
             try:
                 # Rate Limit Protection
                 time.sleep(1.0)
@@ -277,7 +277,7 @@ class DataRepository:
                 logger.error(f"Failed to sync roster for team {tid}: {e}")
                 self.session.rollback()
 
-        logger.info(f"Roster metadata sync complete for {season}.")
+        logger.info(f"[SYNC] Roster metadata complete for {season}.")
 
     def backfill_appearance(self, cv_engine_func, season=None, league=None, team_ids=None):
         """
@@ -307,13 +307,16 @@ class DataRepository:
         ]
 
         if not players:
+            logger.info("All players already have appearance data. Skipping CV analysis.")
             return
 
-        logger.info(f"Found {len(players)} players missing appearance data.")
+        total = len(players)
+        logger.info(f"[CV] Starting appearance analysis for {total} players...")
 
         for i, p in enumerate(players):
-            if i % 50 == 0 and i > 0:
-                logger.info(f"Backfilled appearance for {i}/{len(players)} players...")
+            # Progress update every 25 players
+            if i > 0 and i % 25 == 0:
+                logger.info(f"[CV] Progress: {i}/{total} players analyzed ({(i/total*100):.0f}%)")
 
             try:
                 url = None
@@ -327,7 +330,11 @@ class DataRepository:
                     url = headshot.get("href") if isinstance(headshot, dict) else None
                 
                 if not url:
+                    logger.info(f"[CV] Skipping {p.name} (no headshot URL)")
                     continue
+
+                # Verbose log before CV analysis
+                logger.info(f"[CV] Analyzing {p.name} ({p.league})...")
 
                 appearance_data = cv_engine_func(url)
 
@@ -337,8 +344,16 @@ class DataRepository:
 
                 p.appearance = appearance_data
                 self.session.commit()
-                logger.debug(
-                    f"Backfilled appearance for {p.name}: {appearance_data}"
-                )
+                
+                # Verbose log with appearance results
+                skin = appearance_data.get('skin_tone', '?')
+                hair = appearance_data.get('hair', '?')
+                beard = appearance_data.get('facial_hair', '?')
+                accessory = appearance_data.get('accessory', '?')
+                logger.info(f"[CV] {p.name}: skin={skin}, hair={hair}, beard={beard}, acc={accessory}")
+                
             except Exception as e:
-                logger.debug(f"Could not backfill appearance for {p.name}: {e}")
+                logger.warning(f"[CV] Could not analyze {p.name}: {e}")
+
+        logger.info(f"[CV] Appearance analysis complete for {total} players.")
+
