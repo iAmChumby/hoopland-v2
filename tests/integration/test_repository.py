@@ -10,6 +10,9 @@ import tempfile
 from hoopland.db import init_db, Player
 from hoopland.data.repository import DataRepository
 
+# Mark all tests in this module as slow
+pytestmark = pytest.mark.slow
+
 
 class TestRepositoryDatabaseIntegration:
     """Integration tests for repository database operations."""

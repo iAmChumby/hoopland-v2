@@ -172,8 +172,23 @@ def generator():
 # Test Markers Configuration
 # ============================================================================
 
+def pytest_addoption(parser):
+    """Add custom command line options."""
+    parser.addoption(
+        "--slow",
+        action="store_true",
+        default=False,
+        help="Include slow tests (integration/e2e tests that take a long time)"
+    )
+
 def pytest_configure(config):
-    """Register custom markers."""
+    """Register custom markers and handle --slow flag."""
     config.addinivalue_line("markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')")
     config.addinivalue_line("markers", "network: marks tests that require network access")
     config.addinivalue_line("markers", "database: marks tests that require database access")
+    
+    # If --slow flag is passed, remove the default '-m not slow' filter
+    if config.getoption("--slow"):
+        # Override the marker expression to include slow tests
+        config.option.markexpr = ""
+

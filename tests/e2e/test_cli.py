@@ -9,6 +9,9 @@ import os
 import json
 import glob
 
+# Mark ALL e2e tests as slow - they involve CLI execution and file I/O
+pytestmark = pytest.mark.slow
+
 
 class TestCLINBAGeneration:
     """E2E tests for NBA league generation via CLI."""

@@ -84,7 +84,9 @@ class MainMenu(Screen):
                 file_type = "League"
             
             label = f"{icon} {f['year']} {file_type}"
-            item = ListItem(Label(label), id=f"file_{f['name']}")
+            # Sanitize ID - Textual IDs can't have dots or spaces
+            safe_id = f['name'].replace('.', '_').replace(' ', '_')
+            item = ListItem(Label(label), id=f"file_{safe_id}")
             item.data = f["path"]  # Store path for later
             list_view.append(item)
         

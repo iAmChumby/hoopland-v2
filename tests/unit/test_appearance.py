@@ -197,6 +197,7 @@ class TestAppearanceDetection:
         assert result["accessory"] == 0
 
 
+@pytest.mark.slow
 @pytest.mark.integration
 class TestIntegrationAppearance:
     """Integration tests that hit the network."""
@@ -286,6 +287,7 @@ class TestFaceLandmarks:
         detector = face_landmarks.get_detector()
         assert detector is not None
 
+    @pytest.mark.slow
     @pytest.mark.integration
     def test_ear_visibility_short_hair(self):
         """
@@ -307,6 +309,7 @@ class TestFaceLandmarks:
         # For short hair, at least one ear should typically be visible
         assert left_vis or right_vis, "Expected at least one ear visible for short hair"
 
+    @pytest.mark.slow
     @pytest.mark.integration
     def test_ear_visibility_afro(self):
         """
@@ -331,6 +334,7 @@ class TestFaceLandmarks:
             left_vis and right_vis
         ), "Expected at least one ear covered for afro"
 
+    @pytest.mark.slow
     @pytest.mark.integration
     def test_forehead_boundary_detection(self):
         """Test that forehead boundary is detected correctly."""

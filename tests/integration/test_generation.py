@@ -8,6 +8,9 @@ import json
 import pytest
 from hoopland.blocks.generator import Generator
 
+# Mark all tests in this module as slow (network + database operations)
+pytestmark = pytest.mark.slow
+
 
 class TestNBALeagueGeneration:
     """Tests for NBA League generation."""

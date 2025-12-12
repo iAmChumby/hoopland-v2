@@ -21,6 +21,9 @@ from hoopland.cv.appearance import analyze_player_appearance
 
 class TestAppearanceConsistency:
     """Tests ensuring appearance analysis produces consistent results."""
+    
+    # These tests download images from remote URLs
+    pytestmark = pytest.mark.slow
 
     def test_same_input_produces_same_output(self):
         """
@@ -108,6 +111,9 @@ class TestAppearanceConsistency:
 
 class TestAppearanceEvolution:
     """Tests verifying appearance evolution mechanism across different inputs."""
+    
+    # These tests download images from remote URLs
+    pytestmark = pytest.mark.slow
 
     def test_different_players_different_appearances(self):
         """

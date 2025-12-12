@@ -9,6 +9,9 @@ import pytest
 from hoopland.data.repository import DataRepository
 from hoopland.data.nba_client import NBAClient
 
+# Mark all tests in this module as slow (NBA API calls)
+pytestmark = pytest.mark.slow
+
 
 @pytest.fixture
 def nba_client():
