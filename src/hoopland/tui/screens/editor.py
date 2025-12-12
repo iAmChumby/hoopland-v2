@@ -57,9 +57,17 @@ class EditorScreen(Screen):
         height: 1fr;
         border: solid $accent;
     }
+    #team_list {
+        height: 1fr;
+        border: solid $accent;
+    }
     .player-table {
         height: 1fr;
         border: solid $primary;
+    }
+    #btn_sort_teams {
+        width: 100%;
+        margin-bottom: 1;
     }
     """
 
@@ -69,6 +77,8 @@ class EditorScreen(Screen):
         self.data = None
         self.current_team_idx = 0
         self.modified = False
+        self.sort_reverse = False
+        self.last_sort_col = None
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -80,6 +90,8 @@ class EditorScreen(Screen):
                     Label("Select File:", classes="section-header"),
                     OptionList(id="file_list", classes="file-list"),
                     Label("Teams:", classes="section-header"),
+                    Label("Teams:", classes="section-header"),
+                    Button("Sort A-Z", id="btn_sort_teams", variant="default"),
                     OptionList(id="team_list", classes="team-list"),
                     classes="editor-sidebar",
                 ),
@@ -210,6 +222,51 @@ class EditorScreen(Screen):
             
             table.add_row(name, pos, age, ht, wt, pot, skin, hair, beard, key=str(p.get("id", "")))
 
+    def on_data_table_header_selected(self, event: DataTable.HeaderSelected) -> None:
+        """Handle click on table header to sort players."""
+        if not self.data:
+            return
+
+        col_key = event.column_key.value
+        # If clicking same column, toggle reverse. Else default to Ascending.
+        if self.last_sort_col == col_key:
+            self.sort_reverse = not self.sort_reverse
+        else:
+            self.sort_reverse = False
+            self.last_sort_col = col_key
+
+        team = self.data["teams"][self.current_team_idx]
+        roster = team.get("roster", [])
+
+        # Helper to safely get value for sorting
+        def get_sort_key(p):
+            if col_key == "Name":
+                return f"{p.get('fn', '')} {p.get('ln', '')}"
+            elif col_key == "Pos":
+                return p.get("pos", 0)
+            elif col_key == "Age":
+                return p.get("age", 0)
+            elif col_key == "Ht":
+                return p.get("ht", 0)
+            elif col_key == "Wt":
+                return p.get("wt", 0)
+            elif col_key == "Pot":
+                return p.get("pot", 0)
+            elif col_key == "Skin":
+                return p.get("appearance", 0)
+            elif col_key == "Hair":
+                return p.get("accessories", {}).get("hair", 0)
+            elif col_key == "Beard":
+                return p.get("accessories", {}).get("facial_hair", 0)
+            return 0
+
+        # Sort in-place
+        roster.sort(key=get_sort_key, reverse=self.sort_reverse)
+        
+        # Refresh table
+        self._show_team(self.current_team_idx)
+        self.notify(f"Sorted by {col_key} ({'DESC' if self.sort_reverse else 'ASC'})")
+
     def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
         """Handle selection in option lists."""
         option_list = event.option_list
@@ -276,6 +333,11 @@ class EditorScreen(Screen):
             self.app.pop_screen()
         elif event.button.id == "btn_save":
             self._save_file()
+        elif event.button.id == "btn_sort_teams":
+            if self.data and "teams" in self.data:
+                self.data["teams"].sort(key=lambda x: f"{x.get('city', '')} {x.get('name', '')}".strip())
+                self._populate_teams()
+                self.notify("Teams sorted A-Z")
 
     def _save_file(self) -> None:
         """Save changes back to file."""
