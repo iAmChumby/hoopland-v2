@@ -2,7 +2,7 @@ from textual.app import ComposeResult
 from textual.screen import Screen
 
 from textual.widgets import Header, Footer, Button, Input, Label, Static, RichLog
-from textual.containers import Container, Vertical
+from textual.containers import Container, Vertical, Horizontal
 from textual import work
 from ...blocks.generator import Generator
 from ..logging_handler import TextualLogHandler
@@ -16,16 +16,24 @@ class LeagueConfig(Screen):
         yield Header()
         yield Container(
             Static("Configuring League Generation", classes="title"),
-            Vertical(
-                Label("Enter Season Year (e.g., 2024):"),
-                Input(placeholder="2024", id="input_year"),
-                Button("Generate League", id="btn_generate", variant="success"),
-                Button("Back", id="btn_back", variant="primary"),
-                classes="form_container",
+            Horizontal(
+                # Left Panel: Configuration
+                Vertical(
+                    Label("Enter Season Year (e.g., 2023):"),
+                    Input(placeholder="2023", id="input_year"),
+                    Button("Generate League", id="btn_generate", variant="success"),
+                    Button("Back", id="btn_back", variant="primary"),
+                    classes="left-panel",
+                ),
+                # Right Panel: Logs
+                Vertical(
+                    Label("Real-time Logs", classes="log_label"),
+                    RichLog(highlight=True, markup=True, id="log_view", classes="log_box"),
+                    Button("Copy Logs to Clipboard", id="btn_copy_logs", classes="copy_btn"),
+                    classes="right-panel",
+                ),
+                classes="split-layout",
             ),
-            Label("Real-time Logs:", classes="log_label"),
-            RichLog(highlight=True, markup=True, id="log_view", classes="log_box"),
-            Button("Copy Logs to Clipboard", id="btn_copy_logs", classes="copy_btn"),
             classes="main_menu_container",
         )
         yield Footer()

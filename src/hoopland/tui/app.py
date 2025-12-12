@@ -31,20 +31,44 @@ class HooplandApp(App):
         width: 100%;
     }
 
+    /* Main Menu Styles */
     .main_menu_container {
         align: center middle;
+        height: 100%;
     }
 
     .menu_buttons {
-        width: 40;
+        width: 40%;
+        min-width: 40;
+        max-width: 80;
         height: auto;
         border: solid $accent;
     }
+
+    /* Generation Screen Styles */
+    .split-layout {
+        layout: horizontal;
+        height: 100%;
+        width: 100%;
+    }
+
+    .left-panel {
+        width: 35%;
+        height: 100%;
+        border-right: solid $accent;
+        padding: 2;
+        align: center middle;
+    }
+
+    .right-panel {
+        width: 65%;
+        height: 100%;
+        padding: 1;
+    }
     
     .form_container {
-        width: 50;
+        width: 100%;
         height: auto;
-        border: solid $accent;
         padding: 1;
     }
 
@@ -63,28 +87,24 @@ class HooplandApp(App):
         width: 100%;
     }
     
-
-    
     .log_label {
-        margin-top: 1;
         text-align: center;
         text-style: bold;
         width: 100%;
+        margin-bottom: 1;
     }
     
     .log_box {
+        width: 100%;
         height: 1fr;
-        min-height: 10;
-        width: 60;
         border: solid $accent;
-        margin: 1;
         background: $surface;
         scrollbar-gutter: stable;
     }
     
     .copy_btn {
-        margin: 1;
-        width: 60;
+        margin-top: 1;
+        width: 100%;
         background: $panel;
         color: $text;
     }
