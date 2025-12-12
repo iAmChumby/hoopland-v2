@@ -264,14 +264,30 @@ class Generator:
         total_teams = len(team_map)
         current_team = 0
 
+        # Fetch Team Metadata for Naming (Optimized: Get all once)
+        tid_to_meta = {}
+        try:
+            logger.info("Fetching NCAA team metadata for naming...")
+            all_teams = self.repo.espn_client.get_all_teams()
+            for t in all_teams:
+                tid = str(t.get("id"))
+                tid_to_meta[tid] = {
+                    "name": t.get("displayName", f"Team {tid}"),
+                    "shortName": t.get("abbreviation", f"T{tid[-3:]}")
+                }
+        except Exception as e:
+            logger.warning(f"Could not fetch team metadata: {e}")
+
         for tid, roster in team_map.items():
             current_team += 1
             if current_team % 50 == 0:
                 logger.info(f"Building team {current_team}/{total_teams}...")
 
-            # Get team name from first player's raw_stats if available
-            team_name = f"Team {tid}"
-            team_abbrev = f"T{str(tid)[-3:]}"
+            # Get team name from metadata map
+            tid_str = str(tid)
+            meta = tid_to_meta.get(tid_str, {})
+            team_name = meta.get("name", f"Team {tid}")
+            team_abbrev = meta.get("shortName", f"T{str(tid)[-3:]}")
 
             # Build roster
             struct_roster = []
@@ -313,7 +329,7 @@ class Generator:
 
             t = structs.Team(
                 id=int(tid),
-                city="",
+                city="", # NCAA teams typically use the school name as the "city" equivalent or full name
                 name=team_name,
                 shortName=team_abbrev,
                 roster=struct_roster,

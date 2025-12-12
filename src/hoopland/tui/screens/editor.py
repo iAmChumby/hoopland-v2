@@ -178,6 +178,52 @@ class EditorScreen(Screen):
             except ValueError:
                 pass
 
+    def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
+        """Open player editor on row selection."""
+        if not self.data:
+            return
+
+        row_key = event.row_key.value
+        try:
+            player_id = int(row_key)
+        except ValueError:
+            return
+
+        # Find player in current team
+        team = self.data["teams"][self.current_team_idx]
+        player = None
+        player_idx = -1
+        
+        for i, p in enumerate(team.get("roster", [])):
+            if p.get("id") == player_id:
+                player = p
+                player_idx = i
+                break
+        
+        if player:
+            self.app.push_screen(
+                "player_editor", 
+                player_data=player,
+                on_save=lambda data: self._update_player(player_idx, data)
+            )
+
+    def _update_player(self, player_idx: int, new_data: dict) -> None:
+        """Callback to update player data after editing."""
+        if not self.data or self.current_team_idx >= len(self.data["teams"]):
+            return
+            
+        team = self.data["teams"][self.current_team_idx]
+        if player_idx < 0 or player_idx >= len(team.get("roster", [])):
+            return
+            
+        # Update data in memory
+        team["roster"][player_idx] = new_data
+        self.modified = True
+        
+        # Refresh UI
+        self._show_team(self.current_team_idx)
+        self.notify(f"Updated {new_data.get('fn')} {new_data.get('ln')}")
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "btn_back":
             self.app.pop_screen()
