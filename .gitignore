@@ -20,6 +20,7 @@ build/
 *.egg-info/
 
 data/images/
+output/
 logs/
 coverage/
 .ruff_cache/

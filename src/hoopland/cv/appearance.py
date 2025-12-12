@@ -239,8 +239,8 @@ def detect_hair_style(
                 volume = "medium"
             logger.debug(f"One ear covered - adjusted volume to {volume}")
 
-    # Select best matching style
-    return select_hair_style(volume, texture)
+    # Select best matching style with variety based on hair pixel count
+    return select_hair_style(volume, texture, variety_seed=hair_pixels)
 
 
 def analyze_hair_texture(hair_crop: np.ndarray, mask_hair: np.ndarray) -> float:
@@ -325,7 +325,7 @@ def classify_hair_texture_from_score(texture_score: float, coverage: float) -> s
         return "dreads"  # Dreads, braids, very high texture
 
 
-def select_hair_style(volume: str, texture: str) -> int:
+def select_hair_style(volume: str, texture: str, variety_seed: int = 0) -> int:
     """
     Select the best matching hair style based on detected attributes.
     Uses the mapping loader to find styles matching the criteria.
@@ -333,6 +333,7 @@ def select_hair_style(volume: str, texture: str) -> int:
     Args:
         volume: Volume classification
         texture: Texture classification
+        variety_seed: Seed for deterministic variety within matched styles
 
     Returns:
         Hair style index (0-130)
@@ -350,25 +351,28 @@ def select_hair_style(volume: str, texture: str) -> int:
     matching = volume_candidates & texture_candidates
 
     if matching:
-        # Return a consistent selection from matches
-        return min(matching)  # Pick lowest index for consistency
+        # ADD VARIETY: Pick from matches based on variety_seed
+        sorted_matches = sorted(matching)
+        return sorted_matches[variety_seed % len(sorted_matches)]
 
     # For distinctive textures (dreads, afro), prefer texture match over volume
     # These styles are recognizable even at lower detected volumes
     if texture in ("dreads", "afro", "curly"):
         if texture_candidates:
-            # Pick a style from the texture category
-            # Try to find one that's close to detected volume
+            # Pick a style from the texture category with variety
             for vol_level in [volume, "medium", "low", "high"]:
                 vol_set = set(hair_index.get("volume", {}).get(vol_level, []))
                 cross = texture_candidates & vol_set
                 if cross:
-                    return min(cross)
-            return min(texture_candidates)
+                    sorted_cross = sorted(cross)
+                    return sorted_cross[variety_seed % len(sorted_cross)]
+            sorted_tex = sorted(texture_candidates)
+            return sorted_tex[variety_seed % len(sorted_tex)]
 
     # Fallback: prefer volume match for non-distinctive textures
     if volume_candidates:
-        return min(volume_candidates)
+        sorted_vol = sorted(volume_candidates)
+        return sorted_vol[variety_seed % len(sorted_vol)]
 
     # Final fallback based on texture with sensible defaults
     texture_fallback = {
