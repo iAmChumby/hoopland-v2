@@ -18,6 +18,9 @@ dependencies = [
     "mediapipe",
 ]
 
+[project.scripts]
+hoopgen = "hoopland.tui.app:main"
+
 [tool.ruff]
 line-length = 88
 target-version = "py310"

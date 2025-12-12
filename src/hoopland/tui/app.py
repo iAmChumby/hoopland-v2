@@ -145,6 +145,11 @@ class HooplandApp(App):
         self.push_screen(MainMenu())
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for the hoopgen command."""
     app = HooplandApp()
     app.run()
+
+
+if __name__ == "__main__":
+    main()
