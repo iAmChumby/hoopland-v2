@@ -1,0 +1,35 @@
+{
+    "leagueName": "NBA 2023",
+    "shortName": "NBA",
+    "logoURL": "",
+    "logoSize": 0,
+    "leagueType": 0,
+    "meta": {
+        "saveName": "NBA 2023 Season",
+        "buildVersion": "1.0",
+        "uPID": "",
+        "uTID": "",
+        "uGID": "",
+        "dataType": "League",
+        "countryGeneration": 0,
+        "generatedCountries": 0,
+        "gender": 0,
+        "filesize": 0
+    },
+    "conferences": [],
+    "divisions": [],
+    "teams": [],
+    "freeAgents": [],
+    "draftClass": [],
+    "coaches": [],
+    "referee": {},
+    "commissioner": {},
+    "settings": {
+        "gameLength": 12,
+        "difficulty": 2
+    },
+    "rules": {},
+    "sliders": {},
+    "season": {},
+    "currentGame": null
+}
