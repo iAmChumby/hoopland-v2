@@ -232,11 +232,10 @@ class Generator:
 
     def generate_draft_class(self, year: str) -> structs.League:
         logger.info(f"Generating draft class for year: {year}")
-        print(f"Generating Draft Class {year}...")
 
         # Use NBA Draft History
         try:
-            print(f"Fetching draft history for {year}...")
+            logger.info(f"Fetching draft history for {year}...")
             df = self.repo.nba_client.get_draft_history(
                 league_id="00", season_year=year
             )
@@ -246,145 +245,225 @@ class Generator:
             if "SEASON" in df.columns:
                 df_year = df[df["SEASON"] == year]
 
-            print(f"Found {len(df_year)} draft picks for {year}.")
+            logger.info(f"Found {len(df_year)} draft picks for {year}.")
         except Exception as e:
             logger.error(f"Failed to fetch draft history: {e}")
             df_year = None
 
-        draft_players = []
-        if df_year is not None:
-            for i, row in df_year.iterrows():
-                if (
-                    i < 30
-                ):  # Only fetch stats for top 30 to save time? User wants quality. Let's do all but sleep.
-                    pass
+        if df_year is None or len(df_year) == 0:
+            logger.warning(f"No draft data found for {year}")
+            return structs.League(
+                leagueName=f"NBA {year} Draft Class",
+                shortName="Draft",
+                teams=[],
+                meta=structs.Meta(saveName=f"{year} Draft Class", dataType="Draft Class"),
+            )
 
-                import time
+        # Store draft picks in database for caching
+        draft_season = f"draft-{year}"
+        import time
 
-                time.sleep(1.0)  # Increased to 1.0s for stability
+        for i, row in df_year.iterrows():
+            pid = str(row["PERSON_ID"])
+            p_name = row["PLAYER_NAME"]
 
-                pid = int(row["PERSON_ID"])
-                p_name = row["PLAYER_NAME"]
-                pick = int(row["OVERALL_PICK"])
-                print(f"Processing Pick {pick}: {p_name}...")
+            # Check if already in DB
+            existing = (
+                self.session.query(Player)
+                .filter_by(source_id=pid, season=draft_season, league="NBA")
+                .first()
+            )
+            if existing:
+                continue
 
-                try:
-                    stats_data = self.repo.nba_client.get_player_career_stats(pid)
-                    career_df = stats_data.get("career_totals")
-                    season_df = stats_data.get("season_totals")
-                    stats_found = True
-                except Exception as e:
-                    logger.error(f"Failed to fetch stats for {p_name}: {e}")
-                    print(f"  > Stats failed for {p_name}, using fallback.")
-                    stats_found = False
-                    career_df = None
-                    season_df = None
+            # Create new player entry
+            player = Player(
+                source_id=pid,
+                league="NBA",
+                season=draft_season,
+                name=p_name,
+                team_id="-1",  # Draft class team
+                raw_stats={
+                    "PERSON_ID": int(row["PERSON_ID"]),
+                    "PLAYER_NAME": p_name,
+                    "OVERALL_PICK": int(row["OVERALL_PICK"]),
+                    "ROUND_NUMBER": int(row["ROUND_NUMBER"]) if "ROUND_NUMBER" in row else 1,
+                    "DRAFT_YEAR": year,
+                },
+                appearance={},
+            )
+            self.session.add(player)
 
-                # 1. Calculate Potential from Career
+        self.session.commit()
+        logger.info(f"Stored draft picks in database for season {draft_season}")
+
+        # Fetch player career stats and metadata (for potential/ratings calculation)
+        players = (
+            self.session.query(Player)
+            .filter_by(season=draft_season, league="NBA")
+            .all()
+        )
+
+        logger.info(f"Processing {len(players)} draft picks for stats and appearance...")
+
+        for i, p in enumerate(players):
+            raw = p.raw_stats if p.raw_stats else {}
+            pid = int(p.source_id)
+            pick = raw.get("OVERALL_PICK", 60)
+
+            # Skip if already has career stats
+            if "CAREER_EFF" in raw:
+                continue
+
+            if i % 10 == 0:
+                logger.info(f"Processing draft pick {i+1}/{len(players)}...")
+
+            time.sleep(0.8)  # Rate limiting
+
+            try:
+                stats_data = self.repo.nba_client.get_player_career_stats(pid)
+                career_df = stats_data.get("career_totals")
+                season_df = stats_data.get("season_totals")
+
+                # Calculate efficiency from career
                 eff = 0
                 gp = 0
-
-                if stats_found and career_df is not None and not career_df.empty:
+                if career_df is not None and not career_df.empty:
                     pts = career_df["PTS"].sum()
                     reb = career_df["REB"].sum()
                     ast = career_df["AST"].sum()
                     stl = career_df["STL"].sum() if "STL" in career_df else 0
                     blk = career_df["BLK"].sum() if "BLK" in career_df else 0
                     gp = career_df["GP"].sum()
-
                     if gp > 0:
-                        # Weighted Efficiency per game
                         eff = (pts + 1.2 * reb + 1.5 * ast + 2 * stl + 2 * blk) / gp
 
-                # Map Eff to Potential (1-10)
-                if stats_found and gp > 0:
-                    if eff > 35:
-                        pot_val = 10
-                    elif eff > 25:
-                        pot_val = 9
-                    elif eff > 20:
-                        pot_val = 8
-                    elif eff > 15:
-                        pot_val = 7
-                    elif eff > 10:
-                        pot_val = 6
-                    elif eff > 5:
-                        pot_val = 5
-                    elif gp > 100:
-                        pot_val = 4  # Long career role player
-                    else:
-                        pot_val = 3  # Bust
-                else:
-                    # Fallback Heuristic
-                    if pick <= 5:
-                        pot_val = 9
-                    elif pick <= 15:
-                        pot_val = 7
-                    elif pick <= 30:
-                        pot_val = 6
-                    else:
-                        pot_val = 5
+                raw["CAREER_GP"] = int(gp)
+                raw["CAREER_EFF"] = round(eff, 2)
 
-                # 2. Calculate Ratings from Rookie Season
-                rating_val = 3
-                attrs = {
-                    k: 3
-                    for k in [
-                        "shooting_inside",
-                        "shooting_mid",
-                        "shooting_3pt",
-                        "defense",
-                        "rebounding",
-                        "passing",
-                    ]
-                }
-
-                if stats_found and season_df is not None and not season_df.empty:
-                    rookie = season_df.iloc[0]  # First season
+                # Rookie season stats for attributes
+                if season_df is not None and not season_df.empty:
+                    rookie = season_df.iloc[0]
                     rgp = rookie["GP"]
                     if rgp > 0:
-                        r_pts = rookie["PTS"] / rgp
-                        r_reb = rookie["REB"] / rgp
-                        r_ast = rookie["AST"] / rgp
-                        r_stl = rookie["STL"] / rgp
-                        r_blk = rookie["BLK"] / rgp
+                        raw["ROOKIE_PPG"] = round(rookie["PTS"] / rgp, 1)
+                        raw["ROOKIE_RPG"] = round(rookie["REB"] / rgp, 1)
+                        raw["ROOKIE_APG"] = round(rookie["AST"] / rgp, 1)
+                        raw["ROOKIE_SPG"] = round(rookie["STL"] / rgp, 1)
+                        raw["ROOKIE_BPG"] = round(rookie["BLK"] / rgp, 1)
 
-                        # Simple mapping
-                        attrs["shooting_inside"] = min(10, int(r_pts / 2.5))
-                        attrs["shooting_mid"] = min(10, int(r_pts / 3.0))
-                        attrs["shooting_3pt"] = min(10, int(r_pts / 4.0))  # Crude
-                        attrs["defense"] = min(10, int((r_stl + r_blk) * 3))
-                        attrs["rebounding"] = min(10, int(r_reb * 1.5))
-                        attrs["passing"] = min(10, int(r_ast * 2.0))
+                p.raw_stats = raw
+                self.session.commit()
 
-                        avg_attr = sum(attrs.values()) / 6
-                        rating_val = int(avg_attr)
+            except Exception as e:
+                logger.debug(f"Stats not available for {p.name}: {e}")
 
-                p = structs.Player(
-                    id=pid,
-                    tid=-1,
-                    fn=p_name.split(" ")[0] if " " in p_name else p_name,
-                    ln=" ".join(p_name.split(" ")[1:]) if " " in p_name else "",
-                    age=20,
-                    ht=78,
-                    wt=210,
-                    pos=3,
-                    ctry=0,
-                    rating=rating_val,
-                    pot=pot_val,
-                    appearance=1,
-                    attributes=attrs,
-                    stats={},
-                )
-                draft_players.append(p)
+        # Backfill appearance data for draft picks
+        logger.info("Backfilling appearance data for draft picks...")
+        try:
+            self.repo.backfill_appearance(appearance.analyze_player_appearance)
+        except Exception as e:
+            logger.error(f"Failed to backfill appearance: {e}")
 
-        # Create a single "Draft Class" team or return compatible structure
-        # Usually Draft Class files in games are just a list of players.
-        # We will put them in a wrapper team with ID -1.
+        # Refresh players from DB
+        players = (
+            self.session.query(Player)
+            .filter_by(season=draft_season, league="NBA")
+            .all()
+        )
+
+        # Build draft class output
+        draft_players = []
+        for p in players:
+            raw = p.raw_stats if p.raw_stats else {}
+            app_data = p.appearance if p.appearance else {}
+            pick = raw.get("OVERALL_PICK", 60)
+            gp = raw.get("CAREER_GP", 0)
+            eff = raw.get("CAREER_EFF", 0)
+
+            # Calculate potential from career performance
+            if gp > 0:
+                if eff > 35:
+                    pot_val = 10
+                elif eff > 25:
+                    pot_val = 9
+                elif eff > 20:
+                    pot_val = 8
+                elif eff > 15:
+                    pot_val = 7
+                elif eff > 10:
+                    pot_val = 6
+                elif eff > 5:
+                    pot_val = 5
+                elif gp > 100:
+                    pot_val = 4
+                else:
+                    pot_val = 3
+            else:
+                # Fallback based on pick
+                if pick <= 5:
+                    pot_val = 9
+                elif pick <= 15:
+                    pot_val = 7
+                elif pick <= 30:
+                    pot_val = 6
+                else:
+                    pot_val = 5
+
+            # Calculate attributes from rookie stats
+            attrs = {k: 3 for k in [
+                "shooting_inside", "shooting_mid", "shooting_3pt",
+                "defense", "rebounding", "passing"
+            ]}
+            if "ROOKIE_PPG" in raw:
+                ppg = raw["ROOKIE_PPG"]
+                rpg = raw.get("ROOKIE_RPG", 0)
+                apg = raw.get("ROOKIE_APG", 0)
+                spg = raw.get("ROOKIE_SPG", 0)
+                bpg = raw.get("ROOKIE_BPG", 0)
+
+                attrs["shooting_inside"] = min(10, int(ppg / 2.5))
+                attrs["shooting_mid"] = min(10, int(ppg / 3.0))
+                attrs["shooting_3pt"] = min(10, int(ppg / 4.0))
+                attrs["defense"] = min(10, int((spg + bpg) * 3))
+                attrs["rebounding"] = min(10, int(rpg * 1.5))
+                attrs["passing"] = min(10, int(apg * 2.0))
+
+            avg_attr = sum(attrs.values()) / 6
+            rating_val = max(1, int(avg_attr))
+
+            # Appearance data
+            skin_val = app_data.get("skin_tone", 1)
+            hair_val = app_data.get("hair", 0)
+            beard_val = app_data.get("facial_hair", 0)
+            acc_dict = {"hair": hair_val, "beard": beard_val}
+
+            draft_player = structs.Player(
+                id=int(p.source_id),
+                tid=-1,
+                fn=p.name.split(" ")[0] if " " in p.name else p.name,
+                ln=" ".join(p.name.split(" ")[1:]) if " " in p.name else "",
+                age=20,
+                ht=78,
+                wt=210,
+                pos=3,
+                ctry=0,
+                rating=rating_val,
+                pot=pot_val,
+                appearance=skin_val,
+                accessories=acc_dict,
+                attributes=attrs,
+            )
+            draft_players.append(draft_player)
+
+        # Sort by pick order
+        draft_players.sort(key=lambda x: x.id)
 
         draft_team = structs.Team(
             id=-1, city="Draft", name="Class", shortName="DRF", roster=draft_players
         )
+
+        logger.info(f"Draft class generation complete: {len(draft_players)} players")
 
         return structs.League(
             leagueName=f"NBA {year} Draft Class",
