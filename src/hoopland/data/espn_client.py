@@ -1,12 +1,16 @@
 import requests
 
 
+from .utils import retry_api_call
+
+
 class ESPNClient:
     BASE_URL = "http://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball"
 
     def __init__(self):
         pass
 
+    @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_team_roster(self, team_id_or_slug):
         # This is a simplification. The ESPN API often requires traversing from a list of teams.
         # For now, let's assume we can fetch by team ID if known, or we iterate teams.
@@ -19,6 +23,7 @@ class ESPNClient:
             return None
         return resp.json()
 
+    @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_all_teams(self):
         # Fetch list of teams to iterate
         url = f"{self.BASE_URL}/teams?limit=1000"

@@ -8,6 +8,9 @@ from nba_api.stats.static import teams
 import pandas as pd
 
 
+
+from .utils import retry_api_call
+
 class NBAClient:
     def __init__(self):
         pass
@@ -23,6 +26,7 @@ class NBAClient:
         # nba_api returns dict like {'id': 1610612737, 'full_name': 'Atlanta Hawks', 'abbreviation': 'ATL', 'nickname': 'Hawks', 'city': 'Atlanta', 'state': 'Georgia', 'year_founded': 1949}
         return teams.find_team_name_by_id(team_id)
 
+    @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_roster(self, team_id, season="2023-24"):
         # NBA API expects season in format '2023-24'
         # Adding timeout to requests implicitly by wrapping or hoping nba_api supports it
@@ -37,16 +41,19 @@ class NBAClient:
         )
         return roster.get_data_frames()[0]
 
+    @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_league_stats(self, season="2023-24"):
         stats = leaguedashplayerstats.LeagueDashPlayerStats(season=season, timeout=10)
         return stats.get_data_frames()[0]
 
+    @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_draft_history(self, league_id="00", season_year=None):
         draft = drafthistory.DraftHistory(
             league_id=league_id, season_year_nullable=season_year, timeout=10
         )
         return draft.get_data_frames()[0]
 
+    @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_player_career_stats(self, player_id):
         # Fetches career stats summary
         career = playercareerstats.PlayerCareerStats(player_id=player_id, timeout=10)
