@@ -36,6 +36,7 @@ def calculate_derived_stats(stats: Dict[str, Any], height: int = 75) -> Dict[str
     blk_per_min = safe_div(blk, min_played)
     tov_per_min = safe_div(tov, min_played)
     ft_rate = safe_div(fta, fga) # Free Throw Attempt Rate
+    three_pa_per_min = safe_div(fg3a, min_played) # [NEW] Volume Metric
     
     # Special composites
     # Dunk tendency proxy: High FG% + Height + Low 3P Rate
@@ -43,6 +44,7 @@ def calculate_derived_stats(stats: Dict[str, Any], height: int = 75) -> Dict[str
     
     return {
         'three_rate': three_rate,
+        'three_pa_per_min': three_pa_per_min,
         'mid_rate': mid_rate,
         'ast_per_min': ast_per_min,
         'oreb_per_min': oreb_per_min,
@@ -107,8 +109,17 @@ def generate_player_tendencies(
     t = {}
     
     # 1. Three Point Tendency
-    z_3pt = get_z_score(ds['three_rate'], 'three_rate', distribution)
-    t['threePoint'] = map_z_to_tendency(z_3pt, scalar=2.5)
+    # 1. Three Point Tendency
+    # We use a blend of Rate (% of shots that are 3s) and Volume (3PA per minute)
+    # This prevents low volume shooters with high % from getting high tendency
+    # and rewards high volume shooters like Curry even if their rate is just "good"
+    z_3pt_rate = get_z_score(ds['three_rate'], 'three_rate', distribution)
+    z_3pt_vol = get_z_score(ds['three_pa_per_min'], 'three_pa_per_min', distribution)
+    
+    # Weight volume slightly more (60/40) because tendency drives attempts
+    z_3pt_final = (z_3pt_rate * 0.4) + (z_3pt_vol * 0.6)
+    
+    t['threePoint'] = map_z_to_tendency(z_3pt_final, scalar=2.5)
     
     # 2. Two Point
     z_2pt = get_z_score(ds['mid_rate'], 'mid_rate', distribution)

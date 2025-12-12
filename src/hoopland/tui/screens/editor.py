@@ -103,8 +103,11 @@ class EditorScreen(Screen):
             with open(path, "r", encoding="utf-8") as f:
                 self.data = json.load(f)
             self.file_path = path
+            self.file_path = path
             self._populate_teams()
             self.notify(f"Loaded: {Path(path).name}")
+            # Auto-focus the team list so user can scroll immediately
+            self.set_focus(self.query_one("#team_list"))
         except Exception as e:
             self.notify(f"Error loading file: {e}", severity="error")
 

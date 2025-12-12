@@ -216,6 +216,9 @@ class PlayerEditorScreen(ModalScreen):
                             with Vertical():
                                 yield Label("Potential (1-10):", classes="label")
                                 yield Input(value=self.bio["pot"], id="inp_pot", classes="input")
+                            with Vertical():
+                                yield Label("Rating (1-5 stars):", classes="label")
+                                yield Input(value=self.bio["rating"], id="inp_rating", classes="input")
                             
                             with Vertical():
                                 yield Label("Height (inches):", classes="label")
