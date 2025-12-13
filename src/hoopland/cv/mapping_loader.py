@@ -29,6 +29,36 @@ MAPPING_FILE = os.path.join(
 # Global cache for mappings
 _MAPPING_CACHE: Dict[str, Any] = {}
 
+# Hairstyles that are inappropriate for male NBA players
+# These are styles with descriptions indicating female-oriented looks
+# (bobs, long ponytails over shoulders, pigtails, long flowing hair, etc.)
+FEMALE_ONLY_HAIR_INDICES = {
+    24,   # Short Pigtails/Bun (Two small knots on top)
+    27,   # High Ponytail (Medium length, pulled back)
+    41,   # Medium Length Bob/Straight Cut
+    80,   # Low Ponytail (Medium length, sleek)
+    103,  # Long Wavy Cut/Bob (Over shoulders)
+    125,  # Sleek Medium Bun (Centered)
+    126,  # Sleek Low Bun (At the back of the head)
+    127,  # Long, Sleek Ponytail (Hanging down)
+    128,  # Long, Wavy Hair (Free flowing, over shoulders)
+    129,  # Long, Defined Curls/Twists (Free flowing)
+    130,  # Very Long, Puffy Afro/Curls (High volume, over shoulders)
+}
+
+
+def is_male_appropriate_style(index: int) -> bool:
+    """
+    Check if a hairstyle is appropriate for male NBA players.
+    
+    Args:
+        index: Hair style index (0-130)
+        
+    Returns:
+        True if the style is appropriate for male players
+    """
+    return index not in FEMALE_ONLY_HAIR_INDICES
+
 
 def load_appearance_mapping() -> Dict[str, Any]:
     """
@@ -240,9 +270,12 @@ def get_styles_by_facial_hair_density(density: str) -> List[Dict[str, Any]]:
 
 # Pre-computed index lookups for fast access during matching
 
-def build_hair_index_by_attributes() -> Dict[str, Dict[str, List[int]]]:
+def build_hair_index_by_attributes(male_only: bool = True) -> Dict[str, Dict[str, List[int]]]:
     """
     Build an index of hair styles organized by attributes.
+    
+    Args:
+        male_only: If True, exclude female-oriented styles (default for NBA)
     
     Returns:
         {
@@ -262,6 +295,10 @@ def build_hair_index_by_attributes() -> Dict[str, Dict[str, List[int]]]:
     for style in styles:
         idx = style.get("index")
         desc = style.get("description", "")
+        
+        # Skip female-only styles if filtering for male players
+        if male_only and not is_male_appropriate_style(idx):
+            continue
         
         length = classify_hair_length(desc)
         texture = classify_hair_texture(desc)

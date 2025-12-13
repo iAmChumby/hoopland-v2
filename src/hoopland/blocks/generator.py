@@ -132,12 +132,12 @@ class Generator:
                     raw_stats, height=ht_val, weight=wt_val
                 )
 
-                # Calculate overall rating
-                rating_val = normalization.calculate_overall_rating(attributes)
+                # Calculate overall rating (NBA floor: 3 stars minimum)
+                rating_val = normalization.calculate_nba_rating(attributes)
 
-                # Potential
+                # Potential (based on age)
                 pot_bonus = max(0, (28 - age) / 2) if age > 0 else 0
-                pot_val = min(10, max(5, int(round(rating_val + pot_bonus + 2))))
+                pot_val = min(10, max(5, int(round(rating_val + pot_bonus))))
 
                 # Appearance (full object)
                 skin_val = app_data.get("skin_tone", 1)

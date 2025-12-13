@@ -297,11 +297,16 @@ class StatsConverter:
         return normalize_rating(min_pg, 15, 38)
 
 
-def calculate_overall_rating(attributes: Dict[str, List[int]]) -> float:
+def calculate_overall_rating(attributes: Dict[str, List[int]], nba_mode: bool = False) -> float:
     """
     Calculate overall rating from 15 attributes.
 
-    Returns float between 0-10.
+    Args:
+        attributes: Dict with 15 attribute keys, each containing [current, potential]
+        nba_mode: If True, apply NBA floor (ratings scaled to 3-5 star range)
+
+    Returns:
+        float between 0-10 (or 5-10 in NBA mode)
     """
     if not attributes:
         return 0.0
@@ -321,6 +326,63 @@ def calculate_overall_rating(attributes: Dict[str, List[int]]) -> float:
     defense = avg_category(defense_attrs)
     physical = avg_category(physical_attrs)
 
-    # Weighted average
-    overall = offense * 0.35 + playmaking * 0.15 + defense * 0.25 + physical * 0.25
-    return round(overall, 1)
+    # Weighted average (base rating 0-10)
+    base_rating = offense * 0.35 + playmaking * 0.15 + defense * 0.25 + physical * 0.25
+
+    if nba_mode:
+        # NBA players should be rated 5.0-10.0 (3-5 stars in game)
+        # Scale: base 0-10 -> nba 5-10
+        # A replacement-level NBA player (base ~4) becomes ~7 (high 3 star)
+        # An elite player (base ~8) becomes ~9 (5 star)
+        nba_rating = 5.0 + (base_rating / 10.0) * 5.0
+        return round(min(10.0, max(5.0, nba_rating)), 1)
+    
+    return round(base_rating, 1)
+
+
+def calculate_nba_rating(attributes: Dict[str, List[int]], is_starter: bool = False) -> float:
+    """
+    Calculate NBA player rating with proper floor for professional players.
+    
+    NBA players are the best in the world - no one in the league should be 
+    below a 3-star rating. Elite players get 5 stars.
+    
+    Args:
+        attributes: Dict with 15 attribute keys
+        is_starter: If True, boost rating slightly (starters are better than bench)
+        
+    Returns:
+        Rating between 5.0-10.0 (3-5 stars in game)
+    """
+    if not attributes:
+        return 5.0  # Minimum NBA floor
+    
+    # Get base rating
+    base = calculate_overall_rating(attributes, nba_mode=False)
+    
+    # Apply NBA scaling
+    # - Minimum rating: 5.0 (3 stars)
+    # - Average NBA player: ~7.0 (mid 3-4 stars)
+    # - Great player: ~8.5 (high 4 stars)
+    # - Elite/MVP: ~9.5 (5 stars)
+    
+    # Use sigmoid-like scaling to compress low values and spread high values
+    # This prevents too many low-rated players while still differentiating elite
+    if base <= 4.0:
+        # Low performers get floor rating with small variance
+        nba_rating = 5.0 + (base / 4.0) * 1.5  # 5.0 - 6.5
+    elif base <= 6.0:
+        # Average players
+        nba_rating = 6.5 + ((base - 4.0) / 2.0) * 1.5  # 6.5 - 8.0
+    elif base <= 8.0:
+        # Good players
+        nba_rating = 8.0 + ((base - 6.0) / 2.0) * 1.0  # 8.0 - 9.0
+    else:
+        # Elite players
+        nba_rating = 9.0 + ((base - 8.0) / 2.0) * 1.0  # 9.0 - 10.0
+    
+    # Starter bonus (small boost)
+    if is_starter:
+        nba_rating = min(10.0, nba_rating + 0.3)
+    
+    return round(min(10.0, max(5.0, nba_rating)), 1)
