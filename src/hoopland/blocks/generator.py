@@ -1,26 +1,35 @@
+"""
+League generation module for Hoopland.
+
+Generates NBA, NCAA, and draft class data with full target schema compliance.
+"""
+
 import os
+import json
+import time
+import logging
+from collections import defaultdict
+from dataclasses import asdict
+
 from ..models import structs
 from ..data import repository
 from ..db import init_db, Player
 from ..cv import appearance
 from ..stats import normalization, tendencies
 from .formatter import save_compact_json
-from dataclasses import asdict
-import json
-import logging
-from collections import defaultdict
+from . import team_assets
 
 logger = logging.getLogger(__name__)
 
 
 class Generator:
     def __init__(self):
-        # Initialize DB and Repo
         self.Session = init_db()
         self.session = self.Session()
         self.repo = repository.DataRepository(self.session)
 
     def generate_league(self, year: str) -> structs.League:
+        """Generate NBA league data for a specific year."""
         logger.info(f"Generating NBA league for year: {year}")
         print(f"Generating NBA {year}...")
 
@@ -31,7 +40,7 @@ class Generator:
         except Exception as e:
             logger.error(f"Failed to sync stats: {e}")
 
-        # 2. Sync Roster Metadata (Age, Ht, Wt, Pos, Country) - NEW
+        # 2. Sync Roster Metadata (Age, Ht, Wt, Pos, Country)
         try:
             self.repo.sync_nba_roster_data(season=season_str)
         except Exception as e:
@@ -40,14 +49,13 @@ class Generator:
         # 3. Backfill Appearance
         logger.info("Backfilling appearance data...")
         try:
-            # Use advanced appearance analysis (Skin, Hair, Facial Hair)
             self.repo.backfill_appearance(
                 appearance.analyze_player_appearance, season=season_str, league="NBA"
             )
         except Exception as e:
             logger.error(f"Failed to backfill appearance: {e}")
 
-        # 4. Fetch Players form DB
+        # 4. Fetch Players from DB
         players = (
             self.session.query(Player).filter_by(season=season_str, league="NBA").all()
         )
@@ -56,130 +64,90 @@ class Generator:
 
         # 5. Group by Team
         team_map = defaultdict(list)
-        
-        # [NEW] Calculate League Distribution for Tendencies
+
+        # Calculate League Distribution for Tendencies
         print("Calculating league stat distribution...")
-        # Check if p is SQL Model or Struct. Line 51 says "fetched form database", so it's SQL Model.
-        # DB Model usually has .raw_stats attribute.
         all_raw_stats_dicts = [p.raw_stats if p.raw_stats else {} for p in players]
-        
-        # We need derived stats for distribution
+
         all_derived = []
         for raw in all_raw_stats_dicts:
-            # Need height for derived stats (dunk score)
             h_str = raw.get("ROSTER_HEIGHT", raw.get("HEIGHT", ""))
-            # Need to parse height here or inside loop? 
-            # Helper function parse_height is strictly defined inside loop currently.
-            # Let's extract parsing logic or duplicate briefly for this pre-pass.
-            # Simplified height parse for distribution
             ht = 75
             try:
                 if h_str and "-" in str(h_str):
                     f, i = str(h_str).split("-")
-                    ht = int(f)*12 + int(i)
-            except: pass
-            
+                    ht = int(f) * 12 + int(i)
+            except:
+                pass
             all_derived.append(tendencies.calculate_derived_stats(raw, height=ht))
-            
+
         distribution = tendencies.calculate_distribution(all_derived)
 
         for p in players:
             team_map[p.team_id].append(p)
 
-        # 6. Build Teams (Pure Logic, No API Calls)
+        # 6. Build Teams
         league_teams = []
         total_teams = len(team_map)
         current_team = 0
+        year_int = int(year)
 
-        print("Building Teams (Offline Mode)...")
+        print("Building Teams...")
         for tid, roster in team_map.items():
             current_team += 1
             if current_team % 5 == 0:
                 print(f"Built {current_team}/{total_teams} teams...")
 
-            # Get Team Info (could be cached too, but single dict lookup is fast usually)
-            # The client usually scrapes on first load, so getting by ID from cache is fast.
+            # Get Team Info
             team_info = self.repo.nba_client.get_team_by_id(int(tid))
             city = team_info.get("city", "Unknown") if team_info else "Unknown"
-            name = (
-                team_info.get("nickname", f"Team {tid}") if team_info else f"Team {tid}"
-            )
+            name = team_info.get("nickname", f"Team {tid}") if team_info else f"Team {tid}"
             short_name = team_info.get("abbreviation", "TM") if team_info else "TM"
 
-            # Helper Functions
-            def parse_position(pos_str):
-                if not pos_str:
-                    return 1
-                p = str(pos_str).upper()
-                if "C" in p:
-                    return 5
-                if "F" in p:
-                    return 4 if "G" not in p else 3
-                return 1 if "G" in p else 1
-
-            def parse_height(h_str):
-                try:
-                    if not h_str or "-" not in str(h_str):
-                        return 72
-                    ft, inches = str(h_str).split("-")
-                    return int(ft) * 12 + int(inches)
-                except:
-                    return 72
-
-            def parse_weight(w_str):
-                try:
-                    return int(w_str)
-                except:
-                    return 200
-
-            def parse_country(c_str):
-                # Map country string to ID
-                if not c_str or c_str == "USA":
-                    return 0
-                return 1  # Generic International
+            # Get team assets from lookup
+            tid_str = str(tid)
+            target_id = team_assets.get_target_team_id(tid_str)
+            team_colors = team_assets.get_team_colors(tid_str)
+            team_location = team_assets.get_team_location(tid_str)
+            arena_name = team_assets.get_team_arena(tid_str)
+            division = team_assets.get_team_division(tid_str)
 
             # Build Roster
             struct_roster = []
+            player_id_counter = 0
+
             for p in roster:
                 raw_stats = p.raw_stats if p.raw_stats else {}
-                ratings = normalization.StatsConverter.calculate_ratings(raw_stats)
                 app_data = p.appearance if p.appearance else {}
 
-                # Metadata from raw_stats (populated by sync_nba_roster_data)
-                age = 0
-                try:
-                    age_val = raw_stats.get("ROSTER_AGE", raw_stats.get("AGE", 0))
-                    age = int(float(age_val))
-                except:
-                    pass
+                # Parse metadata
+                age = self._parse_age(raw_stats)
+                ht_val = self._parse_height(raw_stats)
+                wt_val = self._parse_weight(raw_stats)
+                pos_val = self._parse_position(raw_stats)
+                ctry_val = self._parse_country(raw_stats)
 
-                ht_val = parse_height(
-                    raw_stats.get("ROSTER_HEIGHT", raw_stats.get("HEIGHT", ""))
+                # Calculate attributes (new 15-attribute format)
+                attributes = normalization.StatsConverter.calculate_ratings(
+                    raw_stats, height=ht_val, weight=wt_val
                 )
-                wt_val = parse_weight(
-                    raw_stats.get("ROSTER_WEIGHT", raw_stats.get("WEIGHT", ""))
-                )
-                pos_val = parse_position(
-                    raw_stats.get("ROSTER_POSITION", raw_stats.get("POSITION", ""))
-                )
-                ctry_val = parse_country(raw_stats.get("ROSTER_COUNTRY", "USA"))
+
+                # Calculate overall rating
+                rating_val = normalization.calculate_overall_rating(attributes)
 
                 # Potential
                 pot_bonus = max(0, (28 - age) / 2) if age > 0 else 0
-                avg_rating = sum(ratings.values()) / len(ratings) if ratings else 5
-                # Boost potential: Base + Bonus + 2 (Skew), Min 5 (2.5 stars)
-                pot_val = min(10, max(5, int(round(avg_rating + pot_bonus + 2))))
+                pot_val = min(10, max(5, int(round(rating_val + pot_bonus + 2))))
 
-                # Rating (Current Ability)
-                rating_val = int(round(avg_rating))
-
-                # Appearance & Accessories
+                # Appearance (full object)
                 skin_val = app_data.get("skin_tone", 1)
-                hair_val = app_data.get("hair", 0)
-                beard_val = app_data.get("facial_hair", 0)
+                player_appearance = team_assets.generate_player_appearance(app_data, skin_val)
 
-                # Map to Struct
-                acc_dict = {"hair": hair_val, "beard": beard_val}
+                # Accessories (4 uniform-specific dicts)
+                player_accessories = team_assets.generate_player_accessories(skin_val)
+
+                # Suits
+                player_suits = team_assets.generate_player_suits()
 
                 # Tendencies
                 tends = tendencies.generate_player_tendencies(
@@ -189,11 +157,28 @@ class Generator:
                     distribution=distribution
                 )
 
+                # Skills/badges
+                skills = team_assets.generate_skills(attributes, raw_stats)
+
+                # Game status
+                game_status = team_assets.generate_game_status()
+
+                # Contract
+                contract = team_assets.generate_contract(rating_val, age, pot_val)
+                contract["tid"] = target_id
+                contract["pid"] = p.id
+
+                # History
+                history = team_assets.generate_player_history(years_exp=max(0, age - 22))
+
                 struct_player = structs.Player(
                     id=p.id,
-                    tid=int(tid),
+                    tid=target_id,
                     fn=p.name.split(" ")[0] if " " in p.name else p.name,
                     ln=" ".join(p.name.split(" ")[1:]) if " " in p.name else "",
+                    tag="",
+                    home="",
+                    num=player_id_counter + 1,
                     age=age,
                     ht=ht_val,
                     wt=wt_val,
@@ -201,36 +186,133 @@ class Generator:
                     ctry=ctry_val,
                     rating=rating_val,
                     pot=pot_val,
-                    appearance=skin_val,
-                    accessories=acc_dict,
+                    appearance=player_appearance,
+                    accessories=player_accessories,
+                    suits=player_suits,
+                    attributes=attributes,
+                    tendencies=tends,
+                    skills=skills,
+                    gameStatus=game_status,
+                    contract=contract,
+                    history=history,
                     stats=raw_stats,
-                    attributes=ratings,
-                    tendencies=tends
+                    careerStats={"season": [], "playoffs": [], "finals": [], "highs": {}},
                 )
                 struct_roster.append(struct_player)
+                player_id_counter += 1
+
+            # Generate team assets
+            front_office = team_assets.generate_front_office(target_id, name)
+            court = team_assets.generate_court(team_colors)
+            uniforms = team_assets.generate_uniforms(team_colors)
+            championships = team_assets.generate_championships()
+            draft_picks = team_assets.generate_draft_picks(target_id, year_int)
 
             t = structs.Team(
-                id=int(tid),
+                id=target_id,
                 city=city,
                 name=name,
                 shortName=short_name,
+                tag=short_name,
+                arenaName=arena_name,
+                logoURL="",
+                division=division,
+                location=team_location,
                 roster=struct_roster,
+                teamColors=team_colors,
+                frontOffice=front_office,
+                inbox=[],
+                uniforms=uniforms,
+                court=court,
+                startingLineup=[],
+                currentLineup=[],
+                lineupPreset=0,
+                draftPicks=draft_picks,
+                retiredNumbers=[],
+                season=[],
+                history={},
+                headToHeads={},
+                scoringOptions={},
+                quickPlays=[],
+                coinFlip=0,
+                status=0,
+                rnk=current_team,
+                championships=championships,
             )
             league_teams.append(t)
+
+        # Generate league-level data
+        meta = structs.Meta(
+            saveName=f"NBA {year} Season",
+            buildVersion="1.0",
+            uPID=-1,
+            uTID=-1,
+            uGID=0,
+            dataType=1,  # 1 = League
+            countryGeneration=0,
+            generatedCountries=[0],
+            gender=0,
+            filesize=0,
+        )
+
+        # Commissioner and referee
+        commissioner = {
+            "fn": "David",
+            "ln": "Stern",
+            "age": 60,
+            "ctry": 0,
+            "appearance": {},
+        }
+        referee = {
+            "fn": "Dick",
+            "ln": "Bavetta",
+            "age": 65,
+            "ctry": 0,
+            "appearance": {},
+        }
 
         return structs.League(
             leagueName=f"NBA {year}",
             shortName="NBA",
-            settings=self._get_default_settings(),
+            logoURL="",
+            logoSize=0,
+            leagueType=0,
+            meta=meta,
+            conferences=self._get_default_conferences(),
+            divisions=self._get_default_divisions(),
             teams=league_teams,
-            meta=structs.Meta(saveName=f"NBA {year} Season", dataType="League"),
+            freeAgents=[],
+            draftClass=[],
+            retirees=[],
+            hallOfFame=[],
+            coaches=[],
+            referee=referee,
+            commissioner=commissioner,
+            starTeams=[],
+            gameballs=[],
+            media={},
+            threePointContestants=[],
+            contractOffers=[],
+            awards=[],
+            records={},
+            settings=self._get_default_settings(),
+            rules=self._get_default_rules(),
+            sliders={},
+            difficulty={"level": 2},
+            simulationSliders={},
+            optimization={},
+            coachSettings={},
+            career={},
+            season={},
+            currentGame=None,
         )
 
     def generate_ncaa_league(self, year: str, tournament_mode: bool = False) -> structs.League:
+        """Generate NCAA league data."""
         mode_str = "Tournament (64 teams)" if tournament_mode else "Full"
         logger.info(f"Generating NCAA league for year: {year} [{mode_str}]")
 
-        # 1. Sync NCAA Data (pass tournament mode for filtering)
+        # 1. Sync NCAA Data
         team_ids = []
         try:
             team_ids = self.repo.sync_ncaa_season_stats(season=year, tournament_only=tournament_mode)
@@ -241,8 +323,8 @@ class Generator:
         logger.info("Backfilling appearance data for NCAA players...")
         try:
             self.repo.backfill_appearance(
-                appearance.analyze_player_appearance, 
-                season=year, 
+                appearance.analyze_player_appearance,
+                season=year,
                 league="NCAA",
                 team_ids=team_ids if tournament_mode else None
             )
@@ -261,52 +343,12 @@ class Generator:
         for p in players:
             team_map[p.team_id].append(p)
 
-        # Helper functions
-        def parse_height(h_str):
-            """Convert height string like '6' 9"' to inches"""
-            try:
-                if not h_str:
-                    return 72
-                # Handle formats: "6' 9\"", "6-9", etc.
-                h_str = str(h_str).replace('"', '').replace("'", '-')
-                if '-' in h_str:
-                    parts = h_str.split('-')
-                    ft = int(parts[0].strip())
-                    inches = int(parts[1].strip()) if len(parts) > 1 and parts[1].strip() else 0
-                    return ft * 12 + inches
-                return 72
-            except:
-                return 72
-
-        def parse_weight(w_str):
-            """Convert weight string like '250 lbs' to int"""
-            try:
-                if not w_str:
-                    return 200
-                return int(str(w_str).split()[0])
-            except:
-                return 200
-
-        def parse_position(pos_data):
-            """Convert position to int (1-5)"""
-            if not pos_data:
-                return 3
-            abbrev = pos_data.get("abbreviation", "") if isinstance(pos_data, dict) else str(pos_data)
-            abbrev = abbrev.upper()
-            if "C" in abbrev:
-                return 5
-            if "F" in abbrev:
-                return 4
-            if "G" in abbrev:
-                return 1 if "PG" in abbrev else 2
-            return 3
-
         # 5. Build Teams
         league_teams = []
         total_teams = len(team_map)
         current_team = 0
 
-        # Fetch Team Metadata for Naming (Optimized: Get all once)
+        # Fetch Team Metadata
         tid_to_meta = {}
         try:
             logger.info("Fetching NCAA team metadata for naming...")
@@ -325,7 +367,6 @@ class Generator:
             if current_team % 50 == 0:
                 logger.info(f"Building team {current_team}/{total_teams}...")
 
-            # Get team name from metadata map
             tid_str = str(tid)
             meta = tid_to_meta.get(tid_str, {})
             team_name = meta.get("name", f"Team {tid}")
@@ -337,20 +378,20 @@ class Generator:
                 raw = p.raw_stats if p.raw_stats else {}
                 app_data = p.appearance if p.appearance else {}
 
-                # Parse player metadata from ESPN data
-                ht_val = parse_height(raw.get("displayHeight"))
-                wt_val = parse_weight(raw.get("displayWeight"))
-                pos_val = parse_position(raw.get("position"))
+                ht_val = self._parse_height_ncaa(raw)
+                wt_val = self._parse_weight_ncaa(raw)
+                pos_val = self._parse_position_ncaa(raw)
 
-                # Appearance & Accessories
                 skin_val = app_data.get("skin_tone", 1)
-                hair_val = app_data.get("hair", 0)
-                beard_val = app_data.get("facial_hair", 0)
-                acc_dict = {"hair": hair_val, "beard": beard_val}
+                player_appearance = team_assets.generate_player_appearance(app_data, skin_val)
+                player_accessories = team_assets.generate_player_accessories(skin_val)
 
-                # Default ratings for NCAA (college players)
-                rating_val = 5
-                pot_val = 7
+                # Default ratings for NCAA
+                attributes = {k: [5, 7] for k in [
+                    "LAY", "DNK", "INS", "MID", "TPT", "FTS",
+                    "DRB", "PAS", "ORE", "DRE", "STL", "BLK",
+                    "STR", "SPD", "STM"
+                ]}
 
                 struct_player = structs.Player(
                     id=p.id,
@@ -362,19 +403,27 @@ class Generator:
                     wt=wt_val,
                     pos=pos_val,
                     ctry=0,
-                    rating=rating_val,
-                    pot=pot_val,
-                    appearance=skin_val,
-                    accessories=acc_dict,
+                    rating=5.0,
+                    pot=7,
+                    appearance=player_appearance,
+                    accessories=player_accessories,
+                    attributes=attributes,
                 )
                 struct_roster.append(struct_player)
 
+            # Generate team colors (placeholder for NCAA)
+            team_colors = ["CC0000", "FFFFFF", "000000"]
+
             t = structs.Team(
                 id=int(tid),
-                city="", # NCAA teams typically use the school name as the "city" equivalent or full name
+                city="",
                 name=team_name,
                 shortName=team_abbrev,
+                tag=team_abbrev,
                 roster=struct_roster,
+                teamColors=team_colors,
+                uniforms=team_assets.generate_uniforms(team_colors),
+                court=team_assets.generate_court(team_colors),
             )
             league_teams.append(t)
 
@@ -383,22 +432,27 @@ class Generator:
         return structs.League(
             leagueName=f"NCAA {year}",
             shortName="NCAA",
+            leagueType=1,
             settings=self._get_default_settings(),
             teams=league_teams,
-            meta=structs.Meta(saveName=f"NCAA {year}", dataType="League"),
+            meta=structs.Meta(
+                saveName=f"NCAA {year}",
+                dataType=1,
+                generatedCountries=[0],
+            ),
         )
 
     def generate_draft_class(self, year: str) -> structs.League:
+        """Generate draft class data."""
         logger.info(f"Generating draft class for year: {year}")
 
-        # Use NBA Draft History
+        # Fetch draft history
         try:
             logger.info(f"Fetching draft history for {year}...")
             df = self.repo.nba_client.get_draft_history(
                 league_id="00", season_year=year
             )
 
-            # Additional safety filter if API ignores arg
             df_year = df
             if "SEASON" in df.columns:
                 df_year = df[df["SEASON"] == year]
@@ -414,18 +468,20 @@ class Generator:
                 leagueName=f"NBA {year} Draft Class",
                 shortName="Draft",
                 teams=[],
-                meta=structs.Meta(saveName=f"{year} Draft Class", dataType="Draft Class"),
+                meta=structs.Meta(
+                    saveName=f"{year} Draft Class",
+                    dataType=2,  # 2 = Draft Class
+                    generatedCountries=[0],
+                ),
             )
 
-        # Store draft picks in database for caching
+        # Store draft picks in database
         draft_season = f"draft-{year}"
-        import time
 
         for i, row in df_year.iterrows():
             pid = str(row["PERSON_ID"])
             p_name = row["PLAYER_NAME"]
 
-            # Check if already in DB
             existing = (
                 self.session.query(Player)
                 .filter_by(source_id=pid, season=draft_season, league="NBA")
@@ -434,13 +490,12 @@ class Generator:
             if existing:
                 continue
 
-            # Create new player entry
             player = Player(
                 source_id=pid,
                 league="NBA",
                 season=draft_season,
                 name=p_name,
-                team_id="-1",  # Draft class team
+                team_id="-1",
                 raw_stats={
                     "PERSON_ID": int(row["PERSON_ID"]),
                     "PLAYER_NAME": p_name,
@@ -455,7 +510,7 @@ class Generator:
         self.session.commit()
         logger.info(f"Stored draft picks in database for season {draft_season}")
 
-        # Fetch player career stats and metadata (for potential/ratings calculation)
+        # Fetch player career stats
         players = (
             self.session.query(Player)
             .filter_by(season=draft_season, league="NBA")
@@ -469,21 +524,19 @@ class Generator:
             pid = int(p.source_id)
             pick = raw.get("OVERALL_PICK", 60)
 
-            # Skip if already has career stats
             if "CAREER_EFF" in raw:
                 continue
 
             if i % 10 == 0:
                 logger.info(f"Processing draft pick {i+1}/{len(players)}...")
 
-            time.sleep(0.8)  # Rate limiting
+            time.sleep(0.8)
 
             try:
                 stats_data = self.repo.nba_client.get_player_career_stats(pid)
                 career_df = stats_data.get("career_totals")
                 season_df = stats_data.get("season_totals")
 
-                # Calculate efficiency from career
                 eff = 0
                 gp = 0
                 if career_df is not None and not career_df.empty:
@@ -499,7 +552,6 @@ class Generator:
                 raw["CAREER_GP"] = int(gp)
                 raw["CAREER_EFF"] = round(eff, 2)
 
-                # Rookie season stats for attributes
                 if season_df is not None and not season_df.empty:
                     rookie = season_df.iloc[0]
                     rgp = rookie["GP"]
@@ -516,7 +568,7 @@ class Generator:
             except Exception as e:
                 logger.debug(f"Stats not available for {p.name}: {e}")
 
-        # Backfill appearance data for draft picks
+        # Backfill appearance
         logger.info("Backfilling appearance data for draft picks...")
         try:
             self.repo.backfill_appearance(
@@ -525,25 +577,17 @@ class Generator:
         except Exception as e:
             logger.error(f"Failed to backfill appearance: {e}")
 
-        # Refresh players from DB
+        # Refresh players
         players = (
             self.session.query(Player)
             .filter_by(season=draft_season, league="NBA")
-            .filter_by(season=draft_season, league="NBA")
             .all()
         )
-        
-        # Calculate Distribution for Draft Class (Using their own stats? Or NBA Standards?)
-        # Draft prospects have college/international stats, so distributions might differ from NBA.
-        # But we want to map them to NBA tendencies. 
-        # Ideally we compare them to NBA distribution, but we don't have that loaded here easily unless we passed it.
-        # For now, let's self-reference the draft class distribution to find relative strengths.
+
+        # Calculate Distribution
         all_raw_stats_dicts = [p.raw_stats if p.raw_stats else {} for p in players]
         all_derived = []
         for raw in all_raw_stats_dicts:
-            # Draft picks have default height 78 in Loop below?
-            # Actually line 565 hardcodes ht=78.
-            # Let's use 78 for now.
             all_derived.append(tendencies.calculate_derived_stats(raw, height=78))
         distribution = tendencies.calculate_distribution(all_derived)
 
@@ -557,27 +601,24 @@ class Generator:
             eff = raw.get("CAREER_EFF", 0)
 
             # Calculate potential from career performance
-            # Calculate potential from career performance
             if gp > 0:
-                # Skewed thresholds for generous potential
-                if eff > 26:        # Was 35
+                if eff > 26:
                     pot_val = 10
-                elif eff > 20:      # Was 25
+                elif eff > 20:
                     pot_val = 9
-                elif eff > 16:      # Was 20
+                elif eff > 16:
                     pot_val = 8
-                elif eff > 12:      # Was 15
+                elif eff > 12:
                     pot_val = 7
-                elif eff > 8:       # Was 10
+                elif eff > 8:
                     pot_val = 6
-                elif eff > 4:       # Was 5
+                elif eff > 4:
                     pot_val = 5
                 elif gp > 100:
                     pot_val = 4
                 else:
-                    pot_val = 4     # Bumped min from 3 to 4
+                    pot_val = 4
             else:
-                # Fallback based on pick
                 if pick <= 5:
                     pot_val = 9
                 elif pick <= 15:
@@ -587,11 +628,13 @@ class Generator:
                 else:
                     pot_val = 5
 
-            # Calculate attributes from rookie stats
-            attrs = {k: 3 for k in [
-                "shooting_inside", "shooting_mid", "shooting_3pt",
-                "defense", "rebounding", "passing"
+            # Calculate attributes
+            base_attrs = {k: [3, pot_val] for k in [
+                "LAY", "DNK", "INS", "MID", "TPT", "FTS",
+                "DRB", "PAS", "ORE", "DRE", "STL", "BLK",
+                "STR", "SPD", "STM"
             ]}
+
             if "ROOKIE_PPG" in raw:
                 ppg = raw["ROOKIE_PPG"]
                 rpg = raw.get("ROOKIE_RPG", 0)
@@ -599,27 +642,27 @@ class Generator:
                 spg = raw.get("ROOKIE_SPG", 0)
                 bpg = raw.get("ROOKIE_BPG", 0)
 
-                attrs["shooting_inside"] = min(10, int(ppg / 2.5))
-                attrs["shooting_mid"] = min(10, int(ppg / 3.0))
-                attrs["shooting_3pt"] = min(10, int(ppg / 4.0))
-                attrs["defense"] = min(10, int((spg + bpg) * 3))
-                attrs["rebounding"] = min(10, int(rpg * 1.5))
-                attrs["passing"] = min(10, int(apg * 2.0))
+                base_attrs["INS"] = [min(10, int(ppg / 2.5)), pot_val]
+                base_attrs["MID"] = [min(10, int(ppg / 3.0)), pot_val]
+                base_attrs["TPT"] = [min(10, int(ppg / 4.0)), pot_val]
+                base_attrs["STL"] = [min(10, int(spg * 4)), pot_val]
+                base_attrs["BLK"] = [min(10, int(bpg * 3)), pot_val]
+                base_attrs["DRE"] = [min(10, int(rpg * 1.5)), pot_val]
+                base_attrs["PAS"] = [min(10, int(apg * 2.0)), pot_val]
 
-            avg_attr = sum(attrs.values()) / 6
-            rating_val = max(1, int(avg_attr))
+            avg_attr = sum(v[0] for v in base_attrs.values()) / 15
+            rating_val = max(1.0, round(avg_attr, 1))
 
-            # Appearance data
+            # Appearance
             skin_val = app_data.get("skin_tone", 1)
-            hair_val = app_data.get("hair", 0)
-            beard_val = app_data.get("facial_hair", 0)
-            acc_dict = {"hair": hair_val, "beard": beard_val}
+            player_appearance = team_assets.generate_player_appearance(app_data, skin_val)
+            player_accessories = team_assets.generate_player_accessories(skin_val)
 
             # Tendencies
             tends = tendencies.generate_player_tendencies(
                 stats=raw,
-                height=78, # Hardcoded in loop below
-                position=3, # Hardcoded below
+                height=78,
+                position=3,
                 distribution=distribution
             )
 
@@ -635,18 +678,27 @@ class Generator:
                 ctry=0,
                 rating=rating_val,
                 pot=pot_val,
-                appearance=skin_val,
-                accessories=acc_dict,
-                attributes=attrs,
-                tendencies=tends
+                appearance=player_appearance,
+                accessories=player_accessories,
+                attributes=base_attrs,
+                tendencies=tends,
+                history=team_assets.generate_player_history(
+                    draft_year=int(year),
+                    draft_pk=pick,
+                ),
             )
             draft_players.append(draft_player)
 
-        # Sort by pick order
         draft_players.sort(key=lambda x: x.id)
 
         draft_team = structs.Team(
-            id=-1, city="Draft", name="Class", shortName="DRF", roster=draft_players
+            id=-1,
+            city="Draft",
+            name="Class",
+            shortName="DRF",
+            tag="DRF",
+            roster=draft_players,
+            teamColors=["000000", "FFFFFF", "CC0000"],
         )
 
         logger.info(f"Draft class generation complete: {len(draft_players)} players")
@@ -656,8 +708,16 @@ class Generator:
             shortName="Draft",
             settings=self._get_default_settings(),
             teams=[draft_team],
-            meta=structs.Meta(saveName=f"{year} Draft Class", dataType="Draft Class"),
+            meta=structs.Meta(
+                saveName=f"{year} Draft Class",
+                dataType=2,  # 2 = Draft Class
+                generatedCountries=[0],
+            ),
         )
+
+    # ==========================================================================
+    # Helper Methods
+    # ==========================================================================
 
     def _year_to_season(self, year: str) -> str:
         try:
@@ -666,8 +726,115 @@ class Generator:
         except:
             return year
 
+    def _parse_age(self, stats: dict) -> int:
+        try:
+            age_val = stats.get("ROSTER_AGE", stats.get("AGE", 0))
+            return int(float(age_val))
+        except:
+            return 0
+
+    def _parse_height(self, stats: dict) -> int:
+        h_str = stats.get("ROSTER_HEIGHT", stats.get("HEIGHT", ""))
+        try:
+            if not h_str or "-" not in str(h_str):
+                return 72
+            ft, inches = str(h_str).split("-")
+            return int(ft) * 12 + int(inches)
+        except:
+            return 72
+
+    def _parse_height_ncaa(self, stats: dict) -> int:
+        h_str = stats.get("displayHeight", "")
+        try:
+            if not h_str:
+                return 72
+            h_str = str(h_str).replace('"', '').replace("'", '-')
+            if '-' in h_str:
+                parts = h_str.split('-')
+                ft = int(parts[0].strip())
+                inches = int(parts[1].strip()) if len(parts) > 1 and parts[1].strip() else 0
+                return ft * 12 + inches
+            return 72
+        except:
+            return 72
+
+    def _parse_weight(self, stats: dict) -> int:
+        w_str = stats.get("ROSTER_WEIGHT", stats.get("WEIGHT", ""))
+        try:
+            return int(w_str)
+        except:
+            return 200
+
+    def _parse_weight_ncaa(self, stats: dict) -> int:
+        w_str = stats.get("displayWeight", "")
+        try:
+            if not w_str:
+                return 200
+            return int(str(w_str).split()[0])
+        except:
+            return 200
+
+    def _parse_position(self, stats: dict) -> int:
+        pos_str = stats.get("ROSTER_POSITION", stats.get("POSITION", ""))
+        if not pos_str:
+            return 1
+        p = str(pos_str).upper()
+        if "C" in p:
+            return 5
+        if "F" in p:
+            return 4 if "G" not in p else 3
+        return 1 if "G" in p else 1
+
+    def _parse_position_ncaa(self, stats: dict) -> int:
+        pos_data = stats.get("position", "")
+        if not pos_data:
+            return 3
+        abbrev = pos_data.get("abbreviation", "") if isinstance(pos_data, dict) else str(pos_data)
+        abbrev = abbrev.upper()
+        if "C" in abbrev:
+            return 5
+        if "F" in abbrev:
+            return 4
+        if "G" in abbrev:
+            return 1 if "PG" in abbrev else 2
+        return 3
+
+    def _parse_country(self, stats: dict) -> int:
+        c_str = stats.get("ROSTER_COUNTRY", "USA")
+        if not c_str or c_str == "USA":
+            return 0
+        return 1
+
     def _get_default_settings(self) -> dict:
-        return {"gameLength": 12, "difficulty": 2}
+        return {
+            "gameLength": 12,
+            "difficulty": 2,
+            "shotClock": 24,
+            "overtimeLength": 5,
+        }
+
+    def _get_default_rules(self) -> dict:
+        return {
+            "foulsToFoulOut": 6,
+            "threePointLine": True,
+            "defensiveThreeSeconds": True,
+        }
+
+    def _get_default_conferences(self) -> list:
+        return [
+            {"id": 0, "name": "Eastern Conference"},
+            {"id": 1, "name": "Western Conference"},
+        ]
+
+    def _get_default_divisions(self) -> list:
+        return [
+            {"id": 0, "name": "Atlantic", "conference": 0},
+            {"id": 1, "name": "Central", "conference": 0},
+            {"id": 2, "name": "Southeast", "conference": 0},
+            {"id": 3, "name": "Northwest", "conference": 1},
+            {"id": 4, "name": "Pacific", "conference": 1},
+            {"id": 5, "name": "Southwest", "conference": 1},
+        ]
 
     def to_json(self, league_obj: structs.League, filename: str):
         try:
