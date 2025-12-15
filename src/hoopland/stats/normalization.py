@@ -8,18 +8,29 @@ the target schema format (15 attributes with [current, potential] arrays).
 from typing import Dict, List, Any
 
 
-def normalize_rating(value, min_val, max_val) -> int:
-    """Normalize a value to a 1-10 rating scale."""
+def normalize_rating(value, min_val, max_val, scale: int = 20) -> int:
+    """
+    Normalize a value to a 1-20 rating scale (matching target schema).
+    
+    The game uses 1-20 scale for all attributes. Previously this was 1-10
+    which caused all players to have low ratings in-game.
+    
+    Args:
+        value: The raw stat value
+        min_val: Minimum expected value for this stat
+        max_val: Maximum expected value for this stat  
+        scale: Output scale (default 20 to match game)
+    """
     if value is None:
         return 1
 
     val = max(min_val, min(value, max_val))
 
     if max_val == min_val:
-        return 5
+        return scale // 2
 
-    rating = ((val - min_val) / (max_val - min_val)) * 10
-    return max(1, min(10, int(round(rating))))
+    rating = ((val - min_val) / (max_val - min_val)) * scale
+    return max(1, min(scale, int(round(rating))))
 
 
 class StatsConverter:
@@ -119,9 +130,9 @@ class StatsConverter:
         stamina = StatsConverter._calc_stamina(pg_stats)
 
         # Build attributes dict with [current, potential] format
-        # Potential is current + slight bonus (capped at 10)
+        # Potential is current + slight bonus (capped at 20 to match game scale)
         def make_attr(current: int, pot_bonus: int = 0) -> List[int]:
-            pot = min(10, max(current, current + pot_bonus))
+            pot = min(20, max(current, current + pot_bonus))
             return [current, pot]
 
         return {
@@ -214,54 +225,54 @@ class StatsConverter:
     @staticmethod
     def _calc_layup(stats: Dict, inside_score: int) -> int:
         """
-        Calculate layup ability (LAY).
+        Calculate layup ability (LAY) on 1-20 scale.
         Based on inside scoring + free throw touch.
         """
         ft_pct = stats.get("FT_PCT", 0)
-        touch_bonus = normalize_rating(ft_pct, 0.6, 0.85) - 5  # -4 to +5 bonus
+        touch_bonus = normalize_rating(ft_pct, 0.6, 0.85) - 10  # -9 to +10 bonus on 20 scale
 
         lay = inside_score + touch_bonus // 2
-        return max(1, min(10, lay))
+        return max(1, min(20, lay))
 
     @staticmethod
     def _calc_dunk(stats: Dict, height: int, inside_score: int) -> int:
         """
-        Calculate dunk ability (DNK).
+        Calculate dunk ability (DNK) on 1-20 scale.
         Based on height + inside scoring. Taller players dunk more.
         """
-        # Height bonus: 6'6" (78") = 0, 6'10" (82") = +2, 7'0" (84") = +3
-        height_bonus = max(0, (height - 78) // 2)
+        # Height bonus: 6'6" (78") = 0, 6'10" (82") = +4, 7'0" (84") = +6
+        height_bonus = max(0, (height - 78))
 
-        # Inside scorers more likely to dunk
-        inside_bonus = max(0, (inside_score - 5) // 2)
+        # Inside scorers more likely to dunk (inside_score is 0-20)
+        inside_bonus = max(0, (inside_score - 10) // 2)
 
-        dnk = 3 + height_bonus + inside_bonus
-        return max(1, min(10, dnk))
+        dnk = 6 + height_bonus + inside_bonus
+        return max(1, min(20, dnk))
 
     @staticmethod
     def _calc_dribbling(stats: Dict) -> int:
         """
-        Calculate dribbling (DRB).
+        Calculate dribbling (DRB) on 1-20 scale.
         Based on assists and turnover rate.
         """
         ast = stats.get("AST", 0)
         tov = stats.get("TOV", 0)
 
-        # High assist, low turnover = good handles
+        # High assist, low turnover = good handles (normalize_rating now returns 1-20)
         assist_score = normalize_rating(ast, 0, 8.0)
 
-        # Penalize turnovers
+        # Penalize turnovers (scaled for 20 scale)
         if tov > 0:
-            tov_penalty = min(3, int(tov / 1.5))
+            tov_penalty = min(6, int(tov / 0.75))
         else:
             tov_penalty = 0
 
-        return max(1, min(10, assist_score - tov_penalty + 2))
+        return max(1, min(20, assist_score - tov_penalty + 4))
 
     @staticmethod
     def _calc_strength(weight: int, height: int) -> int:
         """
-        Calculate strength (STR) based on weight and height ratio.
+        Calculate strength (STR) on 1-20 scale based on weight and height ratio.
         Heavier relative to height = stronger.
         """
         # Expected weight for height (roughly 2.5 lbs per inch over 60")
@@ -270,22 +281,22 @@ class StatsConverter:
         # Bonus for being heavier than expected
         weight_diff = weight - expected_weight
 
-        # Normalize: -30 lbs = 3, 0 = 5, +30 lbs = 7, +60 = 9
-        strength = 5 + int(weight_diff / 15)
-        return max(1, min(10, strength))
+        # Normalize to 1-20 scale: -30 lbs = 6, 0 = 10, +30 lbs = 14, +60 = 18
+        strength = 10 + int(weight_diff / 7.5)
+        return max(1, min(20, strength))
 
     @staticmethod
     def _calc_speed(height: int, weight: int) -> int:
         """
-        Calculate speed (SPD) inversely related to height/weight.
+        Calculate speed (SPD) on 1-20 scale inversely related to height/weight.
         Guards faster than centers.
         """
         # Shorter, lighter = faster
-        height_penalty = max(0, (height - 74) // 2)  # Penalty starts at 6'2"
-        weight_penalty = max(0, (weight - 200) // 20)
+        height_penalty = max(0, (height - 74))  # Penalty starts at 6'2"
+        weight_penalty = max(0, (weight - 200) // 10)
 
-        spd = 8 - height_penalty - weight_penalty
-        return max(1, min(10, spd))
+        spd = 16 - height_penalty - weight_penalty
+        return max(1, min(20, spd))
 
     @staticmethod
     def _calc_stamina(stats: Dict) -> int:
@@ -326,14 +337,12 @@ def calculate_overall_rating(attributes: Dict[str, List[int]], nba_mode: bool = 
     defense = avg_category(defense_attrs)
     physical = avg_category(physical_attrs)
 
-    # Weighted average (base rating 0-10)
-    base_rating = offense * 0.35 + playmaking * 0.15 + defense * 0.25 + physical * 0.25
+    # Weighted average - attributes are 0-20, normalize to 0-10 for rating
+    base_rating = (offense * 0.35 + playmaking * 0.15 + defense * 0.25 + physical * 0.25) / 2.0
 
     if nba_mode:
         # NBA players should be rated 5.0-10.0 (3-5 stars in game)
         # Scale: base 0-10 -> nba 5-10
-        # A replacement-level NBA player (base ~4) becomes ~7 (high 3 star)
-        # An elite player (base ~8) becomes ~9 (5 star)
         nba_rating = 5.0 + (base_rating / 10.0) * 5.0
         return round(min(10.0, max(5.0, nba_rating)), 1)
     
@@ -348,7 +357,7 @@ def calculate_nba_rating(attributes: Dict[str, List[int]], is_starter: bool = Fa
     below a 3-star rating. Elite players get 5 stars.
     
     Args:
-        attributes: Dict with 15 attribute keys
+        attributes: Dict with 15 attribute keys (0-20 scale)
         is_starter: If True, boost rating slightly (starters are better than bench)
         
     Returns:
@@ -357,7 +366,7 @@ def calculate_nba_rating(attributes: Dict[str, List[int]], is_starter: bool = Fa
     if not attributes:
         return 5.0  # Minimum NBA floor
     
-    # Get base rating
+    # Get base rating (already normalized to 0-10 from 0-20 attributes)
     base = calculate_overall_rating(attributes, nba_mode=False)
     
     # Apply NBA scaling

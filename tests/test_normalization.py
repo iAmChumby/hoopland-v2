@@ -33,10 +33,10 @@ def test_lebron_2015_ratings():
     assert len(ratings["INS"]) == 2
 
     # Check values - Inside scoring high (high volume, good efficiency)
-    assert ratings["INS"][0] >= 7  # Current inside scoring
+    assert ratings["INS"][0] >= 14  # Current inside scoring (1-20 scale)
 
     # Passing high (7.4 assists)
-    assert ratings["PAS"][0] >= 7
+    assert ratings["PAS"][0] >= 14  # High passing (1-20 scale)
 
 
 def test_curry_2016_ratings():
@@ -55,11 +55,11 @@ def test_curry_2016_ratings():
     for k, v in ratings.items():
         print(f"{k}: {v}")
 
-    # 3pt: 402 makes is insane volume. 45% is insane efficiency. MUST be 10.
-    assert ratings["TPT"][0] == 10
+    # 3pt: 402 makes is insane volume. 45% is insane efficiency. MUST be 20.
+    assert ratings["TPT"][0] == 20  # Max on 1-20 scale
 
     # Free throws 90.8% should be high
-    assert ratings["FTS"][0] >= 8
+    assert ratings["FTS"][0] >= 16  # High FT on 1-20 scale
 
 
 def test_all_15_attributes_present():
@@ -79,19 +79,19 @@ def test_all_15_attributes_present():
 
 def test_calculate_overall_rating():
     """Test overall rating calculation."""
-    # High skill player
-    high_attrs = {k: [8, 9] for k in ["LAY", "DNK", "INS", "MID", "TPT", "FTS",
+    # High skill player - attributes on 1-20 scale, ratings on 0-10
+    high_attrs = {k: [16, 18] for k in ["LAY", "DNK", "INS", "MID", "TPT", "FTS",
                                        "DRB", "PAS", "ORE", "DRE", "STL", "BLK",
                                        "STR", "SPD", "STM"]}
     rating = calculate_overall_rating(high_attrs)
-    assert 7.5 <= rating <= 8.5
+    assert 7.5 <= rating <= 8.5  # High rating (0-10 output)
 
-    # Low skill player
-    low_attrs = {k: [3, 5] for k in ["LAY", "DNK", "INS", "MID", "TPT", "FTS",
+    # Low skill player - attributes on 1-20 scale
+    low_attrs = {k: [6, 10] for k in ["LAY", "DNK", "INS", "MID", "TPT", "FTS",
                                       "DRB", "PAS", "ORE", "DRE", "STL", "BLK",
                                       "STR", "SPD", "STM"]}
     rating = calculate_overall_rating(low_attrs)
-    assert 2.5 <= rating <= 3.5
+    assert 2.5 <= rating <= 3.5  # Low rating (0-10 output)
 
 
 def test_legacy_ratings():

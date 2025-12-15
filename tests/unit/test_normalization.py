@@ -13,7 +13,7 @@ class TestNormalizeRating:
     def test_normalize_rating_mid_range(self):
         """Test normalization of a mid-range value."""
         result = normalize_rating(17.5, 0, 35)
-        assert result == 5
+        assert result == 10  # Mid-range on 1-20 scale
 
     def test_normalize_rating_min_value(self):
         """Test normalization of minimum value."""
@@ -23,7 +23,7 @@ class TestNormalizeRating:
     def test_normalize_rating_max_value(self):
         """Test normalization of maximum value."""
         result = normalize_rating(35, 0, 35)
-        assert result == 10
+        assert result == 20  # Max on 1-20 scale
 
     def test_normalize_rating_below_min(self):
         """Test that values below min are clipped."""
@@ -33,7 +33,7 @@ class TestNormalizeRating:
     def test_normalize_rating_above_max(self):
         """Test that values above max are clipped."""
         result = normalize_rating(50, 0, 35)
-        assert result == 10
+        assert result == 20  # Clipped to max on 1-20 scale
 
     def test_normalize_rating_none_value(self):
         """Test that None returns 1."""
@@ -43,17 +43,17 @@ class TestNormalizeRating:
     def test_normalize_rating_equal_min_max(self):
         """Test when min equals max returns default."""
         result = normalize_rating(5, 5, 5)
-        assert result == 5
+        assert result == 10  # Returns scale // 2 = 10 on 1-20 scale
 
     def test_normalize_rating_percentage(self):
         """Test normalization of percentage values."""
         result = normalize_rating(0.45, 0.3, 0.6)
-        assert result == 5
+        assert result == 10  # Mid-range on 1-20 scale
 
     def test_normalize_rating_high_percentage(self):
         """Test high percentage normalization."""
         result = normalize_rating(0.58, 0.3, 0.6)
-        assert result >= 9
+        assert result >= 18  # High value on 1-20 scale
 
 
 class TestStatsConverter:
@@ -95,7 +95,7 @@ class TestStatsConverter:
             assert isinstance(value[1], int), f"{key}[1] should be int"
 
     def test_calculate_ratings_values_in_range(self):
-        """Test rating values are in valid 1-10 range."""
+        """Test rating values are in valid 1-20 range."""
         stats = {
             "GP": 0,
             "PTS": 25.0,
@@ -111,8 +111,8 @@ class TestStatsConverter:
         ratings = StatsConverter.calculate_ratings(stats)
 
         for key, value in ratings.items():
-            assert 1 <= value[0] <= 10, f"{key} current rating {value[0]} out of range"
-            assert 1 <= value[1] <= 10, f"{key} potential rating {value[1]} out of range"
+            assert 1 <= value[0] <= 20, f"{key} current rating {value[0]} out of range"
+            assert 1 <= value[1] <= 20, f"{key} potential rating {value[1]} out of range"
 
     def test_calculate_ratings_empty_stats(self):
         """Test rating calculation with empty stats."""
@@ -164,13 +164,13 @@ class TestStatsConverter:
         """Test inside scoring calculation."""
         stats = {"FG_PCT": 0.55, "FGM": 8.0}
         rating = StatsConverter._calc_inside_scoring(stats)
-        assert rating >= 7
+        assert rating >= 14  # High on 1-20 scale
 
     def test_mid_range_calculation(self):
         """Test mid-range shooting calculation."""
         stats = {"FG_PCT": 0.45}
         rating = StatsConverter._calc_mid_range(stats)
-        assert 4 <= rating <= 6
+        assert 5 <= rating <= 10  # Mid-range on 1-20 scale (45% is average)
 
     def test_ranges_defined(self):
         """Test that all required ranges are defined."""
@@ -203,7 +203,8 @@ class TestCalculateOverallRating:
 
     def test_high_skill_player(self):
         """Test overall rating for high skill player."""
-        attrs = {k: [8, 9] for k in ["LAY", "DNK", "INS", "MID", "TPT", "FTS",
+        # Attributes on 1-20 scale, rating output on 0-10
+        attrs = {k: [16, 18] for k in ["LAY", "DNK", "INS", "MID", "TPT", "FTS",
                                       "DRB", "PAS", "ORE", "DRE", "STL", "BLK",
                                       "STR", "SPD", "STM"]}
         rating = calculate_overall_rating(attrs)
@@ -211,7 +212,8 @@ class TestCalculateOverallRating:
 
     def test_low_skill_player(self):
         """Test overall rating for low skill player."""
-        attrs = {k: [3, 5] for k in ["LAY", "DNK", "INS", "MID", "TPT", "FTS",
+        # Attributes on 1-20 scale, rating output on 0-10
+        attrs = {k: [6, 10] for k in ["LAY", "DNK", "INS", "MID", "TPT", "FTS",
                                       "DRB", "PAS", "ORE", "DRE", "STL", "BLK",
                                       "STR", "SPD", "STM"]}
         rating = calculate_overall_rating(attrs)
