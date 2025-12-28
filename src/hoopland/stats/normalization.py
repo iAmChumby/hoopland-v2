@@ -393,5 +393,108 @@ def calculate_nba_rating(attributes: Dict[str, List[int]], is_starter: bool = Fa
     # Starter bonus (small boost)
     if is_starter:
         nba_rating = min(10.0, nba_rating + 0.3)
-    
+
     return round(min(10.0, max(5.0, nba_rating)), 1)
+
+
+def percentile_to_rating(percentile: float) -> float:
+    """
+    Map a percentile (0-100) to a 2K-style rating (6.0-10.0).
+
+    All NBA players are professionals, so minimum is 3 stars (6.0).
+
+    Target distribution:
+    - 99%+: 10 (5 stars - MVP/Superstar)
+    - 95-99%: 9.x (4.5 stars - All-Star/Key players)
+    - 80-95%: 8.x (4 stars - Solid starters/contributors)
+    - 50-80%: 7.x (3.5 stars - Rotation players)
+    - 0-50%: 6.x (3 stars - Bench/End of rotation)
+    """
+    if percentile >= 99:
+        return 10.0
+    elif percentile >= 95:
+        return 9.0 + (percentile - 95) / 4.0 * 0.9
+    elif percentile >= 80:
+        return 8.0 + (percentile - 80) / 15.0 * 0.9
+    elif percentile >= 50:
+        return 7.0 + (percentile - 50) / 30.0 * 0.9
+    else:
+        return 6.0 + percentile / 50.0 * 0.9
+
+
+def calculate_minutes_bonus(stats: Dict[str, Any]) -> float:
+    """
+    Calculate bonus rating based on minutes played.
+
+    Players who play more minutes are generally more valuable to their team.
+    This helps differentiate key contributors from deep bench players.
+
+    Args:
+        stats: Player's raw stats dict containing MIN and GP
+
+    Returns:
+        Bonus value from 0.0 to 1.0
+    """
+    gp = stats.get("GP", 0)
+    if gp <= 0:
+        return 0.0
+
+    total_min = stats.get("MIN", 0)
+    min_pg = total_min / gp
+
+    if min_pg >= 30:
+        return 0.5 + min(0.5, (min_pg - 30) / 10.0)
+    elif min_pg >= 15:
+        return (min_pg - 15) / 30.0
+    return 0.0
+
+
+def calculate_league_ratings(
+    all_player_attributes: List[Dict[str, List[int]]],
+    all_player_stats: List[Dict[str, Any]] = None
+) -> List[float]:
+    """
+    Calculate ratings for all players using percentile-based distribution.
+
+    This function produces a 2K-style distribution where elite players
+    are clearly separated from average players. It also applies a minutes
+    bonus to differentiate key contributors from deep bench players.
+
+    Args:
+        all_player_attributes: List of attribute dicts for all players
+        all_player_stats: Optional list of raw stats dicts for minutes bonus
+
+    Returns:
+        List of ratings (6.0-10.0) in same order as input
+    """
+    if not all_player_attributes:
+        return []
+
+    n = len(all_player_attributes)
+    if n == 1:
+        bonus = 0.0
+        if all_player_stats and len(all_player_stats) > 0:
+            bonus = calculate_minutes_bonus(all_player_stats[0])
+        return [min(10.0, 7.0 + bonus)]
+
+    base_ratings = []
+    for attrs in all_player_attributes:
+        base = calculate_overall_rating(attrs, nba_mode=False)
+        base_ratings.append(base)
+
+    indexed_ratings = [(i, r) for i, r in enumerate(base_ratings)]
+    sorted_by_rating = sorted(indexed_ratings, key=lambda x: x[1])
+
+    final_ratings = [0.0] * n
+
+    for rank, (original_idx, _) in enumerate(sorted_by_rating):
+        percentile = (rank / (n - 1)) * 100.0 if n > 1 else 50.0
+        rating = percentile_to_rating(percentile)
+
+        if all_player_stats and original_idx < len(all_player_stats):
+            bonus = calculate_minutes_bonus(all_player_stats[original_idx])
+            rating = min(10.0, rating + bonus)
+
+        final_ratings[original_idx] = round(rating, 1)
+
+    return final_ratings

@@ -223,3 +223,165 @@ class TestCalculateOverallRating:
         """Test overall rating with empty attributes."""
         rating = calculate_overall_rating({})
         assert rating == 0.0
+
+
+from hoopland.stats.normalization import (
+    percentile_to_rating,
+    calculate_league_ratings,
+    calculate_minutes_bonus,
+)
+
+
+class TestPercentileToRating:
+    """Tests for percentile-to-rating mapping function."""
+
+    def test_mvp_tier(self):
+        """Top 1% should get rating 10."""
+        assert percentile_to_rating(99.5) == 10.0
+        assert percentile_to_rating(100.0) == 10.0
+
+    def test_all_star_tier(self):
+        """95-99% should get rating 9.x."""
+        rating = percentile_to_rating(97)
+        assert 9.0 <= rating < 10.0
+
+    def test_solid_starter_tier(self):
+        """80-95% should get rating 8.x."""
+        rating = percentile_to_rating(88)
+        assert 8.0 <= rating < 9.0
+
+    def test_rotation_tier(self):
+        """50-80% should get rating 7.x."""
+        rating = percentile_to_rating(65)
+        assert 7.0 <= rating < 8.0
+
+    def test_bench_tier(self):
+        """0-50% should get rating 6.x."""
+        rating = percentile_to_rating(25)
+        assert 6.0 <= rating < 7.0
+
+    def test_minimum_percentile(self):
+        """0th percentile should get rating 6.0 (3 star floor)."""
+        rating = percentile_to_rating(0)
+        assert rating == 6.0
+
+    def test_tier_boundaries(self):
+        """Test exact tier boundaries."""
+        assert percentile_to_rating(99) == 10.0
+        assert percentile_to_rating(95) >= 9.0
+        assert percentile_to_rating(80) >= 8.0
+        assert percentile_to_rating(50) >= 7.0
+        assert percentile_to_rating(0) >= 6.0
+
+
+class TestCalculateMinutesBonus:
+    """Tests for minutes-based bonus calculation."""
+
+    def test_no_games_played(self):
+        """Player with no games should get 0 bonus."""
+        stats = {"GP": 0, "MIN": 0}
+        assert calculate_minutes_bonus(stats) == 0.0
+
+    def test_low_minutes_no_bonus(self):
+        """Player with <15 mpg should get 0 bonus."""
+        stats = {"GP": 50, "MIN": 500}
+        assert calculate_minutes_bonus(stats) == 0.0
+
+    def test_moderate_minutes_bonus(self):
+        """Player with 25 mpg should get moderate bonus."""
+        stats = {"GP": 50, "MIN": 1250}
+        bonus = calculate_minutes_bonus(stats)
+        assert 0.3 <= bonus <= 0.5
+
+    def test_high_minutes_bonus(self):
+        """Player with 35 mpg should get high bonus."""
+        stats = {"GP": 50, "MIN": 1750}
+        bonus = calculate_minutes_bonus(stats)
+        assert 0.7 <= bonus <= 1.0
+
+    def test_max_bonus_cap(self):
+        """Bonus should be capped at 1.0."""
+        stats = {"GP": 50, "MIN": 2500}
+        bonus = calculate_minutes_bonus(stats)
+        assert bonus <= 1.0
+
+
+class TestCalculateLeagueRatings:
+    """Tests for league-wide percentile-based ratings."""
+
+    def test_empty_list(self):
+        """Empty list should return empty list."""
+        assert calculate_league_ratings([]) == []
+
+    def test_single_player(self):
+        """Single player should get middle rating."""
+        attrs = {k: [10, 12] for k in ["LAY", "DNK", "INS", "MID", "TPT", "FTS",
+                                       "DRB", "PAS", "ORE", "DRE", "STL", "BLK",
+                                       "STR", "SPD", "STM"]}
+        ratings = calculate_league_ratings([attrs])
+        assert len(ratings) == 1
+        assert ratings[0] == 7.0
+
+    def test_rating_range(self):
+        """All ratings should be in 6.0-10.0 range (3-5 star floor)."""
+        attrs_list = []
+        for base in range(5, 16):
+            attrs = {k: [base, base + 2] for k in ["LAY", "DNK", "INS", "MID", "TPT", "FTS",
+                                                   "DRB", "PAS", "ORE", "DRE", "STL", "BLK",
+                                                   "STR", "SPD", "STM"]}
+            attrs_list.append(attrs)
+
+        ratings = calculate_league_ratings(attrs_list)
+
+        for r in ratings:
+            assert 6.0 <= r <= 10.0
+
+    def test_ordering_preserved(self):
+        """Higher base ratings should result in higher final ratings."""
+        low_attrs = {k: [5, 7] for k in ["LAY", "DNK", "INS", "MID", "TPT", "FTS",
+                                         "DRB", "PAS", "ORE", "DRE", "STL", "BLK",
+                                         "STR", "SPD", "STM"]}
+        mid_attrs = {k: [10, 12] for k in ["LAY", "DNK", "INS", "MID", "TPT", "FTS",
+                                           "DRB", "PAS", "ORE", "DRE", "STL", "BLK",
+                                           "STR", "SPD", "STM"]}
+        high_attrs = {k: [18, 20] for k in ["LAY", "DNK", "INS", "MID", "TPT", "FTS",
+                                            "DRB", "PAS", "ORE", "DRE", "STL", "BLK",
+                                            "STR", "SPD", "STM"]}
+
+        ratings = calculate_league_ratings([low_attrs, mid_attrs, high_attrs])
+
+        assert ratings[0] < ratings[1] < ratings[2]
+
+    def test_distribution_spread(self):
+        """League of players should have spread distribution."""
+        attrs_list = []
+        for i in range(100):
+            base = 5 + (i % 15)
+            attrs = {k: [base, base + 2] for k in ["LAY", "DNK", "INS", "MID", "TPT", "FTS",
+                                                   "DRB", "PAS", "ORE", "DRE", "STL", "BLK",
+                                                   "STR", "SPD", "STM"]}
+            attrs_list.append(attrs)
+
+        ratings = calculate_league_ratings(attrs_list)
+
+        assert min(ratings) >= 6.0
+        assert max(ratings) >= 9.5
+
+        import statistics
+        std_dev = statistics.stdev(ratings)
+        assert std_dev >= 0.8
+
+    def test_original_order_maintained(self):
+        """Ratings should be returned in same order as input."""
+        attrs_list = []
+        for base in [15, 5, 10, 20, 8]:
+            attrs = {k: [base, base + 2] for k in ["LAY", "DNK", "INS", "MID", "TPT", "FTS",
+                                                   "DRB", "PAS", "ORE", "DRE", "STL", "BLK",
+                                                   "STR", "SPD", "STM"]}
+            attrs_list.append(attrs)
+
+        ratings = calculate_league_ratings(attrs_list)
+
+        assert len(ratings) == 5
+        assert ratings[3] == max(ratings)
+        assert ratings[1] == min(ratings)

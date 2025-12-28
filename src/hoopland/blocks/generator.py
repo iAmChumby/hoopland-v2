@@ -86,7 +86,31 @@ class Generator:
         for p in players:
             team_map[p.team_id].append(p)
 
-        # 6. Build Teams
+        # 6. Pre-calculate league-wide ratings using percentile distribution
+        print("Calculating league-wide player ratings...")
+        player_attributes_list = []
+        player_stats_list = []
+        player_id_to_attrs = {}
+
+        for p in players:
+            raw_stats = p.raw_stats if p.raw_stats else {}
+            ht_val = self._parse_height(raw_stats)
+            wt_val = self._parse_weight(raw_stats)
+            attrs = normalization.StatsConverter.calculate_ratings(
+                raw_stats, height=ht_val, weight=wt_val
+            )
+            player_attributes_list.append(attrs)
+            player_stats_list.append(raw_stats)
+            player_id_to_attrs[p.id] = attrs
+
+        league_ratings = normalization.calculate_league_ratings(
+            player_attributes_list, player_stats_list
+        )
+        player_id_to_rating = {
+            players[i].id: league_ratings[i] for i in range(len(players))
+        }
+
+        # 7. Build Teams
         league_teams = []
         total_teams = len(team_map)
         current_team = 0
@@ -127,17 +151,13 @@ class Generator:
                 pos_val = self._parse_position(raw_stats)
                 ctry_val = self._parse_country(raw_stats)
 
-                # Calculate attributes (new 15-attribute format)
-                attributes = normalization.StatsConverter.calculate_ratings(
-                    raw_stats, height=ht_val, weight=wt_val
-                )
+                # Use pre-calculated attributes and league-wide ratings
+                attributes = player_id_to_attrs.get(p.id, {})
+                rating_val = player_id_to_rating.get(p.id, 5.0)
 
-                # Calculate overall rating (NBA floor: 3 stars minimum)
-                rating_val = normalization.calculate_nba_rating(attributes)
-
-                # Potential (based on age)
+                # Potential (based on age, floor of 6 = 3 stars for all NBA players)
                 pot_bonus = max(0, (28 - age) / 2) if age > 0 else 0
-                pot_val = min(10, max(5, int(round(rating_val + pot_bonus))))
+                pot_val = min(10, max(6, int(round(rating_val + pot_bonus))))
 
                 # Appearance (full object)
                 skin_val = app_data.get("skin_tone", 1)
