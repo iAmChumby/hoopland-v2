@@ -6,11 +6,34 @@ Tests rating calculations and stat conversions for the 15-attribute target schem
 import pytest
 from hoopland.stats.normalization import (
     normalize_rating,
+    ceil_to_half,
     StatsConverter,
     calculate_overall_rating,
     apply_nba_floor,
     calculate_potential_bonus,
 )
+
+
+class TestCeilToHalf:
+    def test_already_on_half_star(self):
+        """Values already on half-star should stay the same."""
+        assert ceil_to_half(7.5) == 7.5
+        assert ceil_to_half(8.0) == 8.0
+        assert ceil_to_half(9.5) == 9.5
+    
+    def test_round_up_to_half(self):
+        """Values between half-stars should round up."""
+        assert ceil_to_half(7.1) == 7.5
+        assert ceil_to_half(7.4) == 7.5
+        assert ceil_to_half(7.6) == 8.0
+        assert ceil_to_half(7.9) == 8.0
+    
+    def test_edge_cases(self):
+        """Test edge cases like 0 and 10."""
+        assert ceil_to_half(0.0) == 0.0
+        assert ceil_to_half(0.1) == 0.5
+        assert ceil_to_half(9.9) == 10.0
+        assert ceil_to_half(10.0) == 10.0
 
 
 class TestNormalizeRating:

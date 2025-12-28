@@ -5,7 +5,27 @@ Converts raw player statistics into game-ready attributes matching
 the target schema format (15 attributes with [current, potential] arrays).
 """
 
+import math
 from typing import Dict, List, Any
+
+
+def ceil_to_half(value: float) -> float:
+    """
+    Round a value UP to the next half-star increment (0.5).
+    
+    Examples:
+        7.1 -> 7.5
+        7.5 -> 7.5 (already on half-star)
+        7.6 -> 8.0
+        8.0 -> 8.0 (already on half-star)
+    
+    Args:
+        value: The value to round up
+        
+    Returns:
+        Value rounded up to nearest 0.5
+    """
+    return math.ceil(value * 2) / 2
 
 
 def normalize_rating(value, min_val, max_val, scale: int = 20, power: float = 0.7) -> int:
@@ -541,6 +561,6 @@ def calculate_league_ratings(
             bonus = calculate_minutes_bonus(all_player_stats[original_idx])
             rating = min(10.0, rating + bonus)
 
-        final_ratings[original_idx] = round(rating, 1)
+        final_ratings[original_idx] = ceil_to_half(rating)
 
     return final_ratings

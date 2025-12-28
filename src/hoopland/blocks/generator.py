@@ -159,9 +159,9 @@ class Generator:
                 # Calculate pot from attribute potentials (simple average, position-agnostic)
                 attribute_potentials = [attributes[key][1] for key in attributes.keys()]
                 avg_potential = sum(attribute_potentials) / len(attribute_potentials)
-                # Convert from 1-20 scale to 0-10 scale, round to nearest 0.5
-                pot_val = round((avg_potential / 2.0) * 2) / 2
-                pot_val = min(10, max(0, pot_val))
+                # Convert from 1-20 scale to 0-10 scale, round UP to nearest 0.5
+                pot_val = normalization.ceil_to_half(avg_potential / 2.0)
+                pot_val = min(10.0, max(0.0, pot_val))
 
                 # Appearance (full object)
                 skin_val = app_data.get("skin_tone", 1)
@@ -675,7 +675,7 @@ class Generator:
                 base_attrs["PAS"] = [min(10, int(apg * 2.0)), pot_val]
 
             avg_attr = sum(v[0] for v in base_attrs.values()) / 15
-            rating_val = max(1.0, round(avg_attr, 1))
+            rating_val = max(1.0, normalization.ceil_to_half(avg_attr))
 
             # Appearance
             skin_val = app_data.get("skin_tone", 1)
