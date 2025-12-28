@@ -16,7 +16,13 @@ main logic block that ties together data fetching, processing, and output format
 
 ### 4. Engines
 - **Stats Engine**: Normalizes real stats (0-100) to Hoop Land ratings (1-10).
-- **CV Engine**: Analyzes player headshots to determine skin tone and hair color.
+- **CV Engine**: Analyzes player headshots using OpenCV and MediaPipe to determine:
+  - Skin tone (1-10 scale)
+  - Hair style (0-130+ indexed styles)
+  - Facial hair (0-24 indexed styles)
+  - Accessories (0-16 indexed styles)
+  - Uses MediaPipe Face Landmarker (v0.10+) for precise facial feature detection
+  - Falls back to basic analysis if MediaPipe is unavailable
 
 ## Data Flow
 1. User requests a Season (e.g., 2003 NBA).

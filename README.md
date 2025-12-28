@@ -5,7 +5,7 @@ A tool to generate custom league and draft class files for the mobile game **Hoo
 ## Features
 - **NBA & NCAA Support**: Generate full leagues for any season from ~2000 to present.
 - **Draft Classes**: Generate incoming rookie classes with accurate attributes.
-- **Auto-Appearance**: Uses Computer Vision (OpenCV) to automatically determine player skin tone and hair color from headshots.
+- **Auto-Appearance**: Uses Computer Vision (OpenCV + MediaPipe) to automatically determine player appearance attributes including skin tone, hair style, facial hair, and accessories from headshots. MediaPipe Face Landmarker provides precise facial landmark detection for improved accuracy.
 - **Rating Normalization**: Converts real stats into balanced game ratings (1-10 scale).
 
 ## Setup
@@ -14,7 +14,7 @@ A tool to generate custom league and draft class files for the mobile game **Hoo
    ```bash
    pip install -r requirements.txt
    ```
-   *Note: Requires `opencv-python-headless`.*
+   *Note: Requires `opencv-python-headless` and `mediapipe>=0.10.0`.*
 
 ## Usage
 Run the CLI from the project root:

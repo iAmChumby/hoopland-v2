@@ -14,14 +14,17 @@ MediaPipe Face Mesh provides 468 landmarks. Key landmark indices:
 """
 
 import logging
+import os
 from typing import Optional
 
 logger = logging.getLogger(__name__)
 
 try:
     import cv2
-    import mediapipe as mp
     import numpy as np
+    from mediapipe import Image as mp_Image, ImageFormat as mp_ImageFormat
+    from mediapipe.tasks import python as mp_tasks
+    from mediapipe.tasks.python import vision as mp_vision
 
     MEDIAPIPE_AVAILABLE = True
 except ImportError as e:
@@ -109,16 +112,33 @@ class FaceLandmarkDetector:
             min_detection_confidence: Minimum confidence for face detection
         """
         if not MEDIAPIPE_AVAILABLE:
-            raise RuntimeError("MediaPipe is not installed")
+            raise RuntimeError(
+                "MediaPipe is not installed. "
+                "Face detection requires mediapipe>=0.10.0."
+            )
 
-        self.mp_face_mesh = mp.solutions.face_mesh
-        self.face_mesh = self.mp_face_mesh.FaceMesh(
-            static_image_mode=static_image_mode,
-            max_num_faces=1,
-            refine_landmarks=True,  # Enables iris landmarks
-            min_detection_confidence=min_detection_confidence,
-            min_tracking_confidence=0.5,
+        model_path = os.path.join(
+            os.path.dirname(__file__), "models", "face_landmarker.task"
         )
+
+        if not os.path.exists(model_path):
+            raise RuntimeError(
+                f"MediaPipe face landmarker model not found at {model_path}. "
+                "Please download the model file from "
+                "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task"
+            )
+
+        base_options = mp_tasks.BaseOptions(model_asset_path=model_path)
+        options = mp_vision.FaceLandmarkerOptions(
+            base_options=base_options,
+            running_mode=mp_vision.RunningMode.IMAGE,
+            num_faces=1,
+            min_face_detection_confidence=min_detection_confidence,
+            min_face_presence_confidence=0.5,
+            output_face_blendshapes=False,
+            output_facial_transformation_matrixes=False,
+        )
+        self.face_landmarker = mp_vision.FaceLandmarker.create_from_options(options)
 
     def detect_landmarks(self, img: np.ndarray) -> Optional[np.ndarray]:
         """
@@ -134,19 +154,23 @@ class FaceLandmarkDetector:
         # Convert BGR to RGB
         rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-        results = self.face_mesh.process(rgb_img)
+        # Create MediaPipe Image object
+        mp_img = mp_Image(image_format=mp_ImageFormat.SRGB, data=rgb_img)
 
-        if not results.multi_face_landmarks:
+        # Detect landmarks
+        results = self.face_landmarker.detect(mp_img)
+
+        if not results.face_landmarks:
             return None
 
         # Get first face
-        face_landmarks = results.multi_face_landmarks[0]
+        face_landmarks = results.face_landmarks[0]
 
         h, w = img.shape[:2]
 
         # Convert normalized coordinates to pixel coordinates
         landmarks = np.array(
-            [[int(lm.x * w), int(lm.y * h)] for lm in face_landmarks.landmark]
+            [[int(lm.x * w), int(lm.y * h)] for lm in face_landmarks]
         )
 
         return landmarks
@@ -264,7 +288,7 @@ class FaceLandmarkDetector:
 
     def close(self):
         """Release resources."""
-        self.face_mesh.close()
+        self.face_landmarker.close()
 
 
 # Module-level singleton for efficiency

@@ -15,7 +15,7 @@ dependencies = [
     "numpy",
     "textual",
     "python-dotenv",
-    "mediapipe",
+    "mediapipe>=0.10.0",
 ]
 
 [project.scripts]

@@ -6,3 +6,4 @@ numpy
 pytest
 python-dotenv
 textual
+mediapipe>=0.10.0

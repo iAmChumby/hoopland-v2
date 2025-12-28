@@ -88,6 +88,29 @@ Calculate average color of the skin mask.
 
 Map: Convert average RGB -> Hoop Land Skin Code (1-10) using K-Nearest Neighbors on a pre-defined palette.
 
+### Facial Landmark Detection (MediaPipe)
+
+**Library**: MediaPipe Face Landmarker (v0.10+)
+
+**Model**: `face_landmarker.task` (float16, stored in `src/hoopland/cv/models/`)
+
+**Purpose**: Detects 468 facial landmarks to enable:
+- Ear visibility detection (for hair length estimation)
+- Precise chin region detection (for facial hair analysis)
+- Forehead boundary detection (for hair/forehead boundary)
+
+**Implementation**:
+- Uses MediaPipe Tasks API (`mediapipe.tasks.python.vision.FaceLandmarker`)
+- Processes images in IMAGE running mode
+- Falls back gracefully if detection fails or model is unavailable
+- Landmark indices remain consistent with MediaPipe Face Mesh standard (468 points)
+
+**Key Landmarks**:
+- Left ear: indices [234, 127, 162, 21, 54, 103, 67, 109, 10]
+- Right ear: indices [454, 356, 389, 251, 284, 332, 297, 338, 10]
+- Chin/jawline: indices [152, 377, 400, ...] (full list in code)
+- Eyebrow tops: Left [70, 63, 105, 66, 107], Right [336, 296, 334, 293, 300]
+
 5. Stat Normalization Logic
 
 Hoop Land uses a 1-10 scale (which displays as 1-5 stars).
