@@ -219,6 +219,7 @@ class Generator:
                     if source_id:
                         awards_df = self.repo.nba_client.get_player_awards(int(source_id))
                         player_awards = awards_loader.process_player_awards(awards_df, year_int)
+                        time.sleep(0.6)
                 except Exception as e:
                     logger.debug(f"Could not fetch awards for player {p.name}: {e}")
 

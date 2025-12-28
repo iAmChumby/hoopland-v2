@@ -8,7 +8,8 @@
       "Bash(c:Users73spiProjectshoopland-v2venvScriptspython.exe -m pytest tests/unit/test_historical.py -v)",
       "Bash(.\\\\venv\\\\Scripts\\\\python.exe -m pytest:*)",
       "Bash(\"c:\\\\Users\\\\73spi\\\\Projects\\\\hoopland-v2\\\\venv\\\\Scripts\\\\python.exe\" -m pytest tests/unit/test_historical.py -v)",
-      "Bash(\"c:\\\\Users\\\\73spi\\\\Projects\\\\hoopland-v2\\\\venv\\\\Scripts\\\\python.exe\" -m pytest -v)"
+      "Bash(\"c:\\\\Users\\\\73spi\\\\Projects\\\\hoopland-v2\\\\venv\\\\Scripts\\\\python.exe\" -m pytest -v)",
+      "Bash(timeout:*)"
     ]
   }
 }
