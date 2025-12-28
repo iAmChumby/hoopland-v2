@@ -4,7 +4,13 @@ Tests rating calculations and stat conversions for the 15-attribute target schem
 """
 
 import pytest
-from hoopland.stats.normalization import normalize_rating, StatsConverter, calculate_overall_rating
+from hoopland.stats.normalization import (
+    normalize_rating,
+    StatsConverter,
+    calculate_overall_rating,
+    apply_nba_floor,
+    calculate_potential_bonus,
+)
 
 
 class TestNormalizeRating:
@@ -385,3 +391,145 @@ class TestCalculateLeagueRatings:
         assert len(ratings) == 5
         assert ratings[3] == max(ratings)
         assert ratings[1] == min(ratings)
+
+
+class TestApplyNBAFloor:
+    """Tests for NBA attribute floor enforcement."""
+
+    def test_physical_attribute_floor(self):
+        """Physical attributes (STR, SPD, STM) should have floor of 10."""
+        assert apply_nba_floor(5, "STR") == 10
+        assert apply_nba_floor(8, "SPD") == 10
+        assert apply_nba_floor(1, "STM") == 10
+
+    def test_physical_attribute_above_floor(self):
+        """Physical attributes above floor should be unchanged."""
+        assert apply_nba_floor(15, "STR") == 15
+        assert apply_nba_floor(18, "SPD") == 18
+        assert apply_nba_floor(12, "STM") == 12
+
+    def test_core_skill_floor(self):
+        """Core skills (LAY, INS, DRB, PAS, ORE, DRE) should have floor of 8."""
+        assert apply_nba_floor(3, "LAY") == 8
+        assert apply_nba_floor(5, "INS") == 8
+        assert apply_nba_floor(1, "DRB") == 8
+        assert apply_nba_floor(6, "PAS") == 8
+        assert apply_nba_floor(4, "ORE") == 8
+        assert apply_nba_floor(2, "DRE") == 8
+
+    def test_core_skill_above_floor(self):
+        """Core skills above floor should be unchanged."""
+        assert apply_nba_floor(12, "LAY") == 12
+        assert apply_nba_floor(15, "INS") == 15
+        assert apply_nba_floor(10, "DRB") == 10
+
+    def test_specialty_skill_floor(self):
+        """Specialty skills (TPT, FTS, MID, STL, BLK, DNK) should have floor of 6."""
+        assert apply_nba_floor(1, "TPT") == 6
+        assert apply_nba_floor(3, "FTS") == 6
+        assert apply_nba_floor(2, "MID") == 6
+        assert apply_nba_floor(4, "STL") == 6
+        assert apply_nba_floor(1, "BLK") == 6
+        assert apply_nba_floor(5, "DNK") == 6
+
+    def test_specialty_skill_above_floor(self):
+        """Specialty skills above floor should be unchanged."""
+        assert apply_nba_floor(10, "TPT") == 10
+        assert apply_nba_floor(15, "FTS") == 15
+        assert apply_nba_floor(8, "MID") == 8
+
+
+class TestCalculatePotentialBonus:
+    """Tests for age-based potential bonus calculation."""
+
+    def test_young_player_bonus(self):
+        """Young players (age <= 22) should get +8 bonus."""
+        assert calculate_potential_bonus(19) == 8
+        assert calculate_potential_bonus(20) == 8
+        assert calculate_potential_bonus(22) == 8
+
+    def test_entering_prime_bonus(self):
+        """Players 23-26 should get +5 bonus."""
+        assert calculate_potential_bonus(23) == 5
+        assert calculate_potential_bonus(25) == 5
+        assert calculate_potential_bonus(26) == 5
+
+    def test_prime_years_bonus(self):
+        """Players 27-29 should get +2 bonus."""
+        assert calculate_potential_bonus(27) == 2
+        assert calculate_potential_bonus(28) == 2
+        assert calculate_potential_bonus(29) == 2
+
+    def test_veteran_bonus(self):
+        """Veterans 30-34 should get +1 bonus."""
+        assert calculate_potential_bonus(30) == 1
+        assert calculate_potential_bonus(32) == 1
+        assert calculate_potential_bonus(34) == 1
+
+    def test_older_player_no_penalty(self):
+        """Older players (35+) should get +0 bonus (no penalty)."""
+        assert calculate_potential_bonus(35) == 0
+        assert calculate_potential_bonus(38) == 0
+        assert calculate_potential_bonus(40) == 0
+
+
+class TestCalculateRatingsWithAge:
+    """Tests for calculate_ratings with age parameter."""
+
+    def test_young_player_gets_high_potential(self):
+        """Young player (age 20) should have high potential relative to current."""
+        stats = {"GP": 5, "PTS": 0, "REB": 10, "AST": 5}
+        ratings = StatsConverter.calculate_ratings(stats, age=20)
+
+        # All attributes should have potential = min(20, current + 8)
+        for key, value in ratings.items():
+            current, potential = value
+            expected_potential = min(20, current + 8)
+            assert potential == expected_potential, f"{key}: potential {potential} != expected {expected_potential}"
+            assert potential <= 20, f"{key}: potential {potential} exceeds max 20"
+
+    def test_veteran_player_at_ceiling(self):
+        """Veteran player (age 35) should have potential = current."""
+        stats = {"GP": 70, "PTS": 1500, "REB": 600, "AST": 300}
+        ratings = StatsConverter.calculate_ratings(stats, age=35)
+
+        # Veterans at ceiling should have potential = current
+        for key, value in ratings.items():
+            current, potential = value
+            assert potential == current, f"{key}: veteran should be at ceiling"
+
+    def test_nba_floors_applied(self):
+        """Even with terrible stats, NBA floors should be applied."""
+        stats = {"GP": 2, "PTS": 0, "REB": 0, "AST": 0}
+        ratings = StatsConverter.calculate_ratings(stats, age=25)
+
+        # Physical attributes should be >= 10
+        assert ratings["STR"][0] >= 10
+        assert ratings["SPD"][0] >= 10
+        assert ratings["STM"][0] >= 10
+
+        # Core skills should be >= 8
+        assert ratings["LAY"][0] >= 8
+        assert ratings["INS"][0] >= 8
+        assert ratings["DRB"][0] >= 8
+        assert ratings["PAS"][0] >= 8
+        assert ratings["ORE"][0] >= 8
+        assert ratings["DRE"][0] >= 8
+
+        # Specialty skills should be >= 6
+        assert ratings["TPT"][0] >= 6
+        assert ratings["FTS"][0] >= 6
+        assert ratings["MID"][0] >= 6
+        assert ratings["STL"][0] >= 6
+        assert ratings["BLK"][0] >= 6
+        assert ratings["DNK"][0] >= 6
+
+    def test_all_values_within_bounds(self):
+        """All attribute values should be 1-20."""
+        stats = {"GP": 82, "PTS": 2500, "REB": 800, "AST": 700}
+        ratings = StatsConverter.calculate_ratings(stats, age=22)
+
+        for key, value in ratings.items():
+            current, potential = value
+            assert 1 <= current <= 20, f"{key} current {current} out of bounds"
+            assert 1 <= potential <= 20, f"{key} potential {potential} out of bounds"

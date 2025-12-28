@@ -33,6 +33,39 @@ def normalize_rating(value, min_val, max_val, scale: int = 20) -> int:
     return max(1, min(scale, int(round(rating))))
 
 
+def apply_nba_floor(value: int, attribute_type: str) -> int:
+    """
+    Apply NBA minimum floors - these are professional players.
+    
+    Target: Struggling bench (0 stats) = 2.0-2.5 stars (8-10 avg attributes).
+    Actual stats naturally push players higher from there.
+    """
+    if attribute_type in ["STR", "SPD", "STM"]:
+        return max(10, value)
+    elif attribute_type in ["LAY", "INS", "DRB", "PAS", "ORE", "DRE"]:
+        return max(8, value)
+    else:
+        return max(6, value)
+
+
+def calculate_potential_bonus(age: int) -> int:
+    """
+    Calculate potential bonus based on age.
+    Young players have room to grow, veterans are at their ceiling.
+    No age penalties - ceiling never artificially lowered.
+    """
+    if age <= 22:
+        return 8
+    elif age <= 26:
+        return 5
+    elif age <= 29:
+        return 2
+    elif age <= 34:
+        return 1
+    else:
+        return 0
+
+
 class StatsConverter:
     """
     Converts raw NBA/NCAA statistics to Hoop Land attribute ratings.
@@ -72,7 +105,7 @@ class StatsConverter:
     }
 
     @staticmethod
-    def calculate_ratings(stats: Dict, height: int = 78, weight: int = 220) -> Dict[str, List[int]]:
+    def calculate_ratings(stats: Dict, height: int = 78, weight: int = 220, age: int = 25) -> Dict[str, List[int]]:
         """
         Convert raw stats to 15 attributes in [current, potential] format.
 
@@ -80,6 +113,7 @@ class StatsConverter:
             stats: Raw per-game or total stats dict
             height: Player height in inches (for derived attributes)
             weight: Player weight in lbs (for strength)
+            age: Player age (for potential calculation)
 
         Returns:
             Dict with 15 attribute keys, each containing [current, potential] array
@@ -130,27 +164,29 @@ class StatsConverter:
         stamina = StatsConverter._calc_stamina(pg_stats)
 
         # Build attributes dict with [current, potential] format
-        # Potential is current + slight bonus (capped at 20 to match game scale)
-        def make_attr(current: int, pot_bonus: int = 0) -> List[int]:
-            pot = min(20, max(current, current + pot_bonus))
+        # Apply NBA floors and age-based potential
+        def make_attr(current: int, age: int) -> List[int]:
+            """Create [current, potential] array with age-based ceiling."""
+            pot_bonus = calculate_potential_bonus(age)
+            pot = min(20, current + pot_bonus)
             return [current, pot]
 
         return {
-            "LAY": make_attr(lay),
-            "DNK": make_attr(dnk),
-            "INS": make_attr(ins),
-            "MID": make_attr(mid),
-            "TPT": make_attr(tpt),
-            "FTS": make_attr(fts),
-            "DRB": make_attr(drb),
-            "PAS": make_attr(pas),
-            "ORE": make_attr(ore),
-            "DRE": make_attr(dre),
-            "STL": make_attr(stl),
-            "BLK": make_attr(blk),
-            "STR": make_attr(strength),
-            "SPD": make_attr(speed),
-            "STM": make_attr(stamina),
+            "LAY": make_attr(apply_nba_floor(lay, "LAY"), age),
+            "DNK": make_attr(apply_nba_floor(dnk, "DNK"), age),
+            "INS": make_attr(apply_nba_floor(ins, "INS"), age),
+            "MID": make_attr(apply_nba_floor(mid, "MID"), age),
+            "TPT": make_attr(apply_nba_floor(tpt, "TPT"), age),
+            "FTS": make_attr(apply_nba_floor(fts, "FTS"), age),
+            "DRB": make_attr(apply_nba_floor(drb, "DRB"), age),
+            "PAS": make_attr(apply_nba_floor(pas, "PAS"), age),
+            "ORE": make_attr(apply_nba_floor(ore, "ORE"), age),
+            "DRE": make_attr(apply_nba_floor(dre, "DRE"), age),
+            "STL": make_attr(apply_nba_floor(stl, "STL"), age),
+            "BLK": make_attr(apply_nba_floor(blk, "BLK"), age),
+            "STR": make_attr(apply_nba_floor(strength, "STR"), age),
+            "SPD": make_attr(apply_nba_floor(speed, "SPD"), age),
+            "STM": make_attr(apply_nba_floor(stamina, "STM"), age),
         }
 
     @staticmethod

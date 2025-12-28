@@ -94,10 +94,11 @@ class Generator:
 
         for p in players:
             raw_stats = p.raw_stats if p.raw_stats else {}
+            age = self._parse_age(raw_stats)
             ht_val = self._parse_height(raw_stats)
             wt_val = self._parse_weight(raw_stats)
             attrs = normalization.StatsConverter.calculate_ratings(
-                raw_stats, height=ht_val, weight=wt_val
+                raw_stats, height=ht_val, weight=wt_val, age=age
             )
             player_attributes_list.append(attrs)
             player_stats_list.append(raw_stats)
@@ -155,9 +156,12 @@ class Generator:
                 attributes = player_id_to_attrs.get(p.id, {})
                 rating_val = player_id_to_rating.get(p.id, 5.0)
 
-                # Potential (based on age, floor of 6 = 3 stars for all NBA players)
-                pot_bonus = max(0, (28 - age) / 2) if age > 0 else 0
-                pot_val = min(10, max(6, int(round(rating_val + pot_bonus))))
+                # Calculate pot from attribute potentials (simple average, position-agnostic)
+                attribute_potentials = [attributes[key][1] for key in attributes.keys()]
+                avg_potential = sum(attribute_potentials) / len(attribute_potentials)
+                # Convert from 1-20 scale to 0-10 scale, round to nearest 0.5
+                pot_val = round((avg_potential / 2.0) * 2) / 2
+                pot_val = min(10, max(0, pot_val))
 
                 # Appearance (full object)
                 skin_val = app_data.get("skin_tone", 1)
