@@ -65,5 +65,7 @@ class NBAClient:
             "career_totals": dfs[1] if len(dfs) > 1 else pd.DataFrame(),
         }
 
-    def fetch_player_headshot_url(self, player_id):
+    def fetch_player_headshot_url(self, player_id, team_id=None, year=None):
+        if team_id and year:
+            return f"https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/{team_id}/{year}/260x190/{player_id}.png"
         return f"https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/{player_id}.png"

@@ -99,8 +99,32 @@ def analyze_player_appearance(image_url: str) -> dict:
         except Exception as e:
             logger.debug(f"Landmark detection unavailable: {e}")
 
-        # 1. Skin Tone Detection
-        result["skin_tone"] = detect_skin_tone(img_bgr, mask_skin)
+        face_center_x = None
+        face_width = None
+        chin_y = None
+
+        if landmarks is not None:
+            detector = face_landmarks.get_detector()
+            if detector:
+                try:
+                    x_coords = landmarks[:, 0]
+                    y_coords = landmarks[:, 1]
+                    x_min, x_max = int(np.min(x_coords)), int(np.max(x_coords))
+                    y_max = int(np.max(y_coords))
+                    face_center_x = (x_min + x_max) // 2
+                    face_width = x_max - x_min
+                    chin_y = y_max
+                except Exception:
+                    pass
+
+        result["skin_tone"] = detect_skin_tone(
+            img_bgr,
+            mask_skin,
+            forehead_y=forehead_y,
+            chin_y=chin_y,
+            face_center_x=face_center_x,
+            face_width=face_width,
+        )
 
         # 2. Hair Style Detection (with landmark enhancement)
         result["hair"] = detect_hair_style(
@@ -121,21 +145,131 @@ def analyze_player_appearance(image_url: str) -> dict:
     return result
 
 
-def detect_skin_tone(img: np.ndarray, mask_skin: np.ndarray) -> int:
-    """
-    Detect skin tone on a 1-10 scale.
-    Lower values = lighter skin, higher values = darker skin.
-    """
-    skin_pixels = img[mask_skin > 0]
+def detect_skin_tone(
+    img: np.ndarray,
+    mask_skin: np.ndarray,
+    forehead_y: Optional[int] = None,
+    chin_y: Optional[int] = None,
+    face_center_x: Optional[int] = None,
+    face_width: Optional[int] = None,
+) -> int:
+    h, w = img.shape[:2]
+
+    if forehead_y is not None and chin_y is not None:
+        face_top = forehead_y
+        face_bottom = int(forehead_y + (chin_y - forehead_y) * 0.7)
+
+        if face_center_x and face_width:
+            left = max(0, face_center_x - int(face_width * 0.3))
+            right = min(w, face_center_x + int(face_width * 0.3))
+        else:
+            left = int(w * 0.3)
+            right = int(w * 0.7)
+
+        face_mask = np.zeros_like(mask_skin)
+        face_mask[face_top:face_bottom, left:right] = 255
+        focused_skin_mask = cv2.bitwise_and(mask_skin, face_mask)
+    else:
+        center_y_start = int(h * 0.25)
+        center_y_end = int(h * 0.55)
+        center_x_start = int(w * 0.3)
+        center_x_end = int(w * 0.7)
+
+        face_mask = np.zeros_like(mask_skin)
+        face_mask[center_y_start:center_y_end, center_x_start:center_x_end] = 255
+        focused_skin_mask = cv2.bitwise_and(mask_skin, face_mask)
+
+    skin_pixels = img[focused_skin_mask > 0]
+    if len(skin_pixels) < 50:
+        skin_pixels = img[mask_skin > 0]
+
     if len(skin_pixels) == 0:
         return 1
 
-    avg_skin = np.mean(skin_pixels, axis=0)  # BGR
-    # Calculate luminance (weighted sum)
-    lum = 0.114 * avg_skin[0] + 0.587 * avg_skin[1] + 0.299 * avg_skin[2]
-    # Map luminance to 1-10 scale (lighter = lower number)
-    scale = 1 + (255 - lum) / 255 * 9
-    return int(round(scale))
+    median_skin = np.median(skin_pixels, axis=0)
+    lum = 0.114 * median_skin[0] + 0.587 * median_skin[1] + 0.299 * median_skin[2]
+
+    if lum >= 190:
+        tone = 1
+    elif lum >= 165:
+        tone = 2
+    elif lum >= 140:
+        tone = 3
+    elif lum >= 115:
+        tone = 4
+    elif lum >= 90:
+        tone = 5
+    elif lum >= 65:
+        tone = 6
+    else:
+        tone = 7
+
+    logger.debug(f"Skin detection: luminance={lum:.1f}, assigned_tone={tone}")
+    return tone
+
+
+def detect_dreads_pattern(hair_crop: np.ndarray, mask_hair: np.ndarray) -> bool:
+    if np.count_nonzero(mask_hair) == 0:
+        return False
+
+    gray = cv2.cvtColor(hair_crop, cv2.COLOR_BGR2GRAY)
+    base_edges = cv2.Canny(gray, 50, 150)
+
+    vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 7))
+    vertical_edges = cv2.morphologyEx(base_edges, cv2.MORPH_CLOSE, vertical_kernel)
+
+    circular_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    circular_edges = cv2.morphologyEx(base_edges, cv2.MORPH_CLOSE, circular_kernel)
+
+    vertical_in_hair = cv2.bitwise_and(vertical_edges, mask_hair)
+    circular_in_hair = cv2.bitwise_and(circular_edges, mask_hair)
+
+    hair_pixels = np.count_nonzero(mask_hair)
+    vertical_ratio = np.count_nonzero(vertical_in_hair) / hair_pixels if hair_pixels > 0 else 0
+    circular_ratio = np.count_nonzero(circular_in_hair) / hair_pixels if hair_pixels > 0 else 0
+
+    return (vertical_ratio > circular_ratio * 1.2) and (vertical_ratio > 0.05)
+
+
+def detect_pulled_back_hair(
+    img: np.ndarray, mask_skin: np.ndarray, h: int, w: int
+) -> bool:
+    hair_region_height = int(h * 0.35)
+    hair_crop = img[0:hair_region_height, :]
+    mask_hair_region = mask_skin[0:hair_region_height, :]
+    mask_not_skin = cv2.bitwise_not(mask_hair_region)
+
+    if len(img.shape) == 3 and img.shape[2] == 4:
+        alpha_crop = img[0:hair_region_height, :, 3]
+        mask_bg = (alpha_crop < 128).astype(np.uint8) * 255
+    else:
+        gray_hair = cv2.cvtColor(hair_crop[:, :, :3], cv2.COLOR_BGR2GRAY)
+        mask_bg_dark = gray_hair < 15
+        mask_bg_bright = gray_hair > 235
+        mask_bg = (mask_bg_dark | mask_bg_bright).astype(np.uint8) * 255
+
+    mask_hair = cv2.bitwise_and(mask_not_skin, cv2.bitwise_not(mask_bg))
+
+    left_region = mask_hair[:, : w // 3]
+    center_region = mask_hair[:, w // 3 : 2 * w // 3]
+    right_region = mask_hair[:, 2 * w // 3 :]
+
+    left_coverage = np.count_nonzero(left_region)
+    center_coverage = np.count_nonzero(center_region)
+    right_coverage = np.count_nonzero(right_region)
+
+    total_coverage = left_coverage + center_coverage + right_coverage
+    if total_coverage == 0:
+        return False
+
+    center_ratio = center_coverage / total_coverage
+    sides_ratio = (left_coverage + right_coverage) / total_coverage
+
+    top_region = mask_hair[: hair_region_height // 2, :]
+    top_coverage = np.count_nonzero(top_region)
+    top_ratio = top_coverage / total_coverage if total_coverage > 0 else 0
+
+    return center_ratio > 0.45 and top_ratio < 0.6 and sides_ratio < 0.55
 
 
 def detect_hair_style(
@@ -206,14 +340,25 @@ def detect_hair_style(
     hair_pixels = np.count_nonzero(mask_hair)
     hair_coverage = hair_pixels / head_area if head_area > 0 else 0
 
-    # Analyze texture using edge detection
     texture_score = analyze_hair_texture(hair_crop, mask_hair)
 
-    # Determine hair volume classification
+    is_dread_pattern = detect_dreads_pattern(hair_crop, mask_hair)
+    is_pulled_back = detect_pulled_back_hair(img, mask_skin, h, w)
+
     volume = classify_hair_volume_from_coverage(hair_coverage)
 
-    # Determine hair texture classification
-    texture = classify_hair_texture_from_score(texture_score, hair_coverage)
+    texture = classify_hair_texture_from_score(
+        texture_score,
+        hair_coverage,
+        is_dread_pattern=is_dread_pattern,
+        is_pulled_back=is_pulled_back,
+    )
+
+    logger.debug(
+        f"Hair analysis: texture_score={texture_score:.3f}, "
+        f"is_dread_pattern={is_dread_pattern}, is_pulled_back={is_pulled_back}, "
+        f"final_texture={texture}"
+    )
 
     # ENHANCED: Use ear visibility to refine estimation
     # If ears are NOT visible (covered), hair is likely longer
@@ -299,30 +444,34 @@ def classify_hair_volume_from_coverage(coverage: float) -> str:
         return "very_high"  # Large afro, long flowing hair
 
 
-def classify_hair_texture_from_score(texture_score: float, coverage: float) -> str:
-    """
-    Classify hair texture based on edge density.
-
-    Args:
-        texture_score: Texture score from edge analysis (0.0 - 1.0)
-        coverage: Hair coverage to help distinguish styles
-
-    Returns:
-        Texture classification: 'smooth', 'wavy', 'curly', 'afro', 'dreads'
-    """
+def classify_hair_texture_from_score(
+    texture_score: float,
+    coverage: float,
+    is_dread_pattern: bool = False,
+    is_pulled_back: bool = False,
+) -> str:
     if coverage < 0.05:
-        return "smooth"  # Bald has no texture
+        return "smooth"
+
+    if texture_score >= 0.5:
+        if is_dread_pattern:
+            return "dreads"
+        elif is_pulled_back:
+            return "dreads"
 
     if texture_score < 0.2:
-        return "smooth"  # Straight, bald, buzzcut
+        return "smooth"
     elif texture_score < 0.4:
-        return "wavy"  # Wavy, slight texture
-    elif texture_score < 0.6:
-        return "curly"  # Curly, coils
-    elif texture_score < 0.8:
-        return "afro"  # Afro, high texture
+        return "wavy"
+    elif texture_score < 0.55:
+        return "curly"
+    elif texture_score < 0.75:
+        return "afro"
     else:
-        return "dreads"  # Dreads, braids, very high texture
+        if is_dread_pattern:
+            return "dreads"
+        else:
+            return "afro"
 
 
 def select_hair_style(volume: str, texture: str, variety_seed: int = 0) -> int:
@@ -455,10 +604,13 @@ def detect_facial_hair(
     # Look for dark patches within skin region (facial hair indicators)
     gray_chin = cv2.cvtColor(chin_region_bgr, cv2.COLOR_BGR2GRAY)
 
-    # Find dark pixels that overlap with skin (potential facial hair)
-    # Use adaptive threshold based on average skin brightness
     chin_skin_brightness = np.mean(chin_skin_pixels)
-    dark_threshold = max(60, chin_skin_brightness * 0.5)  # Beard is darker
+    if chin_skin_brightness > 160:
+        dark_threshold = chin_skin_brightness * 0.4
+    elif chin_skin_brightness > 120:
+        dark_threshold = chin_skin_brightness * 0.5
+    else:
+        dark_threshold = max(50, chin_skin_brightness * 0.6)
 
     dark_mask = gray_chin < dark_threshold
     facial_hair_mask = cv2.bitwise_and(
@@ -471,8 +623,7 @@ def detect_facial_hair(
         facial_hair_pixels / chin_skin_count if chin_skin_count > 0 else 0
     )
 
-    # Check for textured areas in chin region (beards have texture)
-    edges = cv2.Canny(gray_chin, 20, 80)
+    edges = cv2.Canny(gray_chin, 40, 100)
     chin_edges = cv2.bitwise_and(edges, chin_mask_cropped)
     edge_ratio = (
         np.count_nonzero(chin_edges) / chin_skin_count if chin_skin_count > 0 else 0
@@ -497,25 +648,26 @@ def select_facial_hair_style(dark_ratio: float, edge_ratio: float, player_id: in
     Returns:
         Facial hair style index (0-24)
     """
-    # Build facial hair index
     fh_index = mapping_loader.build_facial_hair_index_by_density()
 
-    # Determine density classification
-    # Weight edge ratio higher as beards have significant texture
-    combined_score = dark_ratio * 0.4 + edge_ratio * 0.6
-    
-    # Log for debugging
-    logger.debug(f"Facial hair detection: dark={dark_ratio:.3f}, edge={edge_ratio:.3f}, combined={combined_score:.3f}")
+    if dark_ratio < 0.03:
+        combined_score = 0
+    else:
+        combined_score = dark_ratio * 0.5 + edge_ratio * 0.5
+        if edge_ratio > 0.1 and dark_ratio < 0.05:
+            combined_score *= 0.5
 
-    # FIXED THRESHOLDS - more conservative to prevent over-classification
-    # Most NBA players have some edge texture even without beards
-    if combined_score < 0.02:
+    logger.debug(
+        f"Facial hair detection: dark={dark_ratio:.3f}, edge={edge_ratio:.3f}, combined={combined_score:.3f}"
+    )
+
+    if combined_score < 0.04:
         density = "none"
-    elif combined_score < 0.05:
+    elif combined_score < 0.08:
         density = "stubble"
-    elif combined_score < 0.10:
+    elif combined_score < 0.14:
         density = "goatee"
-    elif combined_score < 0.18:
+    elif combined_score < 0.22:
         density = "beard"
     else:
         density = "full_beard"

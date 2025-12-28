@@ -322,7 +322,8 @@ class DataRepository:
                 url = None
                 
                 if p.league == "NBA":
-                    url = self.nba_client.fetch_player_headshot_url(p.source_id)
+                    year = int(season.split("-")[0]) if season and "-" in season else None
+                    url = self.nba_client.fetch_player_headshot_url(p.source_id, team_id=p.team_id, year=year)
                 elif p.league == "NCAA":
                     # NCAA headshot URL is stored in raw_stats from ESPN API
                     raw = p.raw_stats if p.raw_stats else {}

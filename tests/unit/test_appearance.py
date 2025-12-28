@@ -170,7 +170,7 @@ class TestAppearanceDetection:
         """Test that skin tone detection returns valid range."""
         # This tests with a known URL
         result = appearance.analyze_player_appearance("")
-        assert 1 <= result["skin_tone"] <= 10
+        assert 1 <= result["skin_tone"] <= 7
 
     def test_hair_style_range(self):
         """Test that hair style detection returns valid range."""
@@ -356,3 +356,77 @@ class TestFaceLandmarks:
         assert (
             0 < forehead_y < h // 2
         ), f"Forehead boundary {forehead_y} should be in upper half of {h}px image"
+
+
+class TestSkinToneThresholds:
+    """Tests for improved skin tone detection thresholds."""
+
+    def test_skin_hex_map_has_7_entries(self):
+        from hoopland.blocks.team_assets import generate_player_appearance
+
+        app_data = {}
+        for i in range(1, 8):
+            result = generate_player_appearance(app_data, skin_val=i)
+            assert "skinC" in result
+            assert len(result["skinC"]) == 6
+
+    def test_classify_texture_with_dread_pattern(self):
+        texture = appearance.classify_hair_texture_from_score(
+            0.6, 0.2, is_dread_pattern=True, is_pulled_back=False
+        )
+        assert texture == "dreads"
+
+    def test_classify_texture_with_pulled_back(self):
+        texture = appearance.classify_hair_texture_from_score(
+            0.55, 0.2, is_dread_pattern=False, is_pulled_back=True
+        )
+        assert texture == "dreads"
+
+    def test_classify_texture_high_no_pattern(self):
+        texture = appearance.classify_hair_texture_from_score(
+            0.8, 0.2, is_dread_pattern=False, is_pulled_back=False
+        )
+        assert texture == "afro"
+
+
+class TestFacialHairThresholds:
+    """Tests for improved facial hair detection thresholds."""
+
+    def test_low_dark_ratio_returns_none(self):
+        result = appearance.select_facial_hair_style(0.02, 0.15, player_id=0)
+        assert result in [0, 16]
+
+    def test_high_edge_low_dark_penalty(self):
+        result = appearance.select_facial_hair_style(0.04, 0.12, player_id=0)
+        assert result in [0, 16, 1, 4, 6, 17]
+
+
+@pytest.mark.slow
+@pytest.mark.integration
+class TestKnownPlayerAppearanceFixes:
+    """Integration tests for specific player appearance issues."""
+
+    def test_joe_harris_light_skin_tone(self):
+        url = "https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/203925.png"
+        result = appearance.analyze_player_appearance(url)
+        assert result["skin_tone"] <= 3, (
+            f"Joe Harris should have light skin tone (<=3), got {result['skin_tone']}"
+        )
+
+    def test_derrick_rose_dreads(self):
+        url = "https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/201565.png"
+        result = appearance.analyze_player_appearance(url)
+        hair_desc = mapping_loader.get_style_description("hair", result["hair"]).lower()
+        dread_keywords = ["dread", "twist", "ponytail", "bun", "coil"]
+        has_dread_style = any(kw in hair_desc for kw in dread_keywords)
+        dread_indices = [5, 6, 19, 20, 21, 22, 23, 25, 27, 28, 48, 51, 61, 64, 72, 80, 81, 99, 101, 117, 118, 119]
+        assert has_dread_style or result["hair"] in dread_indices, (
+            f"Derrick Rose should have dread/ponytail style, got {result['hair']}: {hair_desc}"
+        )
+
+    def test_draymond_green_dark_skin_tone(self):
+        url = "https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/203110.png"
+        result = appearance.analyze_player_appearance(url)
+        assert result["skin_tone"] >= 5, (
+            f"Draymond Green should have dark skin tone (>=5), got {result['skin_tone']}"
+        )

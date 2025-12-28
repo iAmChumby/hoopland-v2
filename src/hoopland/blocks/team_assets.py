@@ -187,24 +187,25 @@ def generate_player_appearance(app_data: Dict, skin_val: int = 1) -> Dict[str, A
     Returns:
         Full appearance dict with hex colors and style IDs
     """
-    # Map skin tones to hex colors (light to dark)
     skin_hex_map = {
-        1: "FFD8C0",  # Light
-        2: "E8C4A8",  # Light-medium
-        3: "C68040",  # Medium
-        4: "8B5A2B",  # Medium-dark
-        5: "5C3D2E",  # Dark
+        1: "FFE0C8",
+        2: "F0C8A0",
+        3: "D4A070",
+        4: "B08050",
+        5: "906848",
+        6: "704030",
+        7: "502818",
     }
 
-    # Get skin color from analysis or fallback
-    skin_color = app_data.get("skinC", skin_hex_map.get(skin_val, "C68040"))
+    skin_tone = app_data.get("skin_tone", skin_val)
+    skin_color = app_data.get("skinC", skin_hex_map.get(skin_tone, "C68040"))
 
     # Hair data
     hair_style = app_data.get("hair", "0000")
     hair_color = app_data.get("hairC", "1A1A1A")
 
     # Facial hair data
-    facial_hair_style = app_data.get("fHair", "0000")
+    facial_hair_style = app_data.get("facial_hair", 0)
     facial_hair_color = app_data.get("fHairC", "1A1A1A")
 
     return {
