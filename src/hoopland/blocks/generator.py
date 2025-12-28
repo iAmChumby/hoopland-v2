@@ -841,20 +841,10 @@ class Generator:
         }
 
     def _get_default_conferences(self) -> list:
-        return [
-            {"id": 0, "name": "Eastern Conference"},
-            {"id": 1, "name": "Western Conference"},
-        ]
+        return ["Eastern Conference", "Western Conference"]
 
     def _get_default_divisions(self) -> list:
-        return [
-            {"id": 0, "name": "Atlantic", "conference": 0},
-            {"id": 1, "name": "Central", "conference": 0},
-            {"id": 2, "name": "Southeast", "conference": 0},
-            {"id": 3, "name": "Northwest", "conference": 1},
-            {"id": 4, "name": "Pacific", "conference": 1},
-            {"id": 5, "name": "Southwest", "conference": 1},
-        ]
+        return ["Atlantic", "Central", "Southeast", "Pacific", "Northwest", "Southwest"]
 
     def to_json(self, league_obj: structs.League, filename: str):
         try:

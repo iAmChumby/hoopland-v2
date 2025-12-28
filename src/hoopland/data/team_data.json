@@ -51,7 +51,7 @@
     "colors": ["CE1141", "000000", "FFFFFF"],
     "location": {"x": 4182, "y": -8774},
     "arena": "United Center",
-    "division": 3,
+    "division": 1,
     "conference": 0
   },
   "1610612739": {
@@ -62,7 +62,7 @@
     "colors": ["6F263D", "FFB81C", "041E42"],
     "location": {"x": 4155, "y": -8167},
     "arena": "Gund Arena",
-    "division": 3,
+    "division": 1,
     "conference": 0
   },
   "1610612742": {
@@ -84,7 +84,7 @@
     "colors": ["0E2240", "FEC524", "8B2131"],
     "location": {"x": 3971, "y": -10499},
     "arena": "Pepsi Center",
-    "division": 5,
+    "division": 4,
     "conference": 1
   },
   "1610612765": {
@@ -95,7 +95,7 @@
     "colors": ["C8102E", "1D42BA", "BEC0C2"],
     "location": {"x": 4238, "y": -8312},
     "arena": "The Palace of Auburn Hills",
-    "division": 3,
+    "division": 1,
     "conference": 0
   },
   "1610612744": {
@@ -106,7 +106,7 @@
     "colors": ["1D428A", "FFC72C", "FFFFFF"],
     "location": {"x": 3777, "y": -12213},
     "arena": "The Arena in Oakland",
-    "division": 7,
+    "division": 3,
     "conference": 1
   },
   "1610612745": {
@@ -128,7 +128,7 @@
     "colors": ["002D62", "FDBB30", "BEC0C2"],
     "location": {"x": 3979, "y": -8612},
     "arena": "Conseco Fieldhouse",
-    "division": 3,
+    "division": 1,
     "conference": 0
   },
   "1610612746": {
@@ -139,7 +139,7 @@
     "colors": ["C8102E", "1D428A", "BEC0C2"],
     "location": {"x": 3403, "y": -11817},
     "arena": "Staples Center",
-    "division": 7,
+    "division": 3,
     "conference": 1
   },
   "1610612747": {
@@ -150,7 +150,7 @@
     "colors": ["552583", "FDB927", "000000"],
     "location": {"x": 3403, "y": -11817},
     "arena": "Staples Center",
-    "division": 7,
+    "division": 3,
     "conference": 1
   },
   "1610612763": {
@@ -183,7 +183,7 @@
     "colors": ["00471B", "EEE1C6", "0077C0"],
     "location": {"x": 4309, "y": -8793},
     "arena": "Bradley Center",
-    "division": 3,
+    "division": 1,
     "conference": 0
   },
   "1610612750": {
@@ -194,7 +194,7 @@
     "colors": ["0C2340", "236192", "78BE20"],
     "location": {"x": 4498, "y": -9322},
     "arena": "Target Center",
-    "division": 5,
+    "division": 4,
     "conference": 1
   },
   "1610612740": {
@@ -227,7 +227,7 @@
     "colors": ["007A33", "FFC200", "FFFFFF"],
     "location": {"x": 4745, "y": -12231},
     "arena": "KeyArena",
-    "division": 7,
+    "division": 4,
     "conference": 1
   },
   "1610612753": {
@@ -260,7 +260,7 @@
     "colors": ["1D1160", "E56020", "000000"],
     "location": {"x": 3351, "y": -11209},
     "arena": "America West Arena",
-    "division": 7,
+    "division": 3,
     "conference": 1
   },
   "1610612757": {
@@ -271,7 +271,7 @@
     "colors": ["E03A3E", "000000", "FFFFFF"],
     "location": {"x": 4541, "y": -12267},
     "arena": "Rose Garden",
-    "division": 7,
+    "division": 4,
     "conference": 1
   },
   "1610612758": {
@@ -282,7 +282,7 @@
     "colors": ["5A2D81", "63727A", "000000"],
     "location": {"x": 3862, "y": -12157},
     "arena": "ARCO Arena",
-    "division": 7,
+    "division": 3,
     "conference": 1
   },
   "1610612759": {
@@ -315,7 +315,7 @@
     "colors": ["002B5C", "00471B", "F9A01B"],
     "location": {"x": 4079, "y": -11185},
     "arena": "Delta Center",
-    "division": 5,
+    "division": 4,
     "conference": 1
   },
   "1610612764": {
