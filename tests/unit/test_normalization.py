@@ -19,7 +19,7 @@ class TestNormalizeRating:
     def test_normalize_rating_mid_range(self):
         """Test normalization of a mid-range value."""
         result = normalize_rating(17.5, 0, 35)
-        assert result == 10  # Mid-range on 1-20 scale
+        assert 11 <= result <= 13  # Mid-range on 1-20 scale with power curve
 
     def test_normalize_rating_min_value(self):
         """Test normalization of minimum value."""
@@ -54,12 +54,28 @@ class TestNormalizeRating:
     def test_normalize_rating_percentage(self):
         """Test normalization of percentage values."""
         result = normalize_rating(0.45, 0.3, 0.6)
-        assert result == 10  # Mid-range on 1-20 scale
+        assert 11 <= result <= 13  # Mid-range on 1-20 scale with power curve
 
     def test_normalize_rating_high_percentage(self):
         """Test high percentage normalization."""
         result = normalize_rating(0.58, 0.3, 0.6)
         assert result >= 18  # High value on 1-20 scale
+
+    def test_normalize_rating_power_curve_rewards_elite(self):
+        """Elite values (95th percentile) should map to 18-20."""
+        result = normalize_rating(27, 0, 28, power=0.7)
+        assert result >= 18, f"Elite performance should get 18+, got {result}"
+    
+    def test_normalize_rating_power_curve_maintains_middle(self):
+        """Middle values should still be in 12-15 range."""
+        result = normalize_rating(14, 0, 28, power=0.7)
+        assert 12 <= result <= 16, f"Middle should be 12-16, got {result}"
+    
+    def test_normalize_rating_power_curve_vs_linear(self):
+        """Power curve should give higher ratings at high end than linear."""
+        linear_result = normalize_rating(20, 0, 28, power=1.0)
+        power_result = normalize_rating(20, 0, 28, power=0.7)
+        assert power_result > linear_result, "Power curve should boost middle-high stats"
 
 
 class TestStatsConverter:

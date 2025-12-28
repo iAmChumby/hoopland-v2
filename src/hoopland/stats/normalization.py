@@ -8,18 +8,20 @@ the target schema format (15 attributes with [current, potential] arrays).
 from typing import Dict, List, Any
 
 
-def normalize_rating(value, min_val, max_val, scale: int = 20) -> int:
+def normalize_rating(value, min_val, max_val, scale: int = 20, power: float = 0.7) -> int:
     """
-    Normalize a value to a 1-20 rating scale (matching target schema).
+    Normalize a value to a 1-20 rating scale with steeper curve for elite performers.
     
-    The game uses 1-20 scale for all attributes. Previously this was 1-10
-    which caused all players to have low ratings in-game.
+    Uses a power curve (exponent < 1.0) to reward high-end performance.
+    This makes elite stats (95th+ percentile) map to 18-20 while maintaining
+    differentiation across the spectrum.
     
     Args:
         value: The raw stat value
         min_val: Minimum expected value for this stat
         max_val: Maximum expected value for this stat  
         scale: Output scale (default 20 to match game)
+        power: Exponent for power curve (< 1.0 = steeper at top, default 0.7)
     """
     if value is None:
         return 1
@@ -29,7 +31,11 @@ def normalize_rating(value, min_val, max_val, scale: int = 20) -> int:
     if max_val == min_val:
         return scale // 2
 
-    rating = ((val - min_val) / (max_val - min_val)) * scale
+    # Power curve: compress low end, stretch high end
+    normalized = (val - min_val) / (max_val - min_val)
+    powered = normalized ** power
+    rating = powered * scale
+    
     return max(1, min(scale, int(round(rating))))
 
 
@@ -89,15 +95,15 @@ class StatsConverter:
     """
 
     RANGES = {
-        "pts": (0, 30),
+        "pts": (0, 28),
         "reb": (0, 12.0),
         "oreb": (0, 4.0),
         "dreb": (0, 10.0),
-        "ast": (0, 9.5),
+        "ast": (0, 10.0),
         "stl": (0, 2.2),
         "blk": (0, 2.5),
-        "fg_pct": (0.35, 0.55),
-        "fg3_pct": (0.28, 0.44),
+        "fg_pct": (0.35, 0.60),
+        "fg3_pct": (0.28, 0.42),
         "ft_pct": (0.5, 0.92),
         "fgm": (0, 10.0),
         "fg3m": (0, 3.5),
@@ -166,9 +172,13 @@ class StatsConverter:
         # Build attributes dict with [current, potential] format
         # Apply NBA floors and age-based potential
         def make_attr(current: int, age: int) -> List[int]:
-            """Create [current, potential] array with age-based ceiling."""
+            """
+            Create [current, potential] array with age-based ceiling.
+            Ensures potential is never less than current - if a player performs
+            at a high level, their ceiling is at least that high.
+            """
             pot_bonus = calculate_potential_bonus(age)
-            pot = min(20, current + pot_bonus)
+            pot = min(20, max(current, current + pot_bonus))
             return [current, pot]
 
         return {
