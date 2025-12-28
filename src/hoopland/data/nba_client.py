@@ -3,6 +3,7 @@ from nba_api.stats.endpoints import (
     leaguedashplayerstats,
     drafthistory,
     playercareerstats,
+    playerawards,
 )
 from nba_api.stats.static import teams
 import pandas as pd
@@ -55,15 +56,20 @@ class NBAClient:
 
     @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_player_career_stats(self, player_id):
-        # Fetches career stats summary
         career = playercareerstats.PlayerCareerStats(player_id=player_id, timeout=10)
-        # 0: SeasonTotalsRegularSeason, 1: CareerTotalsRegularSeason, ...
-        # We want SeasonTotals to find Rookie year, and CareerTotals for Potential.
         dfs = career.get_data_frames()
         return {
             "season_totals": dfs[0] if len(dfs) > 0 else pd.DataFrame(),
             "career_totals": dfs[1] if len(dfs) > 1 else pd.DataFrame(),
         }
+
+    @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
+    def get_player_awards(self, player_id: int) -> pd.DataFrame:
+        awards = playerawards.PlayerAwards(player_id=player_id, timeout=10)
+        dfs = awards.get_data_frames()
+        if dfs and len(dfs) > 0:
+            return dfs[0]
+        return pd.DataFrame()
 
     def fetch_player_headshot_url(self, player_id, team_id=None, year=None):
         if team_id and year:

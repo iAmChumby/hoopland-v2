@@ -13,6 +13,12 @@ from typing import Dict, List, Any, Optional
 _TEAM_DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "team_data.json")
 _TEAM_DATA: Dict[str, Dict] = {}
 
+_CHAMPIONSHIPS_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "championships.json")
+_CHAMPIONSHIPS_DATA: Dict[str, Dict] = {}
+
+_ANNOUNCERS_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "announcers.json")
+_ANNOUNCERS_DATA: Dict[str, List[str]] = {}
+
 
 def _load_team_data() -> Dict[str, Dict]:
     """Load team data from JSON file."""
@@ -24,6 +30,30 @@ def _load_team_data() -> Dict[str, Dict]:
         except FileNotFoundError:
             _TEAM_DATA = {}
     return _TEAM_DATA
+
+
+def _load_championships_data() -> Dict[str, Dict]:
+    """Load championships data from JSON file."""
+    global _CHAMPIONSHIPS_DATA
+    if not _CHAMPIONSHIPS_DATA:
+        try:
+            with open(_CHAMPIONSHIPS_PATH, "r") as f:
+                _CHAMPIONSHIPS_DATA = json.load(f)
+        except FileNotFoundError:
+            _CHAMPIONSHIPS_DATA = {}
+    return _CHAMPIONSHIPS_DATA
+
+
+def _load_announcers_data() -> Dict[str, List[str]]:
+    """Load announcers data from JSON file."""
+    global _ANNOUNCERS_DATA
+    if not _ANNOUNCERS_DATA:
+        try:
+            with open(_ANNOUNCERS_PATH, "r") as f:
+                _ANNOUNCERS_DATA = json.load(f)
+        except FileNotFoundError:
+            _ANNOUNCERS_DATA = {}
+    return _ANNOUNCERS_DATA
 
 
 def get_team_data(nba_team_id: str) -> Optional[Dict]:
@@ -72,24 +102,27 @@ def get_team_division(nba_team_id: str) -> int:
     return 0
 
 
-def generate_front_office(team_id: int, team_name: str) -> Dict[str, Any]:
+def generate_front_office(team_id: int, team_name: str, nba_team_id: str = "") -> Dict[str, Any]:
     """Generate front office structure for a team."""
+    announcers_data = _load_announcers_data()
+    team_announcers = announcers_data.get(str(nba_team_id), ["Home Announcer", "Color Commentator"])
+
     return {
         "coins": 1000000,
         "condition": 100.0,
         "morale": 75.0,
         "fans": 50000,
         "facilities": [
-            {"type": 0, "tier": 1, "upgrade": 0, "condition": 100.0},  # Training facility
-            {"type": 1, "tier": 1, "upgrade": 0, "condition": 100.0},  # Medical
-            {"type": 2, "tier": 1, "upgrade": 0, "condition": 100.0},  # Scouting
+            {"type": 0, "tier": 1, "upgrade": 0, "condition": 100.0},
+            {"type": 1, "tier": 1, "upgrade": 0, "condition": 100.0},
+            {"type": 2, "tier": 1, "upgrade": 0, "condition": 100.0},
         ],
         "staff": [
             {"fn": "Head", "ln": "Coach", "rating": 70, "type": 0},
             {"fn": "Assistant", "ln": "Coach", "rating": 60, "type": 1},
             {"fn": "General", "ln": "Manager", "rating": 65, "type": 2},
         ],
-        "announcers": ["Home Announcer"],
+        "announcers": team_announcers,
         "adsURL": "",
         "adSize": 0,
     }
@@ -416,12 +449,20 @@ def generate_player_history(
     }
 
 
-def generate_championships() -> Dict[str, Any]:
-    """Generate empty championships object for a team."""
+def generate_championships(nba_team_id: str = "", current_year: int = 9999) -> Dict[str, Any]:
+    """Generate championships object for a team, filtered to years before current_year."""
+    championships_data = _load_championships_data()
+    team_id = str(nba_team_id)
+
+    team_champs = championships_data.get(team_id, {})
+    all_years = team_champs.get("championships", [])
+
+    years_won = [y for y in all_years if y < current_year]
+
     return {
-        "id": 0,
+        "id": 1,
         "league": 0,
-        "yearsWon": [],
+        "yearsWon": years_won,
         "position": 0,
     }
 

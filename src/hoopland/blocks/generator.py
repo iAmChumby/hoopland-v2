@@ -13,6 +13,8 @@ from dataclasses import asdict
 
 from ..models import structs
 from ..data import repository
+from ..data import historical_loader
+from ..data import awards_loader
 from ..db import init_db, Player
 from ..cv import appearance
 from ..stats import normalization, tendencies
@@ -123,18 +125,33 @@ class Generator:
             if current_team % 5 == 0:
                 print(f"Built {current_team}/{total_teams} teams...")
 
-            # Get Team Info
-            team_info = self.repo.nba_client.get_team_by_id(int(tid))
-            city = team_info.get("city", "Unknown") if team_info else "Unknown"
-            name = team_info.get("nickname", f"Team {tid}") if team_info else f"Team {tid}"
-            short_name = team_info.get("abbreviation", "TM") if team_info else "TM"
+            # Get Team Info - use historical data for accurate names/cities
+            tid_str = str(tid)
+            historical_team = historical_loader.get_team_for_year(tid_str, year_int)
+
+            if historical_team:
+                city = historical_team.get("city", "Unknown")
+                name = historical_team.get("name", f"Team {tid}")
+                short_name = historical_team.get("tag", "TM")
+                arena_name = historical_team.get("arena", "")
+                team_colors = historical_team.get("colors", [])
+                logo_url = historical_team.get("logoURL", "")
+            else:
+                team_info = self.repo.nba_client.get_team_by_id(int(tid))
+                city = team_info.get("city", "Unknown") if team_info else "Unknown"
+                name = team_info.get("nickname", f"Team {tid}") if team_info else f"Team {tid}"
+                short_name = team_info.get("abbreviation", "TM") if team_info else "TM"
+                arena_name = team_assets.get_team_arena(tid_str)
+                team_colors = team_assets.get_team_colors(tid_str)
+                logo_url = ""
 
             # Get team assets from lookup
-            tid_str = str(tid)
             target_id = team_assets.get_target_team_id(tid_str)
-            team_colors = team_assets.get_team_colors(tid_str)
+            if not team_colors:
+                team_colors = team_assets.get_team_colors(tid_str)
             team_location = team_assets.get_team_location(tid_str)
-            arena_name = team_assets.get_team_arena(tid_str)
+            if not arena_name:
+                arena_name = team_assets.get_team_arena(tid_str)
             division = team_assets.get_team_division(tid_str)
 
             # Build Roster
@@ -195,6 +212,16 @@ class Generator:
                 # History
                 history = team_assets.generate_player_history(years_exp=max(0, age - 22))
 
+                # Awards - fetch from NBA API and filter to years before current year
+                player_awards = []
+                try:
+                    source_id = raw_stats.get("PLAYER_ID", p.source_id)
+                    if source_id:
+                        awards_df = self.repo.nba_client.get_player_awards(int(source_id))
+                        player_awards = awards_loader.process_player_awards(awards_df, year_int)
+                except Exception as e:
+                    logger.debug(f"Could not fetch awards for player {p.name}: {e}")
+
                 struct_player = structs.Player(
                     id=p.id,
                     tid=target_id,
@@ -221,15 +248,16 @@ class Generator:
                     history=history,
                     stats=raw_stats,
                     careerStats={"season": [], "playoffs": [], "finals": [], "highs": {}},
+                    awards=player_awards,
                 )
                 struct_roster.append(struct_player)
                 player_id_counter += 1
 
             # Generate team assets
-            front_office = team_assets.generate_front_office(target_id, name)
-            court = team_assets.generate_court(team_colors)
+            front_office = team_assets.generate_front_office(target_id, name, tid_str)
+            court = team_assets.generate_court(team_colors, logo_url)
             uniforms = team_assets.generate_uniforms(team_colors)
-            championships = team_assets.generate_championships()
+            championships = team_assets.generate_championships(tid_str, year_int)
             draft_picks = team_assets.generate_draft_picks(target_id, year_int)
 
             t = structs.Team(
@@ -239,7 +267,7 @@ class Generator:
                 shortName=short_name,
                 tag=short_name,
                 arenaName=arena_name,
-                logoURL="",
+                logoURL=logo_url,
                 division=division,
                 location=team_location,
                 roster=struct_roster,

@@ -1,0 +1,50 @@
+{
+  "award_types": {
+    "1": {"name": "MVP", "description": "Most Valuable Player"},
+    "2": {"name": "DPOY", "description": "Defensive Player of the Year"},
+    "3": {"name": "ROY", "description": "Rookie of the Year"},
+    "4": {"name": "6MOTY", "description": "Sixth Man of the Year"},
+    "5": {"name": "FINALS_MVP", "description": "Finals MVP"},
+    "6": {"name": "ALL_STAR", "description": "All-Star Selection"},
+    "7": {"name": "ALL_NBA_1ST", "description": "All-NBA First Team"},
+    "8": {"name": "ALL_NBA_2ND", "description": "All-NBA Second Team"},
+    "9": {"name": "ALL_NBA_3RD", "description": "All-NBA Third Team"},
+    "10": {"name": "SCORING_TITLE", "description": "Scoring Champion"},
+    "11": {"name": "ALL_DEFENSIVE_1ST", "description": "All-Defensive First Team"},
+    "12": {"name": "ALL_DEFENSIVE_2ND", "description": "All-Defensive Second Team"},
+    "13": {"name": "REBOUNDS_LEADER", "description": "Rebounds Leader"},
+    "14": {"name": "ASSISTS_LEADER", "description": "Assists Leader"},
+    "15": {"name": "STEALS_LEADER", "description": "Steals Leader"},
+    "16": {"name": "BLOCKS_LEADER", "description": "Blocks Leader"},
+    "17": {"name": "MIP", "description": "Most Improved Player"},
+    "18": {"name": "ALL_ROOKIE_1ST", "description": "All-Rookie First Team"},
+    "19": {"name": "ALL_ROOKIE_2ND", "description": "All-Rookie Second Team"},
+    "20": {"name": "CONFERENCE_FINALS_MVP", "description": "Conference Finals MVP"}
+  },
+  "nba_api_description_map": {
+    "NBA Most Valuable Player": 1,
+    "NBA Defensive Player of the Year": 2,
+    "NBA Rookie of the Year": 3,
+    "NBA Sixth Man of the Year": 4,
+    "NBA Finals Most Valuable Player": 5,
+    "Bill Russell NBA Finals Most Valuable Player": 5,
+    "All-Star": 6,
+    "NBA All-Star": 6,
+    "NBA All-Star Game Kobe Bryant Most Valuable Player": 6,
+    "All-NBA": 7,
+    "All-Defensive Team": 11,
+    "All-Defensive Team First Team": 11,
+    "All-Defensive Team Second Team": 12,
+    "NBA Most Improved Player": 17,
+    "All-Rookie Team": 18,
+    "All-Rookie Team First Team": 18,
+    "All-Rookie Team Second Team": 19,
+    "Eastern Conference Finals Most Valuable Player": 20,
+    "Western Conference Finals Most Valuable Player": 20
+  },
+  "all_nba_team_number_map": {
+    "1": 7,
+    "2": 8,
+    "3": 9
+  }
+}
