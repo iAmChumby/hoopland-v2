@@ -3,36 +3,68 @@
     "current": "Atlanta Hawks",
     "history": [
       {
-        "years": [1946, 1951],
+        "years": [
+          1946,
+          1951
+        ],
         "city": "Tri-Cities",
         "name": "Blackhawks",
         "tag": "TRI",
         "arena": "Wharton Field House",
-        "colors": ["000000", "CE1141", "FFFFFF"]
+        "colors": [
+          "000000",
+          "CE1141",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/tri-cities-blackhawks.png"
       },
       {
-        "years": [1951, 1955],
+        "years": [
+          1951,
+          1955
+        ],
         "city": "Milwaukee",
         "name": "Hawks",
         "tag": "MLH",
         "arena": "Milwaukee Arena",
-        "colors": ["CE1141", "000000", "FFFFFF"]
+        "colors": [
+          "CE1141",
+          "000000",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/milwaukee-hawks.png"
       },
       {
-        "years": [1955, 1968],
+        "years": [
+          1955,
+          1968
+        ],
         "city": "St. Louis",
         "name": "Hawks",
         "tag": "STL",
         "arena": "Kiel Auditorium",
-        "colors": ["CE1141", "002B5C", "FFFFFF"]
+        "colors": [
+          "CE1141",
+          "002B5C",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/st-louis-hawks.png"
       },
       {
-        "years": [1968, null],
+        "years": [
+          1968,
+          null
+        ],
         "city": "Atlanta",
         "name": "Hawks",
         "tag": "ATL",
         "arena": "State Farm Arena",
-        "colors": ["C8102E", "FDB927", "000000"]
+        "colors": [
+          "C8102E",
+          "FDB927",
+          "000000"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/atlanta-hawks.png"
       }
     ]
   },
@@ -40,12 +72,20 @@
     "current": "Boston Celtics",
     "history": [
       {
-        "years": [1946, null],
+        "years": [
+          1946,
+          null
+        ],
         "city": "Boston",
         "name": "Celtics",
         "tag": "BOS",
         "arena": "TD Garden",
-        "colors": ["007A33", "BA9653", "FFFFFF"]
+        "colors": [
+          "007A33",
+          "BA9653",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/boston-celtics.png"
       }
     ]
   },
@@ -53,36 +93,68 @@
     "current": "Brooklyn Nets",
     "history": [
       {
-        "years": [1967, 1968],
+        "years": [
+          1967,
+          1968
+        ],
         "city": "New Jersey",
         "name": "Americans",
         "tag": "NJA",
         "arena": "Teaneck Armory",
-        "colors": ["002A60", "CD1141", "FFFFFF"]
+        "colors": [
+          "002A60",
+          "CD1141",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/new-jersey-americans.png"
       },
       {
-        "years": [1968, 1977],
+        "years": [
+          1968,
+          1977
+        ],
         "city": "New York",
         "name": "Nets",
         "tag": "NYN",
         "arena": "Nassau Coliseum",
-        "colors": ["002A60", "CD1141", "FFFFFF"]
+        "colors": [
+          "002A60",
+          "CD1141",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/new-york-nets.png"
       },
       {
-        "years": [1977, 2012],
+        "years": [
+          1977,
+          2012
+        ],
         "city": "New Jersey",
         "name": "Nets",
         "tag": "NJN",
         "arena": "Izod Center",
-        "colors": ["002A60", "CD1141", "FFFFFF"]
+        "colors": [
+          "002A60",
+          "CD1141",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/new-jersey-nets.png"
       },
       {
-        "years": [2012, null],
+        "years": [
+          2012,
+          null
+        ],
         "city": "Brooklyn",
         "name": "Nets",
         "tag": "BKN",
         "arena": "Barclays Center",
-        "colors": ["000000", "FFFFFF", "000000"]
+        "colors": [
+          "000000",
+          "FFFFFF",
+          "000000"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/brooklyn-nets.png"
       }
     ]
   },
@@ -90,20 +162,36 @@
     "current": "Charlotte Hornets",
     "history": [
       {
-        "years": [2004, 2014],
+        "years": [
+          2004,
+          2014
+        ],
         "city": "Charlotte",
         "name": "Bobcats",
         "tag": "CHA",
         "arena": "Spectrum Center",
-        "colors": ["F26532", "1D1160", "A1A1A4"]
+        "colors": [
+          "F26532",
+          "1D1160",
+          "A1A1A4"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/charlotte-bobcats.png"
       },
       {
-        "years": [2014, null],
+        "years": [
+          2014,
+          null
+        ],
         "city": "Charlotte",
         "name": "Hornets",
         "tag": "CHA",
         "arena": "Spectrum Center",
-        "colors": ["1D1160", "00788C", "A1A1A4"]
+        "colors": [
+          "1D1160",
+          "00788C",
+          "A1A1A4"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/charlotte-hornets.png"
       }
     ]
   },
@@ -111,12 +199,20 @@
     "current": "Chicago Bulls",
     "history": [
       {
-        "years": [1966, null],
+        "years": [
+          1966,
+          null
+        ],
         "city": "Chicago",
         "name": "Bulls",
         "tag": "CHI",
         "arena": "United Center",
-        "colors": ["CE1141", "000000", "FFFFFF"]
+        "colors": [
+          "CE1141",
+          "000000",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/chicago-bulls.png"
       }
     ]
   },
@@ -124,12 +220,20 @@
     "current": "Cleveland Cavaliers",
     "history": [
       {
-        "years": [1970, null],
+        "years": [
+          1970,
+          null
+        ],
         "city": "Cleveland",
         "name": "Cavaliers",
         "tag": "CLE",
         "arena": "Rocket Mortgage FieldHouse",
-        "colors": ["6F263D", "FFB81C", "041E42"]
+        "colors": [
+          "6F263D",
+          "FFB81C",
+          "041E42"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/cleveland-cavaliers.png"
       }
     ]
   },
@@ -137,12 +241,20 @@
     "current": "Dallas Mavericks",
     "history": [
       {
-        "years": [1980, null],
+        "years": [
+          1980,
+          null
+        ],
         "city": "Dallas",
         "name": "Mavericks",
         "tag": "DAL",
         "arena": "American Airlines Center",
-        "colors": ["00538C", "002B5E", "B8C4CA"]
+        "colors": [
+          "00538C",
+          "002B5E",
+          "B8C4CA"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/dallas-mavericks.png"
       }
     ]
   },
@@ -150,20 +262,36 @@
     "current": "Denver Nuggets",
     "history": [
       {
-        "years": [1967, 1974],
+        "years": [
+          1967,
+          1974
+        ],
         "city": "Denver",
         "name": "Rockets",
         "tag": "DNR",
         "arena": "Denver Auditorium Arena",
-        "colors": ["0E2240", "FEC524", "8B2131"]
+        "colors": [
+          "0E2240",
+          "FEC524",
+          "8B2131"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/denver-rockets.png"
       },
       {
-        "years": [1974, null],
+        "years": [
+          1974,
+          null
+        ],
         "city": "Denver",
         "name": "Nuggets",
         "tag": "DEN",
         "arena": "Ball Arena",
-        "colors": ["0E2240", "FEC524", "8B2131"]
+        "colors": [
+          "0E2240",
+          "FEC524",
+          "8B2131"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/denver-nuggets.png"
       }
     ]
   },
@@ -171,20 +299,36 @@
     "current": "Detroit Pistons",
     "history": [
       {
-        "years": [1941, 1957],
+        "years": [
+          1941,
+          1957
+        ],
         "city": "Fort Wayne",
         "name": "Pistons",
         "tag": "FWP",
         "arena": "Allen County War Memorial Coliseum",
-        "colors": ["C8102E", "1D42BA", "FFFFFF"]
+        "colors": [
+          "C8102E",
+          "1D42BA",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/fort-wayne-pistons.png"
       },
       {
-        "years": [1957, null],
+        "years": [
+          1957,
+          null
+        ],
         "city": "Detroit",
         "name": "Pistons",
         "tag": "DET",
         "arena": "Little Caesars Arena",
-        "colors": ["C8102E", "1D42BA", "BEC0C2"]
+        "colors": [
+          "C8102E",
+          "1D42BA",
+          "BEC0C2"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/detroit-pistons.png"
       }
     ]
   },
@@ -192,28 +336,52 @@
     "current": "Golden State Warriors",
     "history": [
       {
-        "years": [1946, 1962],
+        "years": [
+          1946,
+          1962
+        ],
         "city": "Philadelphia",
         "name": "Warriors",
         "tag": "PHW",
         "arena": "Philadelphia Arena",
-        "colors": ["1D428A", "FFC72C", "FFFFFF"]
+        "colors": [
+          "1D428A",
+          "FFC72C",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/philadelphia-warriors.png"
       },
       {
-        "years": [1962, 1971],
+        "years": [
+          1962,
+          1971
+        ],
         "city": "San Francisco",
         "name": "Warriors",
         "tag": "SFW",
         "arena": "Cow Palace",
-        "colors": ["1D428A", "FFC72C", "FFFFFF"]
+        "colors": [
+          "1D428A",
+          "FFC72C",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/san-francisco-warriors.png"
       },
       {
-        "years": [1971, null],
+        "years": [
+          1971,
+          null
+        ],
         "city": "Golden State",
         "name": "Warriors",
         "tag": "GSW",
         "arena": "Chase Center",
-        "colors": ["1D428A", "FFC72C", "FFFFFF"]
+        "colors": [
+          "1D428A",
+          "FFC72C",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/golden-state-warriors.png"
       }
     ]
   },
@@ -221,20 +389,36 @@
     "current": "Houston Rockets",
     "history": [
       {
-        "years": [1967, 1971],
+        "years": [
+          1967,
+          1971
+        ],
         "city": "San Diego",
         "name": "Rockets",
         "tag": "SDR",
         "arena": "San Diego Sports Arena",
-        "colors": ["CE1141", "000000", "C4CED4"]
+        "colors": [
+          "CE1141",
+          "000000",
+          "C4CED4"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/san-diego-rockets.png"
       },
       {
-        "years": [1971, null],
+        "years": [
+          1971,
+          null
+        ],
         "city": "Houston",
         "name": "Rockets",
         "tag": "HOU",
         "arena": "Toyota Center",
-        "colors": ["CE1141", "000000", "C4CED4"]
+        "colors": [
+          "CE1141",
+          "000000",
+          "C4CED4"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/houston-rockets.png"
       }
     ]
   },
@@ -242,12 +426,20 @@
     "current": "Indiana Pacers",
     "history": [
       {
-        "years": [1967, null],
+        "years": [
+          1967,
+          null
+        ],
         "city": "Indiana",
         "name": "Pacers",
         "tag": "IND",
         "arena": "Gainbridge Fieldhouse",
-        "colors": ["002D62", "FDBB30", "BEC0C2"]
+        "colors": [
+          "002D62",
+          "FDBB30",
+          "BEC0C2"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/indiana-pacers.png"
       }
     ]
   },
@@ -255,28 +447,52 @@
     "current": "Los Angeles Clippers",
     "history": [
       {
-        "years": [1970, 1978],
+        "years": [
+          1970,
+          1978
+        ],
         "city": "Buffalo",
         "name": "Braves",
         "tag": "BUF",
         "arena": "Buffalo Memorial Auditorium",
-        "colors": ["ED174C", "002B5C", "FFFFFF"]
+        "colors": [
+          "ED174C",
+          "002B5C",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/buffalo-braves.png"
       },
       {
-        "years": [1978, 1984],
+        "years": [
+          1978,
+          1984
+        ],
         "city": "San Diego",
         "name": "Clippers",
         "tag": "SDC",
         "arena": "San Diego Sports Arena",
-        "colors": ["ED174C", "002B5C", "FFFFFF"]
+        "colors": [
+          "ED174C",
+          "002B5C",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/san-diego-clippers.png"
       },
       {
-        "years": [1984, null],
+        "years": [
+          1984,
+          null
+        ],
         "city": "Los Angeles",
         "name": "Clippers",
         "tag": "LAC",
         "arena": "Intuit Dome",
-        "colors": ["C8102E", "1D428A", "BEC0C2"]
+        "colors": [
+          "C8102E",
+          "1D428A",
+          "BEC0C2"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/los-angeles-clippers.png"
       }
     ]
   },
@@ -284,20 +500,36 @@
     "current": "Los Angeles Lakers",
     "history": [
       {
-        "years": [1947, 1960],
+        "years": [
+          1947,
+          1960
+        ],
         "city": "Minneapolis",
         "name": "Lakers",
         "tag": "MNL",
         "arena": "Minneapolis Auditorium",
-        "colors": ["552583", "FDB927", "000000"]
+        "colors": [
+          "552583",
+          "FDB927",
+          "000000"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/minneapolis-lakers.png"
       },
       {
-        "years": [1960, null],
+        "years": [
+          1960,
+          null
+        ],
         "city": "Los Angeles",
         "name": "Lakers",
         "tag": "LAL",
         "arena": "Crypto.com Arena",
-        "colors": ["552583", "FDB927", "000000"]
+        "colors": [
+          "552583",
+          "FDB927",
+          "000000"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/los-angeles-lakers.png"
       }
     ]
   },
@@ -305,20 +537,36 @@
     "current": "Memphis Grizzlies",
     "history": [
       {
-        "years": [1995, 2001],
+        "years": [
+          1995,
+          2001
+        ],
         "city": "Vancouver",
         "name": "Grizzlies",
         "tag": "VAN",
         "arena": "General Motors Place",
-        "colors": ["5D76A9", "00B2A9", "E43C40"]
+        "colors": [
+          "5D76A9",
+          "00B2A9",
+          "E43C40"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/vancouver-grizzlies.png"
       },
       {
-        "years": [2001, null],
+        "years": [
+          2001,
+          null
+        ],
         "city": "Memphis",
         "name": "Grizzlies",
         "tag": "MEM",
         "arena": "FedExForum",
-        "colors": ["5D76A9", "12173F", "F5B112"]
+        "colors": [
+          "5D76A9",
+          "12173F",
+          "F5B112"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/memphis-grizzlies.png"
       }
     ]
   },
@@ -326,12 +574,20 @@
     "current": "Miami Heat",
     "history": [
       {
-        "years": [1988, null],
+        "years": [
+          1988,
+          null
+        ],
         "city": "Miami",
         "name": "Heat",
         "tag": "MIA",
         "arena": "Kaseya Center",
-        "colors": ["98002E", "F9A01B", "000000"]
+        "colors": [
+          "98002E",
+          "F9A01B",
+          "000000"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/miami-heat.png"
       }
     ]
   },
@@ -339,12 +595,20 @@
     "current": "Milwaukee Bucks",
     "history": [
       {
-        "years": [1968, null],
+        "years": [
+          1968,
+          null
+        ],
         "city": "Milwaukee",
         "name": "Bucks",
         "tag": "MIL",
         "arena": "Fiserv Forum",
-        "colors": ["00471B", "EEE1C6", "0077C0"]
+        "colors": [
+          "00471B",
+          "EEE1C6",
+          "0077C0"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/milwaukee-bucks.png"
       }
     ]
   },
@@ -352,12 +616,20 @@
     "current": "Minnesota Timberwolves",
     "history": [
       {
-        "years": [1989, null],
+        "years": [
+          1989,
+          null
+        ],
         "city": "Minnesota",
         "name": "Timberwolves",
         "tag": "MIN",
         "arena": "Target Center",
-        "colors": ["0C2340", "236192", "9EA2A2"]
+        "colors": [
+          "0C2340",
+          "236192",
+          "9EA2A2"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/minnesota-timberwolves.png"
       }
     ]
   },
@@ -365,44 +637,84 @@
     "current": "New Orleans Pelicans",
     "history": [
       {
-        "years": [1988, 2002],
+        "years": [
+          1988,
+          2002
+        ],
         "city": "Charlotte",
         "name": "Hornets",
         "tag": "CHH",
         "arena": "Charlotte Coliseum",
-        "colors": ["1D1160", "00788C", "A1A1A4"]
+        "colors": [
+          "1D1160",
+          "00788C",
+          "A1A1A4"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/charlotte-hornets.png"
       },
       {
-        "years": [2002, 2005],
+        "years": [
+          2002,
+          2005
+        ],
         "city": "New Orleans",
         "name": "Hornets",
         "tag": "NOH",
         "arena": "Smoothie King Center",
-        "colors": ["1D1160", "00788C", "A1A1A4"]
+        "colors": [
+          "1D1160",
+          "00788C",
+          "A1A1A4"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/new-orleans-hornets.png"
       },
       {
-        "years": [2005, 2007],
+        "years": [
+          2005,
+          2007
+        ],
         "city": "New Orleans/Oklahoma City",
         "name": "Hornets",
         "tag": "NOK",
         "arena": "Ford Center",
-        "colors": ["1D1160", "00788C", "A1A1A4"]
+        "colors": [
+          "1D1160",
+          "00788C",
+          "A1A1A4"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/new-orleans-oklahoma-city-hornets.png"
       },
       {
-        "years": [2007, 2013],
+        "years": [
+          2007,
+          2013
+        ],
         "city": "New Orleans",
         "name": "Hornets",
         "tag": "NOH",
         "arena": "Smoothie King Center",
-        "colors": ["1D1160", "00788C", "A1A1A4"]
+        "colors": [
+          "1D1160",
+          "00788C",
+          "A1A1A4"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/new-orleans-hornets.png"
       },
       {
-        "years": [2013, null],
+        "years": [
+          2013,
+          null
+        ],
         "city": "New Orleans",
         "name": "Pelicans",
         "tag": "NOP",
         "arena": "Smoothie King Center",
-        "colors": ["0C2340", "C8102E", "85714D"]
+        "colors": [
+          "0C2340",
+          "C8102E",
+          "85714D"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/new-orleans-pelicans.png"
       }
     ]
   },
@@ -410,12 +722,20 @@
     "current": "New York Knicks",
     "history": [
       {
-        "years": [1946, null],
+        "years": [
+          1946,
+          null
+        ],
         "city": "New York",
         "name": "Knicks",
         "tag": "NYK",
         "arena": "Madison Square Garden",
-        "colors": ["006BB6", "F58426", "BEC0C2"]
+        "colors": [
+          "006BB6",
+          "F58426",
+          "BEC0C2"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/new-york-knicks.png"
       }
     ]
   },
@@ -423,20 +743,36 @@
     "current": "Oklahoma City Thunder",
     "history": [
       {
-        "years": [1967, 2008],
+        "years": [
+          1967,
+          2008
+        ],
         "city": "Seattle",
         "name": "SuperSonics",
         "tag": "SEA",
         "arena": "KeyArena",
-        "colors": ["007A33", "FFC200", "FFFFFF"]
+        "colors": [
+          "007A33",
+          "FFC200",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/seattle-supersonics.png"
       },
       {
-        "years": [2008, null],
+        "years": [
+          2008,
+          null
+        ],
         "city": "Oklahoma City",
         "name": "Thunder",
         "tag": "OKC",
         "arena": "Paycom Center",
-        "colors": ["007AC1", "EF3B24", "002D62"]
+        "colors": [
+          "007AC1",
+          "EF3B24",
+          "002D62"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/oklahoma-city-thunder.png"
       }
     ]
   },
@@ -444,12 +780,20 @@
     "current": "Orlando Magic",
     "history": [
       {
-        "years": [1989, null],
+        "years": [
+          1989,
+          null
+        ],
         "city": "Orlando",
         "name": "Magic",
         "tag": "ORL",
         "arena": "Amway Center",
-        "colors": ["0077C0", "C4CED4", "000000"]
+        "colors": [
+          "0077C0",
+          "C4CED4",
+          "000000"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/orlando-magic.png"
       }
     ]
   },
@@ -457,20 +801,36 @@
     "current": "Philadelphia 76ers",
     "history": [
       {
-        "years": [1946, 1963],
+        "years": [
+          1946,
+          1963
+        ],
         "city": "Syracuse",
         "name": "Nationals",
         "tag": "SYR",
         "arena": "Onondaga County War Memorial",
-        "colors": ["006BB6", "ED174C", "FFFFFF"]
+        "colors": [
+          "006BB6",
+          "ED174C",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/syracuse-nationals.png"
       },
       {
-        "years": [1963, null],
+        "years": [
+          1963,
+          null
+        ],
         "city": "Philadelphia",
         "name": "76ers",
         "tag": "PHI",
         "arena": "Wells Fargo Center",
-        "colors": ["006BB6", "ED174C", "FFFFFF"]
+        "colors": [
+          "006BB6",
+          "ED174C",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/philadelphia-76ers.png"
       }
     ]
   },
@@ -478,12 +838,20 @@
     "current": "Phoenix Suns",
     "history": [
       {
-        "years": [1968, null],
+        "years": [
+          1968,
+          null
+        ],
         "city": "Phoenix",
         "name": "Suns",
         "tag": "PHX",
         "arena": "Footprint Center",
-        "colors": ["1D1160", "E56020", "000000"]
+        "colors": [
+          "1D1160",
+          "E56020",
+          "000000"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/phoenix-suns.png"
       }
     ]
   },
@@ -491,12 +859,20 @@
     "current": "Portland Trail Blazers",
     "history": [
       {
-        "years": [1970, null],
+        "years": [
+          1970,
+          null
+        ],
         "city": "Portland",
         "name": "Trail Blazers",
         "tag": "POR",
         "arena": "Moda Center",
-        "colors": ["E03A3E", "000000", "FFFFFF"]
+        "colors": [
+          "E03A3E",
+          "000000",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/portland-trail-blazers.png"
       }
     ]
   },
@@ -504,44 +880,84 @@
     "current": "Sacramento Kings",
     "history": [
       {
-        "years": [1945, 1957],
+        "years": [
+          1945,
+          1957
+        ],
         "city": "Rochester",
         "name": "Royals",
         "tag": "ROR",
         "arena": "Edgerton Park Arena",
-        "colors": ["5A2D81", "63727A", "FFFFFF"]
+        "colors": [
+          "5A2D81",
+          "63727A",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/rochester-royals.png"
       },
       {
-        "years": [1957, 1972],
+        "years": [
+          1957,
+          1972
+        ],
         "city": "Cincinnati",
         "name": "Royals",
         "tag": "CIN",
         "arena": "Cincinnati Gardens",
-        "colors": ["5A2D81", "63727A", "FFFFFF"]
+        "colors": [
+          "5A2D81",
+          "63727A",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/cincinnati-royals.png"
       },
       {
-        "years": [1972, 1975],
+        "years": [
+          1972,
+          1975
+        ],
         "city": "Kansas City-Omaha",
         "name": "Kings",
         "tag": "KCO",
         "arena": "Kemper Arena",
-        "colors": ["5A2D81", "63727A", "FFFFFF"]
+        "colors": [
+          "5A2D81",
+          "63727A",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/kansas-city-omaha-kings.png"
       },
       {
-        "years": [1975, 1985],
+        "years": [
+          1975,
+          1985
+        ],
         "city": "Kansas City",
         "name": "Kings",
         "tag": "KCK",
         "arena": "Kemper Arena",
-        "colors": ["5A2D81", "63727A", "FFFFFF"]
+        "colors": [
+          "5A2D81",
+          "63727A",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/kansas-city-kings.png"
       },
       {
-        "years": [1985, null],
+        "years": [
+          1985,
+          null
+        ],
         "city": "Sacramento",
         "name": "Kings",
         "tag": "SAC",
         "arena": "Golden 1 Center",
-        "colors": ["5A2D81", "63727A", "000000"]
+        "colors": [
+          "5A2D81",
+          "63727A",
+          "000000"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/sacramento-kings.png"
       }
     ]
   },
@@ -549,36 +965,68 @@
     "current": "San Antonio Spurs",
     "history": [
       {
-        "years": [1967, 1970],
+        "years": [
+          1967,
+          1970
+        ],
         "city": "Dallas",
         "name": "Chaparrals",
         "tag": "DAC",
         "arena": "Moody Coliseum",
-        "colors": ["C4CED4", "000000", "FFFFFF"]
+        "colors": [
+          "C4CED4",
+          "000000",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/dallas-chaparrals.png"
       },
       {
-        "years": [1970, 1971],
+        "years": [
+          1970,
+          1971
+        ],
         "city": "Texas",
         "name": "Chaparrals",
         "tag": "TXC",
         "arena": "Moody Coliseum",
-        "colors": ["C4CED4", "000000", "FFFFFF"]
+        "colors": [
+          "C4CED4",
+          "000000",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/texas-chaparrals.png"
       },
       {
-        "years": [1971, 1973],
+        "years": [
+          1971,
+          1973
+        ],
         "city": "Dallas",
         "name": "Chaparrals",
         "tag": "DAC",
         "arena": "Moody Coliseum",
-        "colors": ["C4CED4", "000000", "FFFFFF"]
+        "colors": [
+          "C4CED4",
+          "000000",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/dallas-chaparrals.png"
       },
       {
-        "years": [1973, null],
+        "years": [
+          1973,
+          null
+        ],
         "city": "San Antonio",
         "name": "Spurs",
         "tag": "SAS",
         "arena": "Frost Bank Center",
-        "colors": ["C4CED4", "000000", "FFFFFF"]
+        "colors": [
+          "C4CED4",
+          "000000",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/san-antonio-spurs.png"
       }
     ]
   },
@@ -586,12 +1034,20 @@
     "current": "Toronto Raptors",
     "history": [
       {
-        "years": [1995, null],
+        "years": [
+          1995,
+          null
+        ],
         "city": "Toronto",
         "name": "Raptors",
         "tag": "TOR",
         "arena": "Scotiabank Arena",
-        "colors": ["CE1141", "000000", "A1A1A4"]
+        "colors": [
+          "CE1141",
+          "000000",
+          "A1A1A4"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/toronto-raptors.png"
       }
     ]
   },
@@ -599,20 +1055,36 @@
     "current": "Utah Jazz",
     "history": [
       {
-        "years": [1974, 1979],
+        "years": [
+          1974,
+          1979
+        ],
         "city": "New Orleans",
         "name": "Jazz",
         "tag": "NOJ",
         "arena": "Superdome",
-        "colors": ["002B5C", "00471B", "FDB927"]
+        "colors": [
+          "002B5C",
+          "00471B",
+          "FDB927"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/new-orleans-jazz.png"
       },
       {
-        "years": [1979, null],
+        "years": [
+          1979,
+          null
+        ],
         "city": "Utah",
         "name": "Jazz",
         "tag": "UTA",
         "arena": "Delta Center",
-        "colors": ["002B5C", "00471B", "FDB927"]
+        "colors": [
+          "002B5C",
+          "00471B",
+          "FDB927"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/utah-jazz.png"
       }
     ]
   },
@@ -620,44 +1092,84 @@
     "current": "Washington Wizards",
     "history": [
       {
-        "years": [1961, 1963],
+        "years": [
+          1961,
+          1963
+        ],
         "city": "Chicago",
         "name": "Packers",
         "tag": "CHP",
         "arena": "Chicago Coliseum",
-        "colors": ["002B5C", "E31837", "FFFFFF"]
+        "colors": [
+          "002B5C",
+          "E31837",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/chicago-packers.png"
       },
       {
-        "years": [1963, 1973],
+        "years": [
+          1963,
+          1973
+        ],
         "city": "Baltimore",
         "name": "Bullets",
         "tag": "BAL",
         "arena": "Baltimore Civic Center",
-        "colors": ["002B5C", "E31837", "FFFFFF"]
+        "colors": [
+          "002B5C",
+          "E31837",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/baltimore-bullets.png"
       },
       {
-        "years": [1973, 1974],
+        "years": [
+          1973,
+          1974
+        ],
         "city": "Capital",
         "name": "Bullets",
         "tag": "CAP",
         "arena": "Capital Centre",
-        "colors": ["002B5C", "E31837", "FFFFFF"]
+        "colors": [
+          "002B5C",
+          "E31837",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/capital-bullets.png"
       },
       {
-        "years": [1974, 1997],
+        "years": [
+          1974,
+          1997
+        ],
         "city": "Washington",
         "name": "Bullets",
         "tag": "WSB",
         "arena": "Capital Centre",
-        "colors": ["002B5C", "E31837", "FFFFFF"]
+        "colors": [
+          "002B5C",
+          "E31837",
+          "FFFFFF"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/washington-bullets.png"
       },
       {
-        "years": [1997, null],
+        "years": [
+          1997,
+          null
+        ],
         "city": "Washington",
         "name": "Wizards",
         "tag": "WAS",
         "arena": "Capital One Arena",
-        "colors": ["002B5C", "E31837", "C4CED4"]
+        "colors": [
+          "002B5C",
+          "E31837",
+          "C4CED4"
+        ],
+        "logoURL": "https://hoopland-v2.luke-personal-account.workers.dev/logos/teams/nba/washington-wizards.png"
       }
     ]
   }

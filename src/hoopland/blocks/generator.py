@@ -326,7 +326,7 @@ class Generator:
         return structs.League(
             leagueName=f"NBA {year}",
             shortName="NBA",
-            logoURL="",
+            logoURL="https://hoopland-v2.luke-personal-account.workers.dev/logos/leagues/nba.png",
             logoSize=0,
             leagueType=0,
             meta=meta,
