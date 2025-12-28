@@ -129,22 +129,48 @@ def generate_front_office(team_id: int, team_name: str, nba_team_id: str = "") -
 
 
 def generate_court(team_colors: List[str], overlay_url: str = "") -> Dict[str, Any]:
-    """Generate court design based on team colors."""
-    primary = team_colors[0] if team_colors else "8B0000"
-    secondary = team_colors[1] if len(team_colors) > 1 else "FFFFFF"
-
+    """Generate court design matching game format."""
     return {
-        "woodPrimary": "C7A368",
-        "woodSecondary": "B08950",
-        "woodThree": "A07840",
-        "paintIn": primary,
-        "paintOut": primary,
-        "lineColor": "FFFFFF",
-        "keyShape": 0,
+        "outerWood": "lines",
+        "outerWoodC": "EEA160",
+        "innerWood": "lines",
+        "innerWoodC": "EEA160",
+        "outerFT": "lines",
+        "outerFTC": "EEA160",
+        "innerFT": "flat",
+        "innerFTC": "PRI",
+        "outerKey": "flat",
+        "outerKeyC": "PRI",
+        "innerKey": "flat",
+        "innerKeyC": "PRI",
+        "outerBorder": "SEC",
+        "innerBorder": "SEC",
+        "outerFloor": "SEC",
+        "mediaLines": "FFFFFF",
+        "outerLine": "000000",
+        "halfCourtLine": "000000",
+        "threePointLine": 0,
+        "threePointLineC": "000000",
+        "outerFTCircle": "000000",
+        "innerFTCircle": "000000",
+        "outerKeyLine": "000000",
+        "innerKeyLine": "000000",
+        "logoSize": 0,
+        "logoLayer": 0,
         "overlayURL": overlay_url,
-        "overlaySize": 1.0,
-        "sidelineURL": "",
-        "backboardColor": "CCCCCC",
+        "overlayLayer": 1,
+        "baseline1": "",
+        "baseline1C": "FFFFFF",
+        "baseline2": "",
+        "baseline2C": "FFFFFF",
+        "sideline1": "",
+        "sideline1C": "FFFFFF",
+        "sideline2": "",
+        "sideline2C": "FFFFFF",
+        "hoopBase": "000000",
+        "hoopPole": "FFFFFF",
+        "polePadding": "000000",
+        "hoopPadding": "FF0000",
     }
 
 

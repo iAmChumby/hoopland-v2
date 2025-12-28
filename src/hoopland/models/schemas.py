@@ -206,22 +206,48 @@ class FrontOffice:
 
 @dataclass
 class CourtDesign:
-    """Basketball court visual design."""
+    """Basketball court visual design matching game format."""
 
-    # Court surface
-    woodPrimary: str = "C7A368"  # Primary wood color
-    woodSecondary: str = "B08950"  # Secondary wood color
-    woodThree: str = "A07840"  # Three-point area wood
-    paintIn: str = "8B0000"  # Paint interior color
-    paintOut: str = "8B0000"  # Paint outline color
-    lineColor: str = "FFFFFF"  # Court lines color
-    keyShape: int = 0  # Key shape (0=rectangle, 1=trapezoid)
-    # Logo and overlays
-    overlayURL: str = ""  # Center court logo URL
-    overlaySize: float = 1.0
-    sidelineURL: str = ""  # Sideline branding URL
-    # Backboard
-    backboardColor: str = "CCCCCC"
+    outerWood: str = "lines"
+    outerWoodC: str = "EEA160"
+    innerWood: str = "lines"
+    innerWoodC: str = "EEA160"
+    outerFT: str = "lines"
+    outerFTC: str = "EEA160"
+    innerFT: str = "flat"
+    innerFTC: str = "PRI"
+    outerKey: str = "flat"
+    outerKeyC: str = "PRI"
+    innerKey: str = "flat"
+    innerKeyC: str = "PRI"
+    outerBorder: str = "SEC"
+    innerBorder: str = "SEC"
+    outerFloor: str = "SEC"
+    mediaLines: str = "FFFFFF"
+    outerLine: str = "000000"
+    halfCourtLine: str = "000000"
+    threePointLine: int = 0
+    threePointLineC: str = "000000"
+    outerFTCircle: str = "000000"
+    innerFTCircle: str = "000000"
+    outerKeyLine: str = "000000"
+    innerKeyLine: str = "000000"
+    logoSize: int = 0
+    logoLayer: int = 0
+    overlayURL: str = ""
+    overlayLayer: int = 1
+    baseline1: str = ""
+    baseline1C: str = "FFFFFF"
+    baseline2: str = ""
+    baseline2C: str = "FFFFFF"
+    sideline1: str = ""
+    sideline1C: str = "FFFFFF"
+    sideline2: str = ""
+    sideline2C: str = "FFFFFF"
+    hoopBase: str = "000000"
+    hoopPole: str = "FFFFFF"
+    polePadding: str = "000000"
+    hoopPadding: str = "FF0000"
 
 
 @dataclass
