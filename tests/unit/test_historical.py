@@ -124,16 +124,131 @@ class TestChampionships:
 class TestAnnouncers:
     def test_generate_front_office_with_announcers(self):
         result = team_assets.generate_front_office(0, "Hawks", "1610612737")
-        assert "Bob Rathbun" in result["announcers"]
-        assert "Dominique Wilkins" in result["announcers"]
+        announcers = result["announcers"]
+        assert len(announcers) == 2
+        assert announcers[0]["fn"] == "Bob"
+        assert announcers[0]["ln"] == "Rathbun"
+        assert announcers[0]["pos"] == 0
+        assert "appearance" in announcers[0]
+        assert "suits" in announcers[0]
+        assert "career" in announcers[0]
+        assert announcers[1]["fn"] == "Dominique"
+        assert announcers[1]["ln"] == "Wilkins"
+        assert announcers[1]["pos"] == 0
 
     def test_generate_front_office_celtics(self):
         result = team_assets.generate_front_office(0, "Celtics", "1610612738")
-        assert "Mike Gorman" in result["announcers"]
+        announcers = result["announcers"]
+        assert len(announcers) == 2
+        assert announcers[0]["fn"] == "Mike"
+        assert announcers[0]["ln"] == "Gorman"
+        assert "skinC" in announcers[0]["appearance"]
 
     def test_generate_front_office_unknown_team(self):
         result = team_assets.generate_front_office(0, "Unknown", "9999999")
-        assert "Home Announcer" in result["announcers"]
+        announcers = result["announcers"]
+        assert len(announcers) == 2
+        assert announcers[0]["fn"] == "Play-by-Play"
+        assert announcers[0]["ln"] == "Announcer"
+        assert announcers[1]["fn"] == "Color"
+        assert announcers[1]["ln"] == "Commentator"
+
+    def test_generate_front_office_with_year(self):
+        result = team_assets.generate_front_office(0, "Knicks", "1610612752", year=2024)
+        announcers = result["announcers"]
+        assert len(announcers) == 2
+        assert announcers[0]["fn"] == "Mike"
+        assert announcers[0]["ln"] == "Breen"
+        assert "appearance" in announcers[0]
+        assert "skinC" in announcers[0]["appearance"]
+
+    def test_announcer_appearance_structure(self):
+        result = team_assets.generate_front_office(0, "Lakers", "1610612747")
+        announcers = result["announcers"]
+        appearance = announcers[0]["appearance"]
+        assert "skinC" in appearance
+        assert "eyeC" in appearance
+        assert "hair" in appearance
+        assert "hairC" in appearance
+        assert "fHair" in appearance
+        assert "fHairC" in appearance
+        assert "browC" in appearance
+        assert "unibrow" in appearance
+
+    def test_announcer_full_person_structure(self):
+        result = team_assets.generate_front_office(5, "Bulls", "1610612741")
+        announcer = result["announcers"][0]
+        assert announcer["tid"] == 5
+        assert "id" in announcer
+        assert "league" in announcer
+        assert "fn" in announcer
+        assert "ln" in announcer
+        assert "age" in announcer
+        assert "gender" in announcer
+        assert "appearance" in announcer
+        assert "suits" in announcer
+        assert len(announcer["suits"]) == 4
+        assert "career" in announcer
+        assert "season" in announcer["career"]
+        assert "playoffs" in announcer["career"]
+        assert "finals" in announcer["career"]
+        assert "contract" in announcer
+        assert "attributes" in announcer
+        assert "tendencies" in announcer
+
+
+class TestStaff:
+    def test_staff_has_four_members(self):
+        result = team_assets.generate_front_office(5, "Bulls", "1610612741")
+        staff = result["staff"]
+        assert len(staff) == 4
+
+    def test_staff_full_person_structure(self):
+        result = team_assets.generate_front_office(5, "Bulls", "1610612741")
+        staff = result["staff"]
+        for member in staff:
+            assert "id" in member
+            assert member["tid"] == 5
+            assert "league" in member
+            assert "fn" in member
+            assert "ln" in member
+            assert "age" in member
+            assert "gender" in member
+            assert "pos" in member
+            assert "appearance" in member
+            assert "suits" in member
+            assert len(member["suits"]) == 4
+            assert "career" in member
+            assert "contract" in member
+            assert "attributes" in member
+            assert "tendencies" in member
+
+    def test_staff_positions(self):
+        result = team_assets.generate_front_office(0, "Hawks", "1610612737")
+        staff = result["staff"]
+        positions = [member["pos"] for member in staff]
+        assert positions == [1, 2, 3, 4]
+
+
+class TestFacilities:
+    def test_facilities_has_four_types(self):
+        result = team_assets.generate_front_office(0, "Hawks", "1610612737")
+        facilities = result["facilities"]
+        assert len(facilities) == 4
+
+    def test_facilities_types(self):
+        result = team_assets.generate_front_office(0, "Hawks", "1610612737")
+        facilities = result["facilities"]
+        types = [f["type"] for f in facilities]
+        assert types == [0, 1, 2, 3]
+
+    def test_facilities_structure(self):
+        result = team_assets.generate_front_office(0, "Hawks", "1610612737")
+        for facility in result["facilities"]:
+            assert "type" in facility
+            assert "tier" in facility
+            assert "upgrade" in facility
+            assert "condition" in facility
 
 
 class TestAwardsLoader:

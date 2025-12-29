@@ -199,7 +199,7 @@ class FrontOffice:
     fans: int = 50000
     facilities: List[Facility] = field(default_factory=list)
     staff: List[StaffMember] = field(default_factory=list)
-    announcers: List[str] = field(default_factory=list)
+    announcers: List[Dict[str, Any]] = field(default_factory=list)
     adsURL: str = ""
     adSize: int = 0
 
@@ -298,6 +298,16 @@ class Person:
     ln: str = ""
     age: int = 50
     ctry: int = 0
+    appearance: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class Announcer:
+    """Team broadcaster/announcer with appearance data."""
+
+    fn: str = ""
+    ln: str = ""
+    role: int = 0
     appearance: Dict[str, Any] = field(default_factory=dict)
 
 

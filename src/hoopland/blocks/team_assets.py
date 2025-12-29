@@ -17,7 +17,7 @@ _CHAMPIONSHIPS_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "cha
 _CHAMPIONSHIPS_DATA: Dict[str, Dict] = {}
 
 _ANNOUNCERS_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "announcers.json")
-_ANNOUNCERS_DATA: Dict[str, List[str]] = {}
+_ANNOUNCERS_DATA: Dict[str, Any] = {}
 
 
 def _load_team_data() -> Dict[str, Dict]:
@@ -44,7 +44,7 @@ def _load_championships_data() -> Dict[str, Dict]:
     return _CHAMPIONSHIPS_DATA
 
 
-def _load_announcers_data() -> Dict[str, List[str]]:
+def _load_announcers_data() -> Dict[str, Any]:
     """Load announcers data from JSON file."""
     global _ANNOUNCERS_DATA
     if not _ANNOUNCERS_DATA:
@@ -54,6 +54,288 @@ def _load_announcers_data() -> Dict[str, List[str]]:
         except FileNotFoundError:
             _ANNOUNCERS_DATA = {}
     return _ANNOUNCERS_DATA
+
+
+def _get_announcers_for_year(
+    nba_team_id: str, year: int = 2024, team_id: int = 0
+) -> List[Dict[str, Any]]:
+    """
+    Get announcers for a team for a specific year as full person objects.
+
+    Checks for historical data matching the year, falls back to current.
+
+    Args:
+        nba_team_id: NBA API team ID (e.g., "1610612752")
+        year: Target year for announcer lookup
+        team_id: Target schema team ID for the announcer's tid field
+
+    Returns:
+        List of full announcer person objects
+    """
+    announcers_data = _load_announcers_data()
+    teams_data = announcers_data.get("teams", {})
+    team_data = teams_data.get(str(nba_team_id), {})
+
+    if not team_data:
+        return _get_default_announcers(team_id)
+
+    historical = team_data.get("historical", {})
+    if str(year) in historical:
+        era_data = historical[str(year)]
+    else:
+        era_data = team_data.get("current", {})
+
+    if not era_data:
+        return _get_default_announcers(team_id)
+
+    announcers = []
+    announcer_id = 0
+
+    pbp = era_data.get("pbp", {})
+    if pbp:
+        pbp_data = {
+            "fn": pbp.get("fn", "Play-by-Play"),
+            "ln": pbp.get("ln", "Announcer"),
+            "appearance": pbp.get("appearance", _get_default_appearance()),
+        }
+        announcers.append(
+            _generate_front_office_person(pbp_data, team_id, announcer_id, pos=0)
+        )
+        announcer_id += 1
+
+    color = era_data.get("color", {})
+    if color:
+        color_data = {
+            "fn": color.get("fn", "Color"),
+            "ln": color.get("ln", "Commentator"),
+            "appearance": color.get("appearance", _get_default_appearance()),
+        }
+        announcers.append(
+            _generate_front_office_person(color_data, team_id, announcer_id, pos=0)
+        )
+
+    return announcers if announcers else _get_default_announcers(team_id)
+
+
+def _get_default_announcers(team_id: int = 0) -> List[Dict[str, Any]]:
+    """Return default announcers when team data is not available."""
+    pbp_data = {
+        "fn": "Play-by-Play",
+        "ln": "Announcer",
+        "appearance": _get_default_appearance(),
+    }
+    color_data = {
+        "fn": "Color",
+        "ln": "Commentator",
+        "appearance": _get_default_appearance(),
+    }
+    return [
+        _generate_front_office_person(pbp_data, team_id, 0, pos=0),
+        _generate_front_office_person(color_data, team_id, 1, pos=0),
+    ]
+
+
+def _generate_staff(
+    team_id: int, nba_team_id: str = "", year: int = 2024
+) -> List[Dict[str, Any]]:
+    """Generate 4 staff members as full person objects with real names from NBA API."""
+    from ..data.nba_client import NBAClient
+
+    staff_defaults = [
+        {"fn": "Head", "ln": "Coach", "pos": 1, "gender": 0, "age": 55, "is_assistant": 1},
+        {"fn": "Assistant", "ln": "Coach", "pos": 2, "gender": 0, "age": 45, "is_assistant": 2},
+        {"fn": "Team", "ln": "Trainer", "pos": 3, "gender": 0, "age": 50, "is_assistant": 3},
+        {"fn": "Team", "ln": "Scout", "pos": 4, "gender": 0, "age": 45, "is_assistant": None},
+    ]
+
+    coaches_by_type: Dict[int, Dict[str, str]] = {}
+    if nba_team_id:
+        try:
+            client = NBAClient()
+            season_str = f"{year-1}-{str(year)[2:]}"
+            coaches_df = client.get_coaches(int(nba_team_id), season_str)
+            if coaches_df is not None and not coaches_df.empty:
+                for is_asst in [1, 2, 3]:
+                    matches = coaches_df[coaches_df["IS_ASSISTANT"] == is_asst]
+                    if not matches.empty:
+                        row = matches.iloc[0]
+                        coaches_by_type[is_asst] = {
+                            "fn": row["FIRST_NAME"],
+                            "ln": row["LAST_NAME"],
+                        }
+        except Exception:
+            pass
+
+    staff = []
+    for idx, role in enumerate(staff_defaults):
+        is_asst = role["is_assistant"]
+        if is_asst and is_asst in coaches_by_type:
+            fn = coaches_by_type[is_asst]["fn"]
+            ln = coaches_by_type[is_asst]["ln"]
+        else:
+            fn = role["fn"]
+            ln = role["ln"]
+
+        person_data = {
+            "fn": fn,
+            "ln": ln,
+            "age": role["age"],
+            "gender": role["gender"],
+            "appearance": _get_default_appearance(),
+        }
+        person = _generate_front_office_person(
+            person_data, team_id, person_id=idx, pos=role["pos"]
+        )
+        staff.append(person)
+
+    return staff
+
+
+def _get_default_appearance() -> Dict[str, Any]:
+    """Return default appearance for announcers."""
+    return {
+        "skinC": "F0C8A0",
+        "eyeC": "3B2D1A",
+        "hair": "0040",
+        "hairC": "808080",
+        "fHair": "0000",
+        "fHairC": "808080",
+        "unibrow": False,
+        "browC": "808080",
+    }
+
+
+def _generate_front_office_suits() -> List[Dict[str, Any]]:
+    """Generate 4 suit variants for front office person."""
+    base_suit = {
+        "headAcc": "0000",
+        "headAccC": "000000",
+        "jacketC": "262539",
+        "shirtC": "FFFFFF",
+        "tieC": "800000",
+        "pantC": "262539",
+        "shoeC": "000000",
+        "laceC": "",
+        "soleC": "000000",
+    }
+    return [base_suit.copy() for _ in range(4)]
+
+
+def _empty_front_office_career_stats() -> Dict[str, Any]:
+    """Generate empty career stats block for front office person."""
+    return {
+        "tid": 0,
+        "GP": 0,
+        "GS": 0,
+        "W": 0,
+        "L": 0,
+        "HOME": [0, 0],
+        "AWAY": [0, 0],
+        "DIV": [0, 0],
+        "CONF": [0, 0],
+        "STRK": 0,
+        "L10": [],
+        "PTS": 0,
+        "OPP": 0,
+        "FGM": 0,
+        "FGA": 0,
+        "TPM": 0,
+        "TPA": 0,
+        "FTM": 0,
+        "FTA": 0,
+        "REB": 0,
+        "ORB": 0,
+        "AST": 0,
+        "STL": 0,
+        "BLK": 0,
+        "TO": 0,
+        "PF": 0,
+        "MIN": 0,
+        "POS": 0,
+    }
+
+
+def _generate_front_office_person(
+    person_data: Dict[str, Any], team_id: int, person_id: int = 0, pos: int = 0
+) -> Dict[str, Any]:
+    """Generate a full person object for front office (announcer or staff)."""
+    appearance = dict(person_data.get("appearance", _get_default_appearance()))
+
+    if "eyeC" not in appearance:
+        appearance["eyeC"] = appearance.get("browC", "262539")
+    if "unibrow" not in appearance:
+        appearance["unibrow"] = False
+
+    return {
+        "id": person_id,
+        "tid": team_id,
+        "league": 0,
+        "fn": person_data.get("fn", ""),
+        "ln": person_data.get("ln", ""),
+        "tag": "",
+        "home": "",
+        "ctry": "US",
+        "loc": {"x": 0, "y": 0},
+        "age": person_data.get("age", 50),
+        "ht": 0,
+        "wt": 0,
+        "yrs": 0,
+        "gender": person_data.get("gender", 0),
+        "pos": pos,
+        "arc": 0,
+        "pri": 0,
+        "sec": 0,
+        "pot": 0,
+        "appearance": appearance,
+        "suits": _generate_front_office_suits(),
+        "attributes": {
+            "development": [0, 0],
+            "motivation": [0, 0],
+            "leadership": [0, 0],
+        },
+        "tendencies": {
+            "offFocus": 0,
+            "offTempo": 0,
+            "offRebounding": 0,
+            "defFocus": 0,
+            "defAggression": 0,
+            "defRebounding": 0,
+            "benchDepth": 0,
+            "benchUtilization": 0,
+            "closingLineup": 0,
+        },
+        "career": {
+            "season": _empty_front_office_career_stats(),
+            "playoffs": _empty_front_office_career_stats(),
+            "finals": _empty_front_office_career_stats(),
+            "teamHistory": [],
+        },
+        "awards": [],
+        "contract": {
+            "tid": 0,
+            "pid": 0,
+            "type": 0,
+            "yrs": 0,
+            "sal": 0,
+            "opt": 0,
+            "noTrd": False,
+            "canExt": True,
+            "ext": {"yrs": 0, "sal": 0, "opt": 0, "noTrd": False},
+        },
+        "status": 0,
+        "xp": 0,
+        "ap": 0,
+        "xpEarned": 0,
+        "rp": 0,
+        "rpEarned": 0,
+        "gameHistory": {"GP": 0, "W": 0, "L": 0},
+        "records": 0,
+        "tradeRequested": False,
+        "retiring": False,
+        "yearRetired": 0,
+        "following": False,
+        "causeOfDeath": 0,
+    }
 
 
 def get_team_data(nba_team_id: str) -> Optional[Dict]:
@@ -102,26 +384,25 @@ def get_team_division(nba_team_id: str) -> int:
     return 0
 
 
-def generate_front_office(team_id: int, team_name: str, nba_team_id: str = "") -> Dict[str, Any]:
+def generate_front_office(
+    team_id: int, team_name: str, nba_team_id: str = "", year: int = 2024
+) -> Dict[str, Any]:
     """Generate front office structure for a team."""
-    announcers_data = _load_announcers_data()
-    team_announcers = announcers_data.get(str(nba_team_id), ["Home Announcer", "Color Commentator"])
+    team_announcers = _get_announcers_for_year(nba_team_id, year, team_id)
+    team_staff = _generate_staff(team_id, nba_team_id, year)
 
     return {
-        "coins": 1000000,
-        "condition": 100.0,
-        "morale": 75.0,
-        "fans": 50000,
+        "coins": 0,
+        "condition": 0,
+        "morale": 0,
+        "fans": 0,
         "facilities": [
-            {"type": 0, "tier": 1, "upgrade": 0, "condition": 100.0},
-            {"type": 1, "tier": 1, "upgrade": 0, "condition": 100.0},
-            {"type": 2, "tier": 1, "upgrade": 0, "condition": 100.0},
+            {"type": 0, "tier": 3, "upgrade": 0, "condition": 5},
+            {"type": 1, "tier": 2, "upgrade": 0, "condition": 5},
+            {"type": 2, "tier": 3, "upgrade": 0, "condition": 5},
+            {"type": 3, "tier": 2, "upgrade": 0, "condition": 5},
         ],
-        "staff": [
-            {"fn": "Head", "ln": "Coach", "rating": 70, "type": 0},
-            {"fn": "Assistant", "ln": "Coach", "rating": 60, "type": 1},
-            {"fn": "General", "ln": "Manager", "rating": 65, "type": 2},
-        ],
+        "staff": team_staff,
         "announcers": team_announcers,
         "adsURL": "",
         "adSize": 0,

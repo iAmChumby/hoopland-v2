@@ -29,3 +29,5 @@ site/
 .pytest_cache/
 .coverage.**
 .coverage**
+
+.playwright-mcp/

@@ -6,6 +6,7 @@ from nba_api.stats.endpoints import (
     playerawards,
     leagueleaders,
 )
+from typing import Optional
 from nba_api.stats.static import teams
 import pandas as pd
 
@@ -76,6 +77,16 @@ class NBAClient:
         if team_id and year:
             return f"https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/{team_id}/{year}/260x190/{player_id}.png"
         return f"https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/{player_id}.png"
+
+    @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
+    def get_coaches(self, team_id: int, season: str) -> Optional[pd.DataFrame]:
+        roster = commonteamroster.CommonTeamRoster(
+            team_id=team_id, season=season, timeout=10
+        )
+        dfs = roster.get_data_frames()
+        if len(dfs) > 1:
+            return dfs[1]
+        return None
 
     @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_league_leaders(self, season: str) -> set:

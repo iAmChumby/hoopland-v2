@@ -1,32 +1,848 @@
 {
-  "1610612737": ["Bob Rathbun", "Dominique Wilkins"],
-  "1610612738": ["Mike Gorman", "Brian Scalabrine"],
-  "1610612751": ["Ian Eagle", "Sarah Kustok"],
-  "1610612766": ["Eric Collins", "Dell Curry"],
-  "1610612741": ["Adam Amin", "Stacey King"],
-  "1610612739": ["John Michael", "Austin Carr"],
-  "1610612742": ["Mark Followill", "Derek Harper"],
-  "1610612743": ["Chris Marlowe", "Scott Hastings"],
-  "1610612765": ["George Blaha", "Greg Kelser"],
-  "1610612744": ["Bob Fitzgerald", "Kelenna Azubuike"],
-  "1610612745": ["Craig Ackerman", "Ryan Hollins"],
-  "1610612754": ["Chris Denari", "Quinn Buckner"],
-  "1610612746": ["Brian Sieman", "Jim Jackson"],
-  "1610612747": ["Bill MacDonald", "Stu Lantz"],
-  "1610612763": ["Pete Pranica", "Brevin Knight"],
-  "1610612748": ["Eric Reid", "John Crotty"],
-  "1610612749": ["Lisa Byington", "Marques Johnson"],
-  "1610612750": ["Dave Benz", "Jim Petersen"],
-  "1610612740": ["Joel Meyers", "Antonio Daniels"],
-  "1610612752": ["Mike Breen", "Walt Frazier"],
-  "1610612760": ["Chris Fisher", "Michael Cage"],
-  "1610612753": ["David Steele", "Jeff Turner"],
-  "1610612755": ["Kate Scott", "Alaa Abdelnaby"],
-  "1610612756": ["Kevin Ray", "Ann Meyers Drysdale"],
-  "1610612757": ["Travis Demers", "Lamar Hurd"],
-  "1610612758": ["Mark Jones", "Doug Christie"],
-  "1610612759": ["Dan Weiss", "Sean Elliott"],
-  "1610612761": ["Matt Devlin", "Alvin Williams"],
-  "1610612762": ["Craig Bolerjack", "David Locke"],
-  "1610612764": ["Glenn Consor", "Drew Gooden"]
+  "meta": {
+    "version": "2.0",
+    "description": "NBA team announcers with appearance data"
+  },
+  "teams": {
+    "1610612737": {
+      "current": {
+        "pbp": {
+          "fn": "Bob",
+          "ln": "Rathbun",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0040",
+            "hairC": "808080",
+            "fHair": "0000",
+            "fHairC": "808080",
+            "browC": "808080"
+          }
+        },
+        "color": {
+          "fn": "Dominique",
+          "ln": "Wilkins",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0000",
+            "fHairC": "1A1A1A",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612738": {
+      "current": {
+        "pbp": {
+          "fn": "Mike",
+          "ln": "Gorman",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0040",
+            "hairC": "C0C0C0",
+            "fHair": "0000",
+            "fHairC": "C0C0C0",
+            "browC": "C0C0C0"
+          }
+        },
+        "color": {
+          "fn": "Brian",
+          "ln": "Scalabrine",
+          "appearance": {
+            "skinC": "FFE0C8",
+            "hair": "0040",
+            "hairC": "B05030",
+            "fHair": "0004",
+            "fHairC": "B05030",
+            "browC": "B05030"
+          }
+        }
+      }
+    },
+    "1610612751": {
+      "current": {
+        "pbp": {
+          "fn": "Ian",
+          "ln": "Eagle",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "4A3A28",
+            "fHair": "0000",
+            "fHairC": "4A3A28",
+            "browC": "4A3A28"
+          }
+        },
+        "color": {
+          "fn": "Sarah",
+          "ln": "Kustok",
+          "appearance": {
+            "skinC": "FFE0C8",
+            "hair": "0103",
+            "hairC": "4A3A28",
+            "fHair": "0000",
+            "fHairC": "4A3A28",
+            "browC": "4A3A28"
+          }
+        }
+      }
+    },
+    "1610612766": {
+      "current": {
+        "pbp": {
+          "fn": "Eric",
+          "ln": "Collins",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "4A3A28",
+            "fHair": "0000",
+            "fHairC": "4A3A28",
+            "browC": "4A3A28"
+          }
+        },
+        "color": {
+          "fn": "Dell",
+          "ln": "Curry",
+          "appearance": {
+            "skinC": "B08050",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0004",
+            "fHairC": "1A1A1A",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612741": {
+      "current": {
+        "pbp": {
+          "fn": "Adam",
+          "ln": "Amin",
+          "appearance": {
+            "skinC": "D4A070",
+            "hair": "0002",
+            "hairC": "1A1A1A",
+            "fHair": "0000",
+            "fHairC": "1A1A1A",
+            "browC": "1A1A1A"
+          }
+        },
+        "color": {
+          "fn": "Stacey",
+          "ln": "King",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0011",
+            "fHairC": "1A1A1A",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612739": {
+      "current": {
+        "pbp": {
+          "fn": "John",
+          "ln": "Michael",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "808080",
+            "fHair": "0000",
+            "fHairC": "808080",
+            "browC": "808080"
+          }
+        },
+        "color": {
+          "fn": "Austin",
+          "ln": "Carr",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0004",
+            "fHairC": "808080",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612742": {
+      "current": {
+        "pbp": {
+          "fn": "Mark",
+          "ln": "Followill",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "4A3A28",
+            "fHair": "0000",
+            "fHairC": "4A3A28",
+            "browC": "4A3A28"
+          }
+        },
+        "color": {
+          "fn": "Derek",
+          "ln": "Harper",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0004",
+            "fHairC": "808080",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612743": {
+      "current": {
+        "pbp": {
+          "fn": "Chris",
+          "ln": "Marlowe",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "808080",
+            "fHair": "0000",
+            "fHairC": "808080",
+            "browC": "808080"
+          }
+        },
+        "color": {
+          "fn": "Scott",
+          "ln": "Hastings",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0000",
+            "hairC": "808080",
+            "fHair": "0000",
+            "fHairC": "808080",
+            "browC": "808080"
+          }
+        }
+      }
+    },
+    "1610612765": {
+      "current": {
+        "pbp": {
+          "fn": "George",
+          "ln": "Blaha",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0040",
+            "hairC": "C0C0C0",
+            "fHair": "0000",
+            "fHairC": "C0C0C0",
+            "browC": "C0C0C0"
+          }
+        },
+        "color": {
+          "fn": "Greg",
+          "ln": "Kelser",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0004",
+            "fHairC": "808080",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612744": {
+      "current": {
+        "pbp": {
+          "fn": "Bob",
+          "ln": "Fitzgerald",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "808080",
+            "fHair": "0000",
+            "fHairC": "808080",
+            "browC": "808080"
+          }
+        },
+        "color": {
+          "fn": "Kelenna",
+          "ln": "Azubuike",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0000",
+            "fHairC": "1A1A1A",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612745": {
+      "current": {
+        "pbp": {
+          "fn": "Craig",
+          "ln": "Ackerman",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "4A3A28",
+            "fHair": "0000",
+            "fHairC": "4A3A28",
+            "browC": "4A3A28"
+          }
+        },
+        "color": {
+          "fn": "Ryan",
+          "ln": "Hollins",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0004",
+            "fHairC": "1A1A1A",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612754": {
+      "current": {
+        "pbp": {
+          "fn": "Chris",
+          "ln": "Denari",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "4A3A28",
+            "fHair": "0000",
+            "fHairC": "4A3A28",
+            "browC": "4A3A28"
+          }
+        },
+        "color": {
+          "fn": "Quinn",
+          "ln": "Buckner",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "808080",
+            "fHair": "0000",
+            "fHairC": "808080",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612746": {
+      "current": {
+        "pbp": {
+          "fn": "Brian",
+          "ln": "Sieman",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "4A3A28",
+            "fHair": "0000",
+            "fHairC": "4A3A28",
+            "browC": "4A3A28"
+          }
+        },
+        "color": {
+          "fn": "Jim",
+          "ln": "Jackson",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0004",
+            "fHairC": "808080",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612747": {
+      "current": {
+        "pbp": {
+          "fn": "Bill",
+          "ln": "MacDonald",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0040",
+            "hairC": "808080",
+            "fHair": "0000",
+            "fHairC": "808080",
+            "browC": "808080"
+          }
+        },
+        "color": {
+          "fn": "Stu",
+          "ln": "Lantz",
+          "appearance": {
+            "skinC": "B08050",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0000",
+            "fHairC": "1A1A1A",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612763": {
+      "current": {
+        "pbp": {
+          "fn": "Pete",
+          "ln": "Pranica",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "808080",
+            "fHair": "0000",
+            "fHairC": "808080",
+            "browC": "808080"
+          }
+        },
+        "color": {
+          "fn": "Brevin",
+          "ln": "Knight",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0000",
+            "fHairC": "1A1A1A",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612748": {
+      "current": {
+        "pbp": {
+          "fn": "Eric",
+          "ln": "Reid",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0040",
+            "hairC": "808080",
+            "fHair": "0000",
+            "fHairC": "808080",
+            "browC": "808080"
+          }
+        },
+        "color": {
+          "fn": "John",
+          "ln": "Crotty",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "4A3A28",
+            "fHair": "0000",
+            "fHairC": "4A3A28",
+            "browC": "4A3A28"
+          }
+        }
+      }
+    },
+    "1610612749": {
+      "current": {
+        "pbp": {
+          "fn": "Lisa",
+          "ln": "Byington",
+          "appearance": {
+            "skinC": "FFE0C8",
+            "hair": "0103",
+            "hairC": "4A3A28",
+            "fHair": "0000",
+            "fHairC": "4A3A28",
+            "browC": "4A3A28"
+          }
+        },
+        "color": {
+          "fn": "Marques",
+          "ln": "Johnson",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "808080",
+            "fHair": "0004",
+            "fHairC": "808080",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612750": {
+      "current": {
+        "pbp": {
+          "fn": "Dave",
+          "ln": "Benz",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "4A3A28",
+            "fHair": "0000",
+            "fHairC": "4A3A28",
+            "browC": "4A3A28"
+          }
+        },
+        "color": {
+          "fn": "Jim",
+          "ln": "Petersen",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0000",
+            "hairC": "808080",
+            "fHair": "0000",
+            "fHairC": "808080",
+            "browC": "808080"
+          }
+        }
+      }
+    },
+    "1610612740": {
+      "current": {
+        "pbp": {
+          "fn": "Joel",
+          "ln": "Meyers",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0040",
+            "hairC": "808080",
+            "fHair": "0000",
+            "fHairC": "808080",
+            "browC": "808080"
+          }
+        },
+        "color": {
+          "fn": "Antonio",
+          "ln": "Daniels",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0000",
+            "fHairC": "1A1A1A",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612752": {
+      "current": {
+        "pbp": {
+          "fn": "Mike",
+          "ln": "Breen",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0040",
+            "hairC": "808080",
+            "fHair": "0000",
+            "fHairC": "808080",
+            "browC": "808080"
+          }
+        },
+        "color": {
+          "fn": "Walt",
+          "ln": "Frazier",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0008",
+            "fHairC": "1A1A1A",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612760": {
+      "current": {
+        "pbp": {
+          "fn": "Chris",
+          "ln": "Fisher",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "4A3A28",
+            "fHair": "0000",
+            "fHairC": "4A3A28",
+            "browC": "4A3A28"
+          }
+        },
+        "color": {
+          "fn": "Michael",
+          "ln": "Cage",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0004",
+            "fHairC": "808080",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612753": {
+      "current": {
+        "pbp": {
+          "fn": "David",
+          "ln": "Steele",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "808080",
+            "fHair": "0000",
+            "fHairC": "808080",
+            "browC": "808080"
+          }
+        },
+        "color": {
+          "fn": "Jeff",
+          "ln": "Turner",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "808080",
+            "fHair": "0000",
+            "fHairC": "808080",
+            "browC": "808080"
+          }
+        }
+      }
+    },
+    "1610612755": {
+      "current": {
+        "pbp": {
+          "fn": "Kate",
+          "ln": "Scott",
+          "appearance": {
+            "skinC": "FFE0C8",
+            "hair": "0103",
+            "hairC": "4A3A28",
+            "fHair": "0000",
+            "fHairC": "4A3A28",
+            "browC": "4A3A28"
+          }
+        },
+        "color": {
+          "fn": "Alaa",
+          "ln": "Abdelnaby",
+          "appearance": {
+            "skinC": "D4A070",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0000",
+            "fHairC": "1A1A1A",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612756": {
+      "current": {
+        "pbp": {
+          "fn": "Kevin",
+          "ln": "Ray",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "4A3A28",
+            "fHair": "0000",
+            "fHairC": "4A3A28",
+            "browC": "4A3A28"
+          }
+        },
+        "color": {
+          "fn": "Ann",
+          "ln": "Meyers Drysdale",
+          "appearance": {
+            "skinC": "FFE0C8",
+            "hair": "0103",
+            "hairC": "808080",
+            "fHair": "0000",
+            "fHairC": "808080",
+            "browC": "808080"
+          }
+        }
+      }
+    },
+    "1610612757": {
+      "current": {
+        "pbp": {
+          "fn": "Travis",
+          "ln": "Demers",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "4A3A28",
+            "fHair": "0004",
+            "fHairC": "4A3A28",
+            "browC": "4A3A28"
+          }
+        },
+        "color": {
+          "fn": "Lamar",
+          "ln": "Hurd",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0004",
+            "fHairC": "1A1A1A",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612758": {
+      "current": {
+        "pbp": {
+          "fn": "Mark",
+          "ln": "Jones",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0004",
+            "fHairC": "808080",
+            "browC": "1A1A1A"
+          }
+        },
+        "color": {
+          "fn": "Doug",
+          "ln": "Christie",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0008",
+            "fHairC": "1A1A1A",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612759": {
+      "current": {
+        "pbp": {
+          "fn": "Dan",
+          "ln": "Weiss",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "4A3A28",
+            "fHair": "0000",
+            "fHairC": "4A3A28",
+            "browC": "4A3A28"
+          }
+        },
+        "color": {
+          "fn": "Sean",
+          "ln": "Elliott",
+          "appearance": {
+            "skinC": "B08050",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0004",
+            "fHairC": "808080",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612761": {
+      "current": {
+        "pbp": {
+          "fn": "Matt",
+          "ln": "Devlin",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "4A3A28",
+            "fHair": "0000",
+            "fHairC": "4A3A28",
+            "browC": "4A3A28"
+          }
+        },
+        "color": {
+          "fn": "Alvin",
+          "ln": "Williams",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0000",
+            "fHairC": "1A1A1A",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    },
+    "1610612762": {
+      "current": {
+        "pbp": {
+          "fn": "Craig",
+          "ln": "Bolerjack",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0040",
+            "hairC": "808080",
+            "fHair": "0000",
+            "fHairC": "808080",
+            "browC": "808080"
+          }
+        },
+        "color": {
+          "fn": "David",
+          "ln": "Locke",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0000",
+            "hairC": "808080",
+            "fHair": "0000",
+            "fHairC": "808080",
+            "browC": "808080"
+          }
+        }
+      }
+    },
+    "1610612764": {
+      "current": {
+        "pbp": {
+          "fn": "Glenn",
+          "ln": "Consor",
+          "appearance": {
+            "skinC": "F0C8A0",
+            "hair": "0007",
+            "hairC": "808080",
+            "fHair": "0000",
+            "fHairC": "808080",
+            "browC": "808080"
+          }
+        },
+        "color": {
+          "fn": "Drew",
+          "ln": "Gooden",
+          "appearance": {
+            "skinC": "704030",
+            "hair": "0000",
+            "hairC": "1A1A1A",
+            "fHair": "0011",
+            "fHairC": "1A1A1A",
+            "browC": "1A1A1A"
+          }
+        }
+      }
+    }
+  }
 }

@@ -292,7 +292,7 @@ class Generator:
                     starting_lineup_ids.append(player.id)
 
             # Generate team assets
-            front_office = team_assets.generate_front_office(target_id, name, tid_str)
+            front_office = team_assets.generate_front_office(target_id, name, tid_str, year_int)
             court = team_assets.generate_court(
                 team_colors, logo_url, city, name, arena_name, current_team
             )
