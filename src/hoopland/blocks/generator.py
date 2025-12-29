@@ -254,9 +254,27 @@ class Generator:
                 struct_roster.append(struct_player)
                 player_id_counter += 1
 
+            # Assign lineup positions based on minutes played
+            roster_with_minutes = []
+            for player in struct_roster:
+                minutes = player.stats.get("MIN", 0) if player.stats else 0
+                roster_with_minutes.append((player, minutes))
+
+            # Sort by minutes descending
+            roster_with_minutes.sort(key=lambda x: x[1], reverse=True)
+
+            # Assign linePos: 0-4 for starters (top 5 by minutes), 5+ for bench
+            starting_lineup_ids = []
+            for idx, (player, _) in enumerate(roster_with_minutes):
+                player.linePos = idx
+                if idx < 5:
+                    starting_lineup_ids.append(player.id)
+
             # Generate team assets
             front_office = team_assets.generate_front_office(target_id, name, tid_str)
-            court = team_assets.generate_court(team_colors, logo_url)
+            court = team_assets.generate_court(
+                team_colors, logo_url, city, name, arena_name, current_team
+            )
             uniforms = team_assets.generate_uniforms(team_colors)
             championships = team_assets.generate_championships(tid_str, year_int)
             draft_picks = team_assets.generate_draft_picks(target_id, year_int)
@@ -277,8 +295,8 @@ class Generator:
                 inbox=[],
                 uniforms=uniforms,
                 court=court,
-                startingLineup=[],
-                currentLineup=[],
+                startingLineup=starting_lineup_ids,
+                currentLineup=starting_lineup_ids.copy(),
                 lineupPreset=0,
                 draftPicks=draft_picks,
                 retiredNumbers=[],

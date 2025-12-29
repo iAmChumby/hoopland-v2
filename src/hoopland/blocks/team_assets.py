@@ -128,14 +128,29 @@ def generate_front_office(team_id: int, team_name: str, nba_team_id: str = "") -
     }
 
 
-def generate_court(team_colors: List[str], overlay_url: str = "") -> Dict[str, Any]:
-    """Generate court design matching game format."""
+def generate_court(
+    team_colors: List[str],
+    overlay_url: str = "",
+    city: str = "",
+    team_name: str = "",
+    arena_name: str = "",
+    team_index: int = 0
+) -> Dict[str, Any]:
+    """Generate court design matching game format with variety across teams."""
+    wood_patterns = ["lines", "tiled", "parque", "comb", "lines"]
+    inner_patterns = ["lines", "tiled", "parque", "comb", "tiled"]
+    pattern_idx = team_index % 5
+    outer_wood = wood_patterns[pattern_idx]
+    inner_wood = inner_patterns[pattern_idx]
+
+    baseline_text = f"{city} {team_name}" if city else team_name
+
     return {
-        "outerWood": "lines",
+        "outerWood": outer_wood,
         "outerWoodC": "EEA160",
-        "innerWood": "lines",
+        "innerWood": inner_wood,
         "innerWoodC": "EEA160",
-        "outerFT": "lines",
+        "outerFT": outer_wood,
         "outerFTC": "EEA160",
         "innerFT": "flat",
         "innerFTC": "PRI",
@@ -155,22 +170,22 @@ def generate_court(team_colors: List[str], overlay_url: str = "") -> Dict[str, A
         "innerFTCircle": "000000",
         "outerKeyLine": "000000",
         "innerKeyLine": "000000",
-        "logoSize": 0,
-        "logoLayer": 0,
+        "logoSize": 200,
+        "logoLayer": 2,
         "overlayURL": overlay_url,
         "overlayLayer": 1,
-        "baseline1": "",
+        "baseline1": baseline_text,
         "baseline1C": "FFFFFF",
-        "baseline2": "",
+        "baseline2": baseline_text,
         "baseline2C": "FFFFFF",
-        "sideline1": "",
+        "sideline1": arena_name,
         "sideline1C": "FFFFFF",
-        "sideline2": "",
+        "sideline2": arena_name,
         "sideline2C": "FFFFFF",
-        "hoopBase": "000000",
-        "hoopPole": "FFFFFF",
-        "polePadding": "000000",
-        "hoopPadding": "FF0000",
+        "hoopBase": "PRI",
+        "hoopPole": "SEC",
+        "polePadding": "SEC",
+        "hoopPadding": "PRI",
     }
 
 
