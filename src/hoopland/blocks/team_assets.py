@@ -13,11 +13,18 @@ from typing import Dict, List, Any, Optional
 _TEAM_DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "team_data.json")
 _TEAM_DATA: Dict[str, Dict] = {}
 
+_NCAA_TEAM_DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "ncaa_team_data.json")
+_NCAA_TEAM_DATA: Dict[str, Dict] = {}
+_NCAA_TEAM_BY_ID: Dict[str, Dict] = {}
+
 _CHAMPIONSHIPS_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "championships.json")
 _CHAMPIONSHIPS_DATA: Dict[str, Dict] = {}
 
 _ANNOUNCERS_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "announcers.json")
 _ANNOUNCERS_DATA: Dict[str, Any] = {}
+
+_NCAA_CHAMPIONSHIPS_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "ncaa_championships.json")
+_NCAA_CHAMPIONSHIPS_DATA: Dict[str, Any] = {}
 
 
 def _load_team_data() -> Dict[str, Dict]:
@@ -54,6 +61,173 @@ def _load_announcers_data() -> Dict[str, Any]:
         except FileNotFoundError:
             _ANNOUNCERS_DATA = {}
     return _ANNOUNCERS_DATA
+
+
+def _load_ncaa_team_data() -> Dict[str, Dict]:
+    """Load NCAA team data from JSON file."""
+    global _NCAA_TEAM_DATA, _NCAA_TEAM_BY_ID
+    if not _NCAA_TEAM_DATA:
+        try:
+            with open(_NCAA_TEAM_DATA_PATH, "r") as f:
+                _NCAA_TEAM_DATA = json.load(f)
+            for slug, data in _NCAA_TEAM_DATA.items():
+                _NCAA_TEAM_BY_ID[str(data.get("target_id", ""))] = data
+                _NCAA_TEAM_BY_ID[data.get("uuid", "")] = data
+        except FileNotFoundError:
+            _NCAA_TEAM_DATA = {}
+    return _NCAA_TEAM_DATA
+
+
+def get_ncaa_team_by_name(team_name: str) -> Optional[Dict]:
+    """
+    Look up NCAA team data by name or partial match.
+    
+    Args:
+        team_name: Full team name, school name, or mascot (e.g., "Duke", "Duke Blue Devils")
+    
+    Returns:
+        Team data dict or None if not found
+    """
+    data = _load_ncaa_team_data()
+    team_name_lower = team_name.lower().replace(" ", "_").replace("-", "_").replace("'", "")
+    
+    if team_name_lower in data:
+        return data[team_name_lower]
+    
+    for slug, team in data.items():
+        if team.get("full_name", "").lower() == team_name.lower():
+            return team
+        if team.get("school", "").lower() == team_name.lower():
+            return team
+    
+    for slug, team in data.items():
+        if team_name_lower in slug:
+            return team
+    
+    return None
+
+
+def get_ncaa_team_by_espn_id(espn_id: str) -> Optional[Dict]:
+    """
+    Look up NCAA team data by ESPN team ID.
+    
+    Args:
+        espn_id: ESPN API team ID
+    
+    Returns:
+        Team data dict or None if not found
+    """
+    _load_ncaa_team_data()
+    return _NCAA_TEAM_BY_ID.get(str(espn_id))
+
+
+def get_ncaa_team_colors(team_name: str) -> List[str]:
+    """Get NCAA team colors as array of 3 hex strings."""
+    team = get_ncaa_team_by_name(team_name)
+    if team:
+        return team.get("colors", ["CC0000", "FFFFFF", "000000"])
+    return ["CC0000", "FFFFFF", "000000"]
+
+
+def get_ncaa_team_info(team_name: str) -> Dict[str, Any]:
+    """
+    Get full NCAA team info for generation.
+    
+    Args:
+        team_name: Team name to look up
+    
+    Returns:
+        Dict with school, name, tag, colors, target_id
+    """
+    team = get_ncaa_team_by_name(team_name)
+    if team:
+        return {
+            "school": team.get("school", team_name),
+            "name": team.get("name", "Team"),
+            "full_name": team.get("full_name", team_name),
+            "tag": team.get("tag", "TM"),
+            "colors": team.get("colors", ["CC0000", "FFFFFF", "000000"]),
+            "target_id": team.get("target_id", 0),
+        }
+    return {
+        "school": team_name,
+        "name": "Team",
+        "full_name": team_name,
+        "tag": team_name[:3].upper(),
+        "colors": ["CC0000", "FFFFFF", "000000"],
+        "target_id": 0,
+    }
+
+
+def _load_ncaa_championships_data() -> Dict[str, Any]:
+    """Load NCAA championships data from JSON file."""
+    global _NCAA_CHAMPIONSHIPS_DATA
+    if not _NCAA_CHAMPIONSHIPS_DATA:
+        try:
+            with open(_NCAA_CHAMPIONSHIPS_PATH, "r") as f:
+                _NCAA_CHAMPIONSHIPS_DATA = json.load(f)
+        except FileNotFoundError:
+            _NCAA_CHAMPIONSHIPS_DATA = {}
+    return _NCAA_CHAMPIONSHIPS_DATA
+
+
+def generate_ncaa_championships(school_name: str, current_year: int = 9999) -> Dict[str, Any]:
+    """
+    Generate championships object for an NCAA team.
+    
+    Args:
+        school_name: School name to look up (e.g., "Duke", "North Carolina")
+        current_year: Filter championships to years before this
+    
+    Returns:
+        Championships dict with yearsWon list
+    """
+    data = _load_ncaa_championships_data()
+    team_champs = data.get("team_championships", {})
+    
+    name_lower = school_name.lower()
+    years_won = []
+    
+    for team, years in team_champs.items():
+        if team.lower() == name_lower or name_lower in team.lower():
+            years_won = [y for y in years if y < current_year]
+            break
+    
+    return {
+        "id": 1,
+        "league": 1,
+        "yearsWon": years_won,
+        "position": 0,
+    }
+
+
+def generate_ncaa_front_office(team_id: int, team_name: str) -> Dict[str, Any]:
+    """Generate front office structure for an NCAA team."""
+    team_staff = [
+        _generate_front_office_person(
+            {"fn": "Head", "ln": "Coach", "age": 50, "appearance": _get_default_appearance()},
+            team_id, 0, pos=1
+        ),
+        _generate_front_office_person(
+            {"fn": "Assistant", "ln": "Coach", "age": 40, "appearance": _get_default_appearance()},
+            team_id, 1, pos=2
+        ),
+    ]
+    
+    return {
+        "coins": 0,
+        "condition": 0,
+        "morale": 0,
+        "fans": 0,
+        "facilities": [
+            {"type": 0, "tier": 2, "upgrade": 0, "condition": 5},
+            {"type": 1, "tier": 2, "upgrade": 0, "condition": 5},
+        ],
+        "staff": team_staff,
+        "announcers": _get_default_announcers(team_id),
+        "adsURL": "",
+        "adSize": 0,
+    }
 
 
 def _get_announcers_for_year(

@@ -469,19 +469,30 @@ class Generator:
         total_teams = len(team_map)
         current_team = 0
 
-        # Fetch Team Metadata
+        # Fetch Team Metadata with logos and arena info
         tid_to_meta = {}
         try:
-            logger.info("Fetching NCAA team metadata for naming...")
+            logger.info("Fetching NCAA team metadata (names, logos, arenas)...")
             all_teams = self.repo.espn_client.get_all_teams()
             for t in all_teams:
                 tid = str(t.get("id"))
+                logos = t.get("logos", [])
+                logo_url = logos[0] if logos else ""
+                venue = t.get("venue", {})
+                arena_name = venue.get("fullName", "") if isinstance(venue, dict) else ""
                 tid_to_meta[tid] = {
                     "name": t.get("displayName", f"Team {tid}"),
-                    "shortName": t.get("abbreviation", f"T{tid[-3:]}")
+                    "shortName": t.get("abbreviation", f"T{tid[-3:]}"),
+                    "location": t.get("location", ""),
+                    "logo": logo_url,
+                    "arena": arena_name,
+                    "color": t.get("color", ""),
+                    "alternateColor": t.get("alternateColor", ""),
                 }
         except Exception as e:
             logger.warning(f"Could not fetch team metadata: {e}")
+
+        year_int = int(year)
 
         for tid, roster in team_map.items():
             current_team += 1
@@ -490,11 +501,18 @@ class Generator:
 
             tid_str = str(tid)
             meta = tid_to_meta.get(tid_str, {})
-            team_name = meta.get("name", f"Team {tid}")
-            team_abbrev = meta.get("shortName", f"T{str(tid)[-3:]}")
+            espn_team_name = meta.get("name", f"Team {tid}")
+            espn_abbrev = meta.get("shortName", f"T{str(tid)[-3:]}")
 
-            # Build roster
+            ncaa_info = team_assets.get_ncaa_team_info(espn_team_name)
+            school = ncaa_info.get("school", espn_team_name)
+            mascot = ncaa_info.get("name", "Team")
+            team_colors = ncaa_info.get("colors", ["CC0000", "FFFFFF", "000000"])
+            team_tag = ncaa_info.get("tag", espn_abbrev)
+            target_id = ncaa_info.get("target_id", int(tid) % 1000)
+
             struct_roster = []
+            player_id_counter = 0
             for p in roster:
                 raw = p.raw_stats if p.raw_stats else {}
                 app_data = p.appearance if p.appearance else {}
@@ -506,20 +524,27 @@ class Generator:
                 skin_val = app_data.get("skin_tone", 1)
                 player_appearance = team_assets.generate_player_appearance(app_data, skin_val)
                 player_accessories = team_assets.generate_player_accessories(skin_val)
+                player_suits = team_assets.generate_player_suits()
 
-                # Default ratings for NCAA
-                attributes = {k: [5, 7] for k in [
-                    "LAY", "DNK", "INS", "MID", "TPT", "FTS",
-                    "DRB", "PAS", "ORE", "DRE", "STL", "BLK",
-                    "STR", "SPD", "STM"
-                ]}
+                attributes = self._calculate_ncaa_attributes(raw, ht_val, wt_val)
+
+                tends = tendencies.generate_player_tendencies(
+                    stats=raw,
+                    height=ht_val,
+                    position=pos_val,
+                    distribution={}
+                )
+
+                skills = team_assets.generate_skills(attributes, raw)
+                game_status = team_assets.generate_game_status()
 
                 struct_player = structs.Player(
                     id=p.id,
-                    tid=int(tid),
+                    tid=target_id,
                     fn=p.name.split(" ")[0] if " " in p.name else p.name,
                     ln=" ".join(p.name.split(" ")[1:]) if " " in p.name else "",
-                    age=20,
+                    num=player_id_counter + 1,
+                    age=self._parse_age_ncaa(raw),
                     yrs=0,
                     ht=ht_val,
                     wt=wt_val,
@@ -529,23 +554,60 @@ class Generator:
                     pot=7,
                     appearance=player_appearance,
                     accessories=player_accessories,
+                    suits=player_suits,
                     attributes=attributes,
+                    tendencies=tends,
+                    skills=skills,
+                    gameStatus=game_status,
+                    history=team_assets.generate_player_history(),
                 )
                 struct_roster.append(struct_player)
+                player_id_counter += 1
 
-            # Generate team colors (placeholder for NCAA)
-            team_colors = ["CC0000", "FFFFFF", "000000"]
+            starting_lineup_ids = [p.id for p in struct_roster[:5]] if len(struct_roster) >= 5 else [p.id for p in struct_roster]
+            for idx, player in enumerate(struct_roster):
+                player.linePos = idx
+
+            logo_url = meta.get("logo", "")
+            arena_name = meta.get("arena", "") or f"{school} Arena"
+
+            front_office = team_assets.generate_ncaa_front_office(target_id, mascot)
+            court = team_assets.generate_court(
+                team_colors, "", school, mascot, arena_name, current_team
+            )
+            uniforms = team_assets.generate_uniforms(team_colors)
+            championships = team_assets.generate_ncaa_championships(school, year_int)
 
             t = structs.Team(
-                id=int(tid),
-                city="",
-                name=team_name,
-                shortName=team_abbrev,
-                tag=team_abbrev,
+                id=target_id,
+                city=school,
+                name=mascot,
+                shortName=team_tag,
+                tag=team_tag,
+                arenaName=arena_name,
+                logoURL=logo_url,
+                division=0,
+                location={"x": 0, "y": 0},
                 roster=struct_roster,
                 teamColors=team_colors,
-                uniforms=team_assets.generate_uniforms(team_colors),
-                court=team_assets.generate_court(team_colors),
+                frontOffice=front_office,
+                inbox=[],
+                uniforms=uniforms,
+                court=court,
+                startingLineup=starting_lineup_ids,
+                currentLineup=starting_lineup_ids.copy(),
+                lineupPreset=0,
+                draftPicks=[],
+                retiredNumbers=[],
+                season=[],
+                history={},
+                headToHeads={},
+                scoringOptions={},
+                quickPlays=[],
+                coinFlip=0,
+                status=0,
+                rnk=current_team,
+                championships=championships,
             )
             league_teams.append(t)
 
@@ -921,6 +983,46 @@ class Generator:
         if "G" in abbrev:
             return 1 if "PG" in abbrev else 2
         return 3
+
+    def _parse_age_ncaa(self, stats: dict) -> int:
+        age_str = stats.get("age", "")
+        try:
+            if age_str:
+                return int(age_str)
+        except:
+            pass
+        exp = stats.get("experience", {})
+        if isinstance(exp, dict):
+            years = exp.get("years", 0)
+            return 18 + int(years) if years else 20
+        return 20
+
+    def _calculate_ncaa_attributes(self, stats: dict, height: int, weight: int) -> dict:
+        base = 5
+        pot = 8
+
+        spd = max(3, min(12, 15 - max(0, (height - 74))))
+        strength = max(3, min(12, 6 + (weight - 180) // 15))
+
+        attrs = {
+            "LAY": [base, pot],
+            "DNK": [max(3, min(10, base + max(0, (height - 76) // 2))), pot],
+            "INS": [base, pot],
+            "MID": [base, pot],
+            "TPT": [base, pot],
+            "FTS": [base, pot],
+            "DRB": [base, pot],
+            "PAS": [base, pot],
+            "ORE": [max(3, min(10, base + max(0, (height - 76) // 3))), pot],
+            "DRE": [max(3, min(10, base + max(0, (height - 74) // 2))), pot],
+            "STL": [base, pot],
+            "BLK": [max(3, min(10, base + max(0, (height - 78) // 2))), pot],
+            "STR": [strength, pot],
+            "SPD": [spd, pot],
+            "STM": [base + 2, pot],
+        }
+
+        return attrs
 
     def _parse_country(self, stats: dict) -> int:
         c_str = stats.get("ROSTER_COUNTRY", "USA")

@@ -60,17 +60,17 @@ def test_ncaa_generation_naming(mock_espn_client, tmp_path):
         # We assume tournament_mode calls sync_ncaa_season_stats which we mocked
         league = gen.generate_ncaa_league("2024", tournament_mode=False)
 
-        # Verify Teams
-        duke = next((t for t in league.teams if t.id == 1), None)
-        unc = next((t for t in league.teams if t.id == 2), None)
+        # Verify Teams - lookup by city (school name) since IDs come from NCAA data
+        duke = next((t for t in league.teams if t.city == "Duke"), None)
+        unc = next((t for t in league.teams if t.city == "North Carolina"), None)
         
         assert duke is not None
-        assert duke.name == "Duke Blue Devils"
-        assert duke.shortName == "DUKE"
+        assert duke.name == "Blue Devils"
+        assert duke.shortName == "DUK"
         
         assert unc is not None
-        assert unc.name == "North Carolina Tar Heels"
-        assert unc.shortName == "UNC"
+        assert unc.name == "Tar Heels"
+        assert unc.shortName == "NC"
 
 # --- Editor Tests ---
 
