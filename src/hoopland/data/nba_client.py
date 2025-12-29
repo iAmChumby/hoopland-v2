@@ -4,6 +4,7 @@ from nba_api.stats.endpoints import (
     drafthistory,
     playercareerstats,
     playerawards,
+    leagueleaders,
 )
 from nba_api.stats.static import teams
 import pandas as pd
@@ -75,3 +76,28 @@ class NBAClient:
         if team_id and year:
             return f"https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/{team_id}/{year}/260x190/{player_id}.png"
         return f"https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/{player_id}.png"
+
+    @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
+    def get_league_leaders(self, season: str) -> set:
+        priority_ids = set()
+        categories = [
+            ("PTS", 25),
+            ("REB", 20),
+            ("AST", 20),
+            ("STL", 15),
+            ("BLK", 15),
+        ]
+        for stat_cat, top_n in categories:
+            try:
+                leaders = leagueleaders.LeagueLeaders(
+                    season=season,
+                    stat_category_abbreviation=stat_cat,
+                    per_mode48="PerGame",
+                    timeout=10
+                )
+                df = leaders.get_data_frames()[0]
+                top_ids = df.head(top_n)["PLAYER_ID"].tolist()
+                priority_ids.update(top_ids)
+            except Exception:
+                pass
+        return priority_ids

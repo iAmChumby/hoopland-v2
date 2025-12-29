@@ -266,6 +266,7 @@ class DataRepository:
                             "BIRTH_COUNTRY", meta.get("COUNTRY", "USA")
                         )
                         current_stats["ROSTER_SCHOOL"] = meta.get("SCHOOL", "")
+                        current_stats["ROSTER_EXP"] = meta.get("EXP", "0")
 
                         p.raw_stats = current_stats
                         updates_count += 1

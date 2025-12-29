@@ -119,7 +119,17 @@ class Generator:
         current_team = 0
         year_int = int(year)
 
+        print("Fetching stat leaders for award prioritization...")
+        try:
+            priority_player_ids = self.repo.nba_client.get_league_leaders(season_str)
+            logger.info(f"Identified {len(priority_player_ids)} priority players for awards")
+        except Exception as e:
+            logger.warning(f"Could not fetch league leaders: {e}")
+            priority_player_ids = set()
+
         print("Building Teams...")
+        player_awards_queue = []
+
         for tid, roster in team_map.items():
             current_team += 1
             if current_team % 5 == 0:
@@ -209,26 +219,17 @@ class Generator:
                 contract["tid"] = target_id
                 contract["pid"] = p.id
 
-                # Fetch career stats and awards from NBA API
-                player_awards = []
-                years_exp = max(0, age - 22)
-                try:
-                    source_id = raw_stats.get("PLAYER_ID", p.source_id)
-                    if source_id:
-                        career_stats = self.repo.nba_client.get_player_career_stats(int(source_id))
-                        season_df = career_stats.get("season_totals")
-                        if season_df is not None and not season_df.empty:
-                            debut_season = season_df.iloc[0].get("SEASON_ID", "")
-                            if debut_season and len(debut_season) >= 4:
-                                debut_year = int(debut_season[:4])
-                                years_exp = max(0, year_int - 1 - debut_year)
-                        time.sleep(0.6)
+                # Calculate years of experience from roster data (no API call needed)
+                exp_val = raw_stats.get("ROSTER_EXP", "0")
+                if exp_val == "R":
+                    years_exp = 0
+                elif str(exp_val).isdigit():
+                    years_exp = int(exp_val)
+                else:
+                    years_exp = max(0, age - 22)
 
-                        awards_df = self.repo.nba_client.get_player_awards(int(source_id))
-                        player_awards = awards_loader.process_player_awards(awards_df, year_int)
-                        time.sleep(0.6)
-                except Exception as e:
-                    logger.debug(f"Could not fetch career data for player {p.name}: {e}")
+                source_id = raw_stats.get("PLAYER_ID", p.source_id)
+                is_priority = int(source_id) in priority_player_ids if source_id else False
 
                 # History
                 history = team_assets.generate_player_history(years_exp=years_exp)
@@ -260,10 +261,19 @@ class Generator:
                     history=history,
                     stats=raw_stats,
                     careerStats={"season": [], "playoffs": [], "finals": [], "highs": {}},
-                    awards=player_awards,
+                    awards=[],
                 )
                 struct_roster.append(struct_player)
                 player_id_counter += 1
+
+                if source_id:
+                    player_awards_queue.append({
+                        "player": struct_player,
+                        "source_id": int(source_id),
+                        "name": p.name,
+                        "is_priority": is_priority,
+                        "rating": rating_val,
+                    })
 
             # Assign lineup positions based on minutes played
             roster_with_minutes = []
@@ -322,6 +332,35 @@ class Generator:
                 championships=championships,
             )
             league_teams.append(t)
+
+        # 8. Fetch awards for priority players first, then others if time permits
+        print("Fetching player awards (prioritizing stat leaders)...")
+        player_awards_queue.sort(key=lambda x: (not x["is_priority"], -x["rating"]))
+
+        awards_start_time = time.time()
+        MAX_AWARDS_TIME = 150
+        awards_fetched = 0
+        awards_skipped = 0
+
+        for entry in player_awards_queue:
+            if time.time() - awards_start_time >= MAX_AWARDS_TIME:
+                if awards_skipped == 0:
+                    logger.info(f"Awards timeout reached after {awards_fetched} players")
+                awards_skipped += 1
+                continue
+
+            try:
+                priority_str = " [PRIORITY]" if entry["is_priority"] else ""
+                logger.info(f"Fetching awards for {entry['name']}{priority_str} ({awards_fetched + 1} fetched)")
+                awards_df = self.repo.nba_client.get_player_awards(entry["source_id"])
+                player_awards = awards_loader.process_player_awards(awards_df, year_int)
+                entry["player"].awards = player_awards
+                awards_fetched += 1
+                time.sleep(0.6)
+            except Exception as e:
+                logger.debug(f"Could not fetch awards for {entry['name']}: {e}")
+
+        logger.info(f"Awards complete: {awards_fetched} fetched, {awards_skipped} skipped")
 
         # Generate league-level data
         meta = structs.Meta(
