@@ -209,19 +209,29 @@ class Generator:
                 contract["tid"] = target_id
                 contract["pid"] = p.id
 
-                # History
-                history = team_assets.generate_player_history(years_exp=max(0, age - 22))
-
-                # Awards - fetch from NBA API and filter to years before current year
+                # Fetch career stats and awards from NBA API
                 player_awards = []
+                years_exp = max(0, age - 22)
                 try:
                     source_id = raw_stats.get("PLAYER_ID", p.source_id)
                     if source_id:
+                        career_stats = self.repo.nba_client.get_player_career_stats(int(source_id))
+                        season_df = career_stats.get("season_totals")
+                        if season_df is not None and not season_df.empty:
+                            debut_season = season_df.iloc[0].get("SEASON_ID", "")
+                            if debut_season and len(debut_season) >= 4:
+                                debut_year = int(debut_season[:4])
+                                years_exp = max(0, year_int - 1 - debut_year)
+                        time.sleep(0.6)
+
                         awards_df = self.repo.nba_client.get_player_awards(int(source_id))
                         player_awards = awards_loader.process_player_awards(awards_df, year_int)
                         time.sleep(0.6)
                 except Exception as e:
-                    logger.debug(f"Could not fetch awards for player {p.name}: {e}")
+                    logger.debug(f"Could not fetch career data for player {p.name}: {e}")
+
+                # History
+                history = team_assets.generate_player_history(years_exp=years_exp)
 
                 struct_player = structs.Player(
                     id=p.id,
@@ -232,6 +242,7 @@ class Generator:
                     home="",
                     num=player_id_counter + 1,
                     age=age,
+                    yrs=years_exp,
                     ht=ht_val,
                     wt=wt_val,
                     pos=pos_val,
@@ -470,6 +481,7 @@ class Generator:
                     fn=p.name.split(" ")[0] if " " in p.name else p.name,
                     ln=" ".join(p.name.split(" ")[1:]) if " " in p.name else "",
                     age=20,
+                    yrs=0,
                     ht=ht_val,
                     wt=wt_val,
                     pos=pos_val,
@@ -743,6 +755,7 @@ class Generator:
                 fn=p.name.split(" ")[0] if " " in p.name else p.name,
                 ln=" ".join(p.name.split(" ")[1:]) if " " in p.name else "",
                 age=20,
+                yrs=0,
                 ht=78,
                 wt=210,
                 pos=3,

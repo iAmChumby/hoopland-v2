@@ -72,6 +72,7 @@ class Player:
 
     # Biography
     age: int = 0
+    yrs: int = 0  # Years of experience
     ctry: int = 0  # Country code (int)
     ht: int = 0  # Height in inches
     wt: int = 0  # Weight in lbs
