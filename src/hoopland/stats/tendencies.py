@@ -1,10 +1,77 @@
 
 import math
 import statistics
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
+
 
 def safe_div(num, denom):
     return num / denom if denom > 0 else 0.0
+
+
+def map_college_stats_to_tendency_input(college_stats: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Map college stats from hoopR/ESPN format to the format expected by calculate_derived_stats().
+
+    Args:
+        college_stats: Dict with hoopR column names (field_goals_made, etc.)
+
+    Returns:
+        Dict with NBA-style keys (FGM, FGA, etc.) suitable for tendency calculation
+    """
+    if not college_stats:
+        return {}
+
+    fgm = float(college_stats.get("field_goals_made", 0) or 0)
+    fga = float(college_stats.get("field_goals_attempted", 0) or 0)
+    tpm = float(college_stats.get("three_point_field_goals_made", 0) or 0)
+    tpa = float(college_stats.get("three_point_field_goals_attempted", 0) or 0)
+    ftm = float(college_stats.get("free_throws_made", 0) or 0)
+    fta = float(college_stats.get("free_throws_attempted", 0) or 0)
+
+    return {
+        "FGM": fgm,
+        "FGA": fga,
+        "FG3M": tpm,
+        "FG3A": tpa,
+        "FTM": ftm,
+        "FTA": fta,
+        "AST": float(college_stats.get("assists", 0) or 0),
+        "OREB": float(college_stats.get("offensive_rebounds", 0) or 0),
+        "DREB": float(college_stats.get("defensive_rebounds", 0) or 0),
+        "REB": float(college_stats.get("rebounds", 0) or 0),
+        "STL": float(college_stats.get("steals", 0) or 0),
+        "BLK": float(college_stats.get("blocks", 0) or 0),
+        "TOV": float(college_stats.get("turnovers", 0) or 0),
+        "MIN": float(college_stats.get("minutes", 0) or 0),
+        "PTS": float(college_stats.get("points", 0) or 0),
+        "GP": int(college_stats.get("games_played", 0) or 0),
+    }
+
+
+def get_default_tendencies() -> Dict[str, int]:
+    """Return default neutral tendencies when no stats available."""
+    return {
+        "threePoint": 0,
+        "twoPoint": 0,
+        "dunk": 0,
+        "post": 0,
+        "hook": 0,
+        "runPlay": 0,
+        "pass": 0,
+        "lob": 0,
+        "offReb": 0,
+        "defReb": 0,
+        "stealOnBall": 0,
+        "stealOffBall": 0,
+        "block": 0,
+        "cross": 0,
+        "pumpFake": 0,
+        "takeCharge": 0,
+        "floater": 0,
+        "fades": 0,
+        "spin": 0,
+        "step": 0,
+    }
 
 def calculate_derived_stats(stats: Dict[str, Any], height: int = 75) -> Dict[str, float]:
     """

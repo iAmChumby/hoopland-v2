@@ -132,10 +132,10 @@ def get_ncaa_team_colors(team_name: str) -> List[str]:
 def get_ncaa_team_info(team_name: str) -> Dict[str, Any]:
     """
     Get full NCAA team info for generation.
-    
+
     Args:
         team_name: Team name to look up
-    
+
     Returns:
         Dict with school, name, tag, colors, target_id
     """
@@ -157,6 +157,76 @@ def get_ncaa_team_info(team_name: str) -> Dict[str, Any]:
         "colors": ["CC0000", "FFFFFF", "000000"],
         "target_id": 0,
     }
+
+
+COLLEGE_NAME_ALIASES = {
+    "Connecticut": "Connecticut",
+    "UConn": "Connecticut",
+    "Southern California": "USC",
+    "USC": "USC",
+    "Louisiana State": "LSU",
+    "LSU": "LSU",
+    "North Carolina": "North Carolina",
+    "UNC": "North Carolina",
+    "Texas-El Paso": "UTEP",
+    "UTEP": "UTEP",
+    "Texas-San Antonio": "UTSA",
+    "UTSA": "UTSA",
+    "Central Florida": "UCF",
+    "UCF": "UCF",
+    "Nevada-Las Vegas": "UNLV",
+    "UNLV": "UNLV",
+    "Miami (FL)": "Miami",
+    "Miami": "Miami",
+    "Ohio State": "Ohio State",
+    "OSU": "Ohio State",
+    "Michigan State": "Michigan State",
+    "MSU": "Michigan State",
+    "St. John's (NY)": "St. John's",
+    "Saint John's": "St. John's",
+}
+
+SKIP_ORGANIZATIONS = {
+    "",
+    "No College",
+    "High School",
+    "None",
+}
+
+
+def normalize_college_name(college_name: str) -> Optional[str]:
+    """
+    Normalize NBA draft ORGANIZATION name to a searchable college name.
+
+    Handles aliases, abbreviations, and special cases.
+
+    Args:
+        college_name: Raw college name from NBA draft data
+
+    Returns:
+        Normalized college name, or None if should be skipped
+    """
+    if not college_name or college_name in SKIP_ORGANIZATIONS:
+        return None
+
+    if "(" in college_name and ")" in college_name:
+        return None
+
+    if any(word in college_name.lower() for word in ["club", "academy", "institute"]):
+        if "technology" not in college_name.lower():
+            return None
+
+    if college_name in COLLEGE_NAME_ALIASES:
+        return COLLEGE_NAME_ALIASES[college_name]
+
+    return college_name
+
+
+def is_college_player(organization_type: str) -> bool:
+    """Check if the organization type indicates a college player."""
+    if not organization_type:
+        return False
+    return organization_type.lower() in ["college/university", "college", "university"]
 
 
 def _load_ncaa_championships_data() -> Dict[str, Any]:

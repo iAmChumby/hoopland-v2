@@ -15,6 +15,7 @@ from ..models import structs
 from ..data import repository
 from ..data import historical_loader
 from ..data import awards_loader
+from ..data.college_client import CollegeClient
 from ..db import init_db, Player
 from ..cv import appearance
 from ..stats import normalization, tendencies
@@ -29,6 +30,7 @@ class Generator:
         self.Session = init_db()
         self.session = self.Session()
         self.repo = repository.DataRepository(self.session)
+        self.college_client = CollegeClient()
 
     def generate_league(self, year: str) -> structs.League:
         """Generate NBA league data for a specific year."""
@@ -659,6 +661,14 @@ class Generator:
                 ),
             )
 
+        combine_data = {}
+        try:
+            logger.info(f"Fetching draft combine measurements for {year}...")
+            combine_data = self.repo.nba_client.get_draft_combine_measurements(int(year))
+            logger.info(f"Found combine data for {len(combine_data)} players")
+        except Exception as e:
+            logger.warning(f"Could not fetch combine data: {e}")
+
         # Store draft picks in database
         draft_season = f"draft-{year}"
 
@@ -674,6 +684,9 @@ class Generator:
             if existing:
                 continue
 
+            org = row.get("ORGANIZATION", "") if "ORGANIZATION" in row.index else ""
+            org_type = row.get("ORGANIZATION_TYPE", "") if "ORGANIZATION_TYPE" in row.index else ""
+
             player = Player(
                 source_id=pid,
                 league="NBA",
@@ -686,6 +699,8 @@ class Generator:
                     "OVERALL_PICK": int(row["OVERALL_PICK"]),
                     "ROUND_NUMBER": int(row["ROUND_NUMBER"]) if "ROUND_NUMBER" in row else 1,
                     "DRAFT_YEAR": year,
+                    "ORGANIZATION": org,
+                    "ORGANIZATION_TYPE": org_type,
                 },
                 appearance={},
             )
@@ -752,6 +767,48 @@ class Generator:
             except Exception as e:
                 logger.debug(f"Stats not available for {p.name}: {e}")
 
+        logger.info("Fetching college stats for eligible players...")
+        college_stats_count = 0
+        players = (
+            self.session.query(Player)
+            .filter_by(season=draft_season, league="NBA")
+            .all()
+        )
+        for i, p in enumerate(players):
+            raw = p.raw_stats if p.raw_stats else {}
+            if "COLLEGE_STATS" in raw:
+                continue
+
+            org = raw.get("ORGANIZATION", "")
+            org_type = raw.get("ORGANIZATION_TYPE", "")
+
+            if not team_assets.is_college_player(org_type):
+                continue
+
+            college_name = team_assets.normalize_college_name(org)
+            if not college_name:
+                continue
+
+            try:
+                college_stats = self.college_client.search_player_by_name(
+                    player_name=p.name,
+                    college_name=college_name,
+                    draft_year=int(year)
+                )
+                if college_stats:
+                    raw["COLLEGE_STATS"] = college_stats
+                    raw["COLLEGE_NAME"] = college_name
+                    p.raw_stats = raw
+                    self.session.commit()
+                    college_stats_count += 1
+            except Exception as e:
+                logger.debug(f"College stats not found for {p.name}: {e}")
+
+            if i % 20 == 0:
+                logger.info(f"Processed college stats for {i+1}/{len(players)} players...")
+
+        logger.info(f"Found college stats for {college_stats_count} players")
+
         # Backfill appearance
         logger.info("Backfilling appearance data for draft picks...")
         try:
@@ -768,11 +825,15 @@ class Generator:
             .all()
         )
 
-        # Calculate Distribution
-        all_raw_stats_dicts = [p.raw_stats if p.raw_stats else {} for p in players]
         all_derived = []
-        for raw in all_raw_stats_dicts:
-            all_derived.append(tendencies.calculate_derived_stats(raw, height=78))
+        for p in players:
+            raw = p.raw_stats if p.raw_stats else {}
+            college_stats = raw.get("COLLEGE_STATS")
+            if college_stats:
+                tendency_input = tendencies.map_college_stats_to_tendency_input(college_stats)
+                all_derived.append(tendencies.calculate_derived_stats(tendency_input, height=78))
+            else:
+                all_derived.append(tendencies.calculate_derived_stats(raw, height=78))
         distribution = tendencies.calculate_distribution(all_derived)
 
         # Build draft class output
@@ -842,23 +903,58 @@ class Generator:
             player_appearance = team_assets.generate_player_appearance(app_data, skin_val)
             player_accessories = team_assets.generate_player_accessories(skin_val)
 
-            # Tendencies
-            tends = tendencies.generate_player_tendencies(
-                stats=raw,
-                height=78,
-                position=3,
-                distribution=distribution
-            )
+            college_stats = raw.get("COLLEGE_STATS")
+            if college_stats:
+                tendency_input = tendencies.map_college_stats_to_tendency_input(college_stats)
+                tends = tendencies.generate_player_tendencies(
+                    stats=tendency_input,
+                    height=78,
+                    position=3,
+                    distribution=distribution
+                )
+            else:
+                tends = tendencies.generate_player_tendencies(
+                    stats=raw,
+                    height=78,
+                    position=3,
+                    distribution=distribution
+                )
+
+            pid = int(p.source_id)
+            player_combine = combine_data.get(pid, {})
+            height_inches = 78
+            weight_lbs = 210
+
+            if player_combine.get("height_with_shoes"):
+                try:
+                    ht_str = str(player_combine["height_with_shoes"])
+                    if "'" in ht_str:
+                        parts = ht_str.replace('"', '').split("'")
+                        feet = int(parts[0])
+                        inches = float(parts[1]) if len(parts) > 1 and parts[1] else 0
+                        height_inches = int(feet * 12 + inches)
+                    else:
+                        height_inches = int(float(ht_str))
+                except (ValueError, TypeError):
+                    pass
+            if player_combine.get("weight"):
+                try:
+                    weight_lbs = int(float(player_combine["weight"]))
+                except (ValueError, TypeError):
+                    pass
+
+            college_name = raw.get("COLLEGE_NAME", raw.get("ORGANIZATION", ""))
+            round_num = raw.get("ROUND_NUMBER", 1)
 
             draft_player = structs.Player(
-                id=int(p.source_id),
+                id=pid,
                 tid=-1,
                 fn=p.name.split(" ")[0] if " " in p.name else p.name,
                 ln=" ".join(p.name.split(" ")[1:]) if " " in p.name else "",
                 age=20,
                 yrs=0,
-                ht=78,
-                wt=210,
+                ht=height_inches,
+                wt=weight_lbs,
                 pos=3,
                 ctry=0,
                 rating=rating_val,
@@ -868,7 +964,9 @@ class Generator:
                 attributes=base_attrs,
                 tendencies=tends,
                 history=team_assets.generate_player_history(
+                    college=college_name,
                     draft_year=int(year),
+                    draft_rd=round_num,
                     draft_pk=pick,
                 ),
             )

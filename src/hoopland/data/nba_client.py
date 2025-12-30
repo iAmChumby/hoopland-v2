@@ -5,8 +5,9 @@ from nba_api.stats.endpoints import (
     playercareerstats,
     playerawards,
     leagueleaders,
+    draftcombineplayeranthro,
 )
-from typing import Optional
+from typing import Optional, Dict, Any
 from nba_api.stats.static import teams
 import pandas as pd
 
@@ -112,3 +113,29 @@ class NBAClient:
             except Exception:
                 pass
         return priority_ids
+
+    @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
+    def get_draft_combine_measurements(self, year: int) -> Dict[int, Dict[str, Any]]:
+        combine = draftcombineplayeranthro.DraftCombinePlayerAnthro(
+            season_year=year, timeout=10
+        )
+        df = combine.get_data_frames()[0]
+
+        measurements = {}
+        for _, row in df.iterrows():
+            player_id = row.get("PLAYER_ID")
+            if player_id is None:
+                continue
+
+            measurements[int(player_id)] = {
+                "height_no_shoes": row.get("HEIGHT_WO_SHOES"),
+                "height_with_shoes": row.get("HEIGHT_W_SHOES"),
+                "weight": row.get("WEIGHT"),
+                "wingspan": row.get("WINGSPAN"),
+                "standing_reach": row.get("STANDING_REACH"),
+                "body_fat_pct": row.get("BODY_FAT_PCT"),
+                "hand_length": row.get("HAND_LENGTH"),
+                "hand_width": row.get("HAND_WIDTH"),
+            }
+
+        return measurements

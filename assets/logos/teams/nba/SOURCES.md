@@ -90,3 +90,4 @@ All logos meet these requirements:
 - Logo era selection: Most recent/final era logos used for teams with multiple logo versions
 - All SVG files have been replaced with properly sourced PNG versions
 - Dallas Chaparrals, Texas Chaparrals, New Jersey Americans, and Denver Rockets were ABA teams (not NBA) and are not included
+
