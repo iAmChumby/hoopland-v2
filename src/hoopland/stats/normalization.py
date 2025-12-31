@@ -564,3 +564,205 @@ def calculate_league_ratings(
         final_ratings[original_idx] = ceil_to_half(rating)
 
     return final_ratings
+
+
+PROSPECT_ARCHETYPES = {
+    "scorer": {
+        "INS": 1.3, "MID": 1.2, "TPT": 1.1, "LAY": 1.2, "DNK": 1.1,
+        "FTS": 1.1, "DRB": 0.9, "PAS": 0.85, "DRE": 0.8, "STL": 0.85,
+    },
+    "playmaker": {
+        "PAS": 1.4, "DRB": 1.3, "SPD": 1.15, "STL": 1.05, "LAY": 1.0,
+        "INS": 0.85, "BLK": 0.7, "DRE": 0.8, "STR": 0.85,
+    },
+    "rim_protector": {
+        "BLK": 1.5, "DRE": 1.3, "STR": 1.25, "ORE": 1.1, "INS": 0.9,
+        "LAY": 1.0, "DNK": 1.1, "TPT": 0.6, "DRB": 0.7, "PAS": 0.75,
+    },
+    "stretch_big": {
+        "TPT": 1.35, "MID": 1.25, "DRE": 1.1, "BLK": 1.0, "FTS": 1.1,
+        "STR": 1.05, "INS": 0.85, "SPD": 0.85, "DRB": 0.8,
+    },
+    "three_and_d": {
+        "TPT": 1.35, "STL": 1.25, "DRE": 1.15, "SPD": 1.05, "STM": 1.05,
+        "PAS": 0.85, "INS": 0.8, "DRB": 0.85, "ORE": 0.9,
+    },
+    "slasher": {
+        "LAY": 1.35, "DNK": 1.35, "SPD": 1.25, "DRB": 1.1, "STM": 1.1,
+        "TPT": 0.75, "MID": 0.85, "BLK": 0.8, "STR": 0.95,
+    },
+    "floor_general": {
+        "PAS": 1.45, "DRB": 1.2, "MID": 1.1, "FTS": 1.1, "STL": 1.0,
+        "SPD": 1.0, "INS": 0.8, "DNK": 0.7, "BLK": 0.6, "STR": 0.8,
+    },
+    "athletic_big": {
+        "DNK": 1.4, "BLK": 1.25, "ORE": 1.2, "DRE": 1.15, "STR": 1.2,
+        "SPD": 1.0, "STM": 1.05, "TPT": 0.6, "MID": 0.7, "PAS": 0.75,
+    },
+    "balanced": {
+        "LAY": 1.0, "DNK": 1.0, "INS": 1.0, "MID": 1.0, "TPT": 1.0,
+        "FTS": 1.0, "DRB": 1.0, "PAS": 1.0, "ORE": 1.0, "DRE": 1.0,
+        "STL": 1.0, "BLK": 1.0, "STR": 1.0, "SPD": 1.0, "STM": 1.0,
+    },
+}
+
+
+def detect_prospect_archetype(
+    height: int,
+    college_stats: Dict[str, Any] = None,
+    position: int = 3,
+) -> str:
+    if college_stats is None:
+        college_stats = {}
+
+    ppg = college_stats.get("PTS", college_stats.get("ppg", 0)) or 0
+    apg = college_stats.get("AST", college_stats.get("apg", 0)) or 0
+    rpg = college_stats.get("REB", college_stats.get("rpg", 0)) or 0
+    bpg = college_stats.get("BLK", college_stats.get("bpg", 0)) or 0
+    spg = college_stats.get("STL", college_stats.get("spg", 0)) or 0
+    tpp = college_stats.get("FG3_PCT", college_stats.get("tp_pct", 0)) or 0
+
+    if height >= 82:
+        if bpg >= 2.0:
+            return "rim_protector"
+        if tpp >= 0.33 or tpp >= 33:
+            return "stretch_big"
+        return "athletic_big"
+
+    if height >= 78:
+        if ppg >= 15 and apg < 4:
+            return "scorer"
+        if apg >= 4 and ppg >= 12:
+            return "playmaker"
+        if tpp >= 0.35 or tpp >= 35:
+            if spg >= 1.2:
+                return "three_and_d"
+            return "stretch_big"
+        if bpg >= 1.5:
+            return "rim_protector"
+        return "balanced"
+
+    if position <= 1 or height <= 75:
+        if apg >= 5:
+            return "floor_general"
+        if ppg >= 15:
+            if tpp >= 0.35 or tpp >= 35:
+                return "scorer"
+            return "slasher"
+        return "playmaker"
+
+    if ppg >= 16:
+        return "scorer"
+    if spg >= 1.5 and (tpp >= 0.34 or tpp >= 34):
+        return "three_and_d"
+    if apg >= 4:
+        return "playmaker"
+
+    return "balanced"
+
+
+def calculate_prospect_grade(
+    pick: int,
+    career_eff: float = 0,
+    career_gp: int = 0,
+) -> tuple:
+    if pick <= 3:
+        base_rating, base_pot = 7.5, 9.5
+    elif pick <= 5:
+        base_rating, base_pot = 7.0, 9.0
+    elif pick <= 10:
+        base_rating, base_pot = 6.5, 8.5
+    elif pick <= 14:
+        base_rating, base_pot = 6.5, 8.0
+    elif pick <= 20:
+        base_rating, base_pot = 6.0, 7.5
+    elif pick <= 30:
+        base_rating, base_pot = 6.0, 7.0
+    elif pick <= 45:
+        base_rating, base_pot = 5.5, 6.5
+    else:
+        base_rating, base_pot = 5.0, 6.0
+
+    if career_gp > 0 and career_eff > 0:
+        if career_eff > 20:
+            eff_bonus = 1.0
+        elif career_eff > 15:
+            eff_bonus = 0.5
+        elif career_eff > 10:
+            eff_bonus = 0.0
+        elif career_eff > 5:
+            eff_bonus = -0.5
+        else:
+            eff_bonus = -1.0
+
+        base_pot = min(10.0, max(5.0, base_pot + eff_bonus))
+
+    return (ceil_to_half(base_rating), ceil_to_half(min(10.0, base_pot)))
+
+
+def calculate_prospect_attributes(
+    rating: float,
+    potential: float,
+    archetype: str,
+    college_stats: Dict[str, Any] = None,
+    height: int = 78,
+) -> Dict[str, List[int]]:
+    if college_stats is None:
+        college_stats = {}
+
+    template = PROSPECT_ARCHETYPES.get(archetype, PROSPECT_ARCHETYPES["balanced"])
+
+    base_current = int(rating * 1.8)
+    base_potential = int(potential * 1.9)
+
+    base_current = max(6, min(16, base_current))
+    base_potential = max(10, min(19, base_potential))
+
+    all_attrs = ["LAY", "DNK", "INS", "MID", "TPT", "FTS", "DRB", "PAS", "ORE", "DRE", "STL", "BLK", "STR", "SPD", "STM"]
+
+    attributes = {}
+    for attr in all_attrs:
+        mult = template.get(attr, 1.0)
+        current = int(base_current * mult)
+        pot = int(base_potential * mult)
+
+        current = max(4, min(18, current))
+        pot = max(current, min(20, pot))
+
+        attributes[attr] = [current, pot]
+
+    if height >= 82:
+        attributes["BLK"][0] = max(attributes["BLK"][0], 8)
+        attributes["DRE"][0] = max(attributes["DRE"][0], 8)
+        attributes["STR"][0] = max(attributes["STR"][0], 9)
+        attributes["SPD"][0] = min(attributes["SPD"][0], 14)
+    elif height <= 74:
+        attributes["SPD"][0] = max(attributes["SPD"][0], 10)
+        attributes["DRB"][0] = max(attributes["DRB"][0], 8)
+        attributes["BLK"][0] = min(attributes["BLK"][0], 8)
+        attributes["STR"][0] = min(attributes["STR"][0], 12)
+
+    ppg = college_stats.get("PTS", college_stats.get("ppg", 0)) or 0
+    apg = college_stats.get("AST", college_stats.get("apg", 0)) or 0
+    rpg = college_stats.get("REB", college_stats.get("rpg", 0)) or 0
+    spg = college_stats.get("STL", college_stats.get("spg", 0)) or 0
+    bpg = college_stats.get("BLK", college_stats.get("bpg", 0)) or 0
+
+    if ppg >= 18:
+        attributes["INS"][0] = min(18, attributes["INS"][0] + 2)
+        attributes["MID"][0] = min(18, attributes["MID"][0] + 1)
+    if apg >= 5:
+        attributes["PAS"][0] = min(18, attributes["PAS"][0] + 2)
+        attributes["DRB"][0] = min(18, attributes["DRB"][0] + 1)
+    if rpg >= 9:
+        attributes["DRE"][0] = min(18, attributes["DRE"][0] + 2)
+        attributes["ORE"][0] = min(18, attributes["ORE"][0] + 1)
+    if spg >= 1.8:
+        attributes["STL"][0] = min(18, attributes["STL"][0] + 2)
+    if bpg >= 2.0:
+        attributes["BLK"][0] = min(18, attributes["BLK"][0] + 2)
+
+    for attr in all_attrs:
+        attributes[attr][1] = max(attributes[attr][0], attributes[attr][1])
+
+    return attributes

@@ -10,7 +10,9 @@
       "Bash(\"c:\\\\Users\\\\73spi\\\\Projects\\\\hoopland-v2\\\\venv\\\\Scripts\\\\python.exe\" -m pytest tests/unit/test_historical.py -v)",
       "Bash(\"c:\\\\Users\\\\73spi\\\\Projects\\\\hoopland-v2\\\\venv\\\\Scripts\\\\python.exe\" -m pytest -v)",
       "Bash(timeout:*)",
-      "Bash(\"c:\\\\Users\\\\73spi\\\\Projects\\\\hoopland-v2\\\\venv\\\\Scripts\\\\python.exe\" -c \"from sportsipy.ncaab.roster import Roster, Player; print\\(''sportsipy imported successfully''\\)\")"
+      "Bash(\"c:\\\\Users\\\\73spi\\\\Projects\\\\hoopland-v2\\\\venv\\\\Scripts\\\\python.exe\" -c \"from sportsipy.ncaab.roster import Roster, Player; print\\(''sportsipy imported successfully''\\)\")",
+      "Bash(\"c:\\\\Users\\\\73spi\\\\Projects\\\\hoopland-v2\\\\venv\\\\Scripts\\\\python.exe\" -c \"from hoopland.blocks import team_assets; app = team_assets.generate_random_appearance\\(\\); print\\(app\\)\")",
+      "Bash(\"c:\\\\Users\\\\73spi\\\\Projects\\\\hoopland-v2\\\\venv\\\\Scripts\\\\python.exe\" -c:*)"
     ]
   }
 }

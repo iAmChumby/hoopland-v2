@@ -334,15 +334,19 @@ class DataRepository:
                 url = None
 
                 if p.league == "NBA":
-                    # Parse year from season, handling formats like "2023-24" or "draft-2016"
                     year = None
+                    team_id = None
                     if season:
                         if season.startswith("draft-"):
-                            year = int(season.split("-")[1])  # "draft-2016" -> 2016
+                            year = None
+                            team_id = None
                         elif "-" in season:
-                            year = int(season.split("-")[0])  # "2023-24" -> 2023
+                            year = int(season.split("-")[0])
+                            team_id = p.team_id if p.team_id and p.team_id != "-1" else None
+                        else:
+                            team_id = p.team_id if p.team_id and p.team_id != "-1" else None
                     url = self.nba_client.fetch_player_headshot_url(
-                        p.source_id, team_id=p.team_id, year=year
+                        p.source_id, team_id=team_id, year=year
                     )
                 elif p.league == "NCAA":
                     # NCAA headshot URL is stored in raw_stats from ESPN API

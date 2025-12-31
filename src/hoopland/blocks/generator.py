@@ -996,78 +996,35 @@ class Generator:
             gp = raw.get("CAREER_GP", 0)
             eff = raw.get("CAREER_EFF", 0)
 
-            # Calculate potential from career performance
-            if gp > 0:
-                if eff > 26:
-                    pot_val = 9
-                elif eff > 20:
-                    pot_val = 9
-                elif eff > 16:
-                    pot_val = 8
-                elif eff > 12:
-                    pot_val = 7
-                elif eff > 8:
-                    pot_val = 6
-                else:
-                    pot_val = 5
-            else:
-                if pick <= 5:
-                    pot_val = 9
-                elif pick <= 15:
-                    pot_val = 8
-                elif pick <= 30:
-                    pot_val = 7
-                else:
-                    pot_val = 5
-
-            # Calculate attributes
-            # Default to 4 (higher base)
-            base_attrs = {
-                k: [4, pot_val]
-                for k in [
-                    "LAY",
-                    "DNK",
-                    "INS",
-                    "MID",
-                    "TPT",
-                    "FTS",
-                    "DRB",
-                    "PAS",
-                    "ORE",
-                    "DRE",
-                    "STL",
-                    "BLK",
-                    "STR",
-                    "SPD",
-                    "STM",
-                ]
-            }
-
-            if "ROOKIE_PPG" in raw:
-                ppg = raw["ROOKIE_PPG"]
-                rpg = raw.get("ROOKIE_RPG", 0)
-                apg = raw.get("ROOKIE_APG", 0)
-                spg = raw.get("ROOKIE_SPG", 0)
-                bpg = raw.get("ROOKIE_BPG", 0)
-
-                base_attrs["INS"] = [min(10, int(ppg / 2.5)), pot_val]
-                base_attrs["MID"] = [min(10, int(ppg / 3.0)), pot_val]
-                base_attrs["TPT"] = [min(10, int(ppg / 4.0)), pot_val]
-                base_attrs["STL"] = [min(10, int(spg * 4)), pot_val]
-                base_attrs["BLK"] = [min(10, int(bpg * 3)), pot_val]
-                base_attrs["DRE"] = [min(10, int(rpg * 1.5)), pot_val]
-                base_attrs["PAS"] = [min(10, int(apg * 2.0)), pot_val]
-
-            avg_attr = sum(v[0] for v in base_attrs.values()) / 15
-            # Clamp rating between 3.0 and 4.5
-            rating_vall = normalization.ceil_to_half(avg_attr)
-            rating_val = max(3.0, min(rating_vall, 4.5))
-
-            # Appearance
-            skin_val = app_data.get("skin_tone", 1)
-            player_appearance = team_assets.generate_player_appearance(
-                app_data, skin_val
+            rating_val, pot_val = normalization.calculate_prospect_grade(
+                pick=pick,
+                career_eff=eff,
+                career_gp=gp,
             )
+
+            college_stats = raw.get("COLLEGE_STATS", {})
+            archetype = normalization.detect_prospect_archetype(
+                height=78,
+                college_stats=college_stats,
+                position=3,
+            )
+
+            base_attrs = normalization.calculate_prospect_attributes(
+                rating=rating_val,
+                potential=pot_val,
+                archetype=archetype,
+                college_stats=college_stats,
+                height=78,
+            )
+
+            skin_val = app_data.get("skin_tone", 1) if app_data else 1
+            if app_data and app_data.get("skin_tone") and app_data.get("hair", 0) != 0:
+                player_appearance = team_assets.generate_player_appearance(
+                    app_data, skin_val
+                )
+            else:
+                player_appearance = team_assets.generate_random_appearance()
+                skin_val = 3
             player_accessories = team_assets.generate_player_accessories(skin_val)
 
             college_stats = raw.get("COLLEGE_STATS")
