@@ -951,6 +951,95 @@ def generate_player_appearance(app_data: Dict, skin_val: int = 1) -> Dict[str, A
     }
 
 
+def generate_random_appearance() -> Dict[str, Any]:
+    """
+    Generate a random plausible appearance for players without CV analysis.
+
+    Creates varied appearances with weighted distributions for realism:
+    - Skin tones weighted towards NCAA demographics
+    - Hair styles from available options
+    - Facial hair mostly clean-shaven (young players)
+
+    Returns:
+        Full appearance dict with hex colors and style IDs
+    """
+    import random
+
+    # Skin tone options with hex colors (weighted for NCAA basketball demographics)
+    skin_options = [
+        ("FFE0C8", 10),  # Very light - 10%
+        ("F0C8A0", 12),  # Light - 12%
+        ("D4A070", 15),  # Light-medium - 15%
+        ("B08050", 20),  # Medium - 20%
+        ("906848", 18),  # Medium-dark - 18%
+        ("704030", 15),  # Dark - 15%
+        ("502818", 10),  # Very dark - 10%
+    ]
+    skin_weights = [w for _, w in skin_options]
+    skin_color = random.choices(
+        [c for c, _ in skin_options], weights=skin_weights, k=1
+    )[0]
+
+    # Hair styles (format: "XXXX" where XX is style category)
+    # Common styles for young male athletes
+    hair_styles = [
+        "0000",  # Bald/very short
+        "0010",  # Buzz cut
+        "0020",  # Short fade
+        "0030",  # Low fade
+        "0040",  # Medium fade
+        "0050",  # High top fade
+        "0060",  # Short afro
+        "0070",  # Medium afro
+        "0080",  # Short dreads
+        "0100",  # Clean cut
+    ]
+    # Weight towards shorter styles (more common in basketball)
+    hair_weights = [15, 20, 15, 12, 10, 8, 8, 5, 4, 3]
+    hair_style = random.choices(hair_styles, weights=hair_weights, k=1)[0]
+
+    # Hair color based on skin tone (darker skin = darker hair typically)
+    if skin_color in ["FFE0C8", "F0C8A0"]:
+        hair_colors = [
+            "1A1A1A",
+            "3D2B1F",
+            "8B4513",
+            "2F1F0F",
+        ]  # Black, brown, light brown
+    else:
+        hair_colors = ["1A1A1A", "0A0A0A", "1F1F1F"]  # Mostly black
+    hair_color = random.choice(hair_colors)
+
+    # Facial hair - mostly clean-shaven for young college players
+    facial_hair_options = [
+        ("0000", 70),  # Clean shaven - 70%
+        ("0010", 10),  # Stubble - 10%
+        ("0020", 8),  # Light beard - 8%
+        ("0024", 5),  # Goatee - 5%
+        ("0030", 4),  # Short beard - 4%
+        ("0040", 3),  # Medium beard - 3%
+    ]
+    fhair_weights = [w for _, w in facial_hair_options]
+    facial_hair = random.choices(
+        [f for f, _ in facial_hair_options], weights=fhair_weights, k=1
+    )[0]
+
+    # Eye color (mostly brown)
+    eye_colors = ["3B2D1A", "2D231B", "4A3C2A", "1A1410"]
+    eye_color = random.choice(eye_colors)
+
+    return {
+        "skinC": skin_color,
+        "eyeC": eye_color,
+        "hair": hair_style,
+        "hairC": hair_color,
+        "fHair": facial_hair,
+        "fHairC": hair_color,
+        "unibrow": random.random() < 0.02,  # 2% chance
+        "browC": hair_color,
+    }
+
+
 def generate_player_accessories(skin_val: int = 1) -> List[Dict[str, Any]]:
     """
     Generate 4 accessory configurations (one per uniform).

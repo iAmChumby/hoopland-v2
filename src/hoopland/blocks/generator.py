@@ -10,6 +10,7 @@ import time
 import logging
 import math
 import random
+import re
 from typing import Dict, List, Optional, Tuple
 from collections import defaultdict
 from dataclasses import asdict
@@ -26,6 +27,21 @@ from .formatter import save_compact_json
 from . import team_assets
 
 logger = logging.getLogger(__name__)
+
+# CDN base URL for logos
+CDN_BASE_URL = "https://hoopland-v2.luke-personal-account.workers.dev"
+
+
+def _slugify(text: str) -> str:
+    """Convert team name to a filename-safe slug for CDN URLs."""
+    text = text.lower()
+    text = re.sub(r"[''`]", "", text)  # Remove apostrophes
+    text = re.sub(r"[&]", "and", text)  # Replace & with 'and'
+    text = re.sub(r"[^a-z0-9\s-]", "", text)  # Remove other special chars
+    text = re.sub(r"[\s_]+", "-", text)  # Replace spaces/underscores with dashes
+    text = re.sub(r"-+", "-", text)  # Remove multiple dashes
+    text = text.strip("-")  # Remove leading/trailing dashes
+    return text
 
 
 class Generator:
@@ -598,10 +614,20 @@ class Generator:
                 wt_val = self._parse_weight_ncaa(raw)
                 pos_val = self._parse_position_ncaa(raw)
 
-                skin_val = app_data.get("skin_tone", 1)
-                player_appearance = team_assets.generate_player_appearance(
-                    app_data, skin_val
-                )
+                # Check if player has CV-analyzed appearance data
+                if app_data and "skin_tone" in app_data:
+                    skin_val = app_data.get("skin_tone", 1)
+                    player_appearance = team_assets.generate_player_appearance(
+                        app_data, skin_val
+                    )
+                else:
+                    # No CV data - generate random plausible appearance
+                    logger.info(
+                        f"[APPEARANCE] Generating random appearance for {p.name} (no CV data)"
+                    )
+                    player_appearance = team_assets.generate_random_appearance()
+                    skin_val = 3  # Default for accessories
+
                 player_accessories = team_assets.generate_player_accessories(skin_val)
                 player_suits = team_assets.generate_player_suits()
 
@@ -652,9 +678,10 @@ class Generator:
             for idx, player in enumerate(struct_roster):
                 player.linePos = idx
 
-            logo_url = meta.get("logo", "")
-            if not logo_url and tid:
-                logo_url = f"https://a.espncdn.com/i/teamlogos/ncaa/500/{tid}.png"
+            # Generate logo URL using CDN pattern
+            full_team_name = f"{school} {mascot}"
+            logo_slug = _slugify(full_team_name)
+            logo_url = f"{CDN_BASE_URL}/logos/teams/ncaa/{logo_slug}.png"
             arena_name = meta.get("arena", "") or f"{school} Arena"
 
             front_office = team_assets.generate_ncaa_front_office(target_id, mascot)
@@ -711,7 +738,7 @@ class Generator:
         return structs.League(
             leagueName="Men's College Basketball",
             shortName="NCAA",
-            logoURL="https://i.imgur.com/MZbIqps.png",
+            logoURL=f"{CDN_BASE_URL}/logos/leagues/ncaa.png",
             logoSize=256,
             leagueType=1,
             conferences=["Southern Conference", "Northern Conference"],
