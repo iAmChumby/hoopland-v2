@@ -309,7 +309,9 @@ class DataRepository:
         players = [
             p
             for p in all_players
-            if not p.appearance or "skin_tone" not in p.appearance
+            if not p.appearance
+            or "skin_tone" not in p.appearance
+            or p.appearance.get("hair") == "0000"
         ]
 
         if not players:
@@ -332,9 +334,13 @@ class DataRepository:
                 url = None
 
                 if p.league == "NBA":
-                    year = (
-                        int(season.split("-")[0]) if season and "-" in season else None
-                    )
+                    # Parse year from season, handling formats like "2023-24" or "draft-2016"
+                    year = None
+                    if season:
+                        if season.startswith("draft-"):
+                            year = int(season.split("-")[1])  # "draft-2016" -> 2016
+                        elif "-" in season:
+                            year = int(season.split("-")[0])  # "2023-24" -> 2023
                     url = self.nba_client.fetch_player_headshot_url(
                         p.source_id, team_id=p.team_id, year=year
                     )

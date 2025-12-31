@@ -6,6 +6,7 @@ from nba_api.stats.endpoints import (
     playerawards,
     leagueleaders,
     draftcombineplayeranthro,
+    commonplayerinfo,
 )
 from typing import Optional, Dict, Any
 from nba_api.stats.static import teams
@@ -59,12 +60,21 @@ class NBAClient:
 
     @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_player_career_stats(self, player_id):
-        career = playercareerstats.PlayerCareerStats(player_id=player_id, timeout=10)
-        dfs = career.get_data_frames()
-        return {
-            "season_totals": dfs[0] if len(dfs) > 0 else pd.DataFrame(),
-            "career_totals": dfs[1] if len(dfs) > 1 else pd.DataFrame(),
-        }
+        try:
+            career = playercareerstats.PlayerCareerStats(
+                player_id=player_id, timeout=10
+            )
+            dfs = career.get_data_frames()
+            return {
+                "season_totals": dfs[0] if len(dfs) > 0 else pd.DataFrame(),
+                "career_totals": dfs[1] if len(dfs) > 1 else pd.DataFrame(),
+            }
+        except KeyError:
+            # Player has no NBA career stats (e.g., international players who never played)
+            return {
+                "season_totals": pd.DataFrame(),
+                "career_totals": pd.DataFrame(),
+            }
 
     @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_player_awards(self, player_id: int) -> pd.DataFrame:
@@ -153,3 +163,14 @@ class NBAClient:
             # Ideally verify active status if needed, but for headshots any match is good
             return matches[0]["id"]
         return None
+
+    @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
+    def get_player_common_info(self, player_id: int) -> Dict[str, Any]:
+        try:
+            info = commonplayerinfo.CommonPlayerInfo(player_id=player_id, timeout=10)
+            dfs = info.get_data_frames()
+            if dfs and len(dfs) > 0 and not dfs[0].empty:
+                return dfs[0].iloc[0].to_dict()
+            return {}
+        except Exception:
+            return {}

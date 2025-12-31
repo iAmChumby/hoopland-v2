@@ -12,6 +12,7 @@ import math
 import random
 import re
 from typing import Dict, List, Optional, Tuple
+from datetime import datetime
 from collections import defaultdict
 from dataclasses import asdict
 
@@ -998,7 +999,7 @@ class Generator:
             # Calculate potential from career performance
             if gp > 0:
                 if eff > 26:
-                    pot_val = 10
+                    pot_val = 9
                 elif eff > 20:
                     pot_val = 9
                 elif eff > 16:
@@ -1007,25 +1008,22 @@ class Generator:
                     pot_val = 7
                 elif eff > 8:
                     pot_val = 6
-                elif eff > 4:
-                    pot_val = 5
-                elif gp > 100:
-                    pot_val = 4
                 else:
-                    pot_val = 4
+                    pot_val = 5
             else:
                 if pick <= 5:
                     pot_val = 9
                 elif pick <= 15:
-                    pot_val = 7
+                    pot_val = 8
                 elif pick <= 30:
-                    pot_val = 6
+                    pot_val = 7
                 else:
                     pot_val = 5
 
             # Calculate attributes
+            # Default to 4 (higher base)
             base_attrs = {
-                k: [3, pot_val]
+                k: [4, pot_val]
                 for k in [
                     "LAY",
                     "DNK",
@@ -1061,7 +1059,9 @@ class Generator:
                 base_attrs["PAS"] = [min(10, int(apg * 2.0)), pot_val]
 
             avg_attr = sum(v[0] for v in base_attrs.values()) / 15
-            rating_val = max(1.0, normalization.ceil_to_half(avg_attr))
+            # Clamp rating between 3.0 and 4.5
+            rating_vall = normalization.ceil_to_half(avg_attr)
+            rating_val = max(3.0, min(rating_vall, 4.5))
 
             # Appearance
             skin_val = app_data.get("skin_tone", 1)
@@ -1088,13 +1088,35 @@ class Generator:
 
             pid = int(p.source_id)
             player_combine = combine_data.get(pid, {})
+
+            # Fetch common info for Age and College
+            try:
+                common_info = self.nba_client.get_player_common_info(pid)
+            except Exception:
+                common_info = {}
+
+            # Height/Weight Logic
             height_inches = 78
             weight_lbs = 210
 
-            if player_combine.get("height_with_shoes"):
+            # Try Combine first, then Common Info
+            h_source = player_combine.get("height_with_shoes")
+            if not h_source:
+                h_source = common_info.get("HEIGHT", "")
+
+            w_source = player_combine.get("weight")
+            if not w_source:
+                w_source = common_info.get("WEIGHT", "")
+
+            if h_source:
                 try:
-                    ht_str = str(player_combine["height_with_shoes"])
-                    if "'" in ht_str:
+                    ht_str = str(h_source)
+                    if "-" in ht_str:  # Common info usually "6-10"
+                        parts = ht_str.split("-")
+                        feet = int(parts[0])
+                        inches = int(parts[1])
+                        height_inches = feet * 12 + inches
+                    elif "'" in ht_str:
                         parts = ht_str.replace('"', "").split("'")
                         feet = int(parts[0])
                         inches = float(parts[1]) if len(parts) > 1 and parts[1] else 0
@@ -1103,13 +1125,30 @@ class Generator:
                         height_inches = int(float(ht_str))
                 except (ValueError, TypeError):
                     pass
-            if player_combine.get("weight"):
+
+            if w_source:
                 try:
-                    weight_lbs = int(float(player_combine["weight"]))
+                    weight_lbs = int(float(w_source))
                 except (ValueError, TypeError):
                     pass
 
+            # College Logic
             college_name = raw.get("COLLEGE_NAME", raw.get("ORGANIZATION", ""))
+            if not college_name or college_name in ["", "Uncommitted", "None"]:
+                college_name = common_info.get("SCHOOL", common_info.get("COLLEGE", ""))
+            if not college_name:
+                college_name = "Uncommitted"
+
+            # Age Logic
+            age = 20
+            if common_info.get("BIRTHDATE"):
+                try:
+                    bd_str = common_info.get("BIRTHDATE", "").split("T")[0]
+                    bd = datetime.strptime(bd_str, "%Y-%m-%d")
+                    age = int(year) - bd.year
+                except:
+                    pass
+
             round_num = raw.get("ROUND_NUMBER", 1)
 
             draft_player = structs.Player(
@@ -1117,7 +1156,7 @@ class Generator:
                 tid=-1,
                 fn=p.name.split(" ")[0] if " " in p.name else p.name,
                 ln=" ".join(p.name.split(" ")[1:]) if " " in p.name else "",
-                age=20,
+                age=age,
                 yrs=0,
                 ht=height_inches,
                 wt=weight_lbs,
@@ -1140,23 +1179,14 @@ class Generator:
 
         draft_players.sort(key=lambda x: x.id)
 
-        draft_team = structs.Team(
-            id=-1,
-            city="Draft",
-            name="Class",
-            shortName="DRF",
-            tag="DRF",
-            roster=draft_players,
-            teamColors=["000000", "FFFFFF", "CC0000"],
-        )
-
         logger.info(f"Draft class generation complete: {len(draft_players)} players")
 
         return structs.League(
             leagueName=f"NBA {year} Draft Class",
             shortName="Draft",
             settings=self._get_default_settings(),
-            teams=[draft_team],
+            teams=[],  # Empty teams array for draft class files
+            draftClass=draft_players,  # Players go in draftClass, not in a team roster
             meta=structs.Meta(
                 saveName=f"{year} Draft Class",
                 dataType=2,  # 2 = Draft Class
