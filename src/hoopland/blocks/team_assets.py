@@ -279,19 +279,29 @@ def generate_ncaa_front_office(team_id: int, team_name: str) -> Dict[str, Any]:
             team_id, 0, pos=1
         ),
         _generate_front_office_person(
-            {"fn": "Assistant", "ln": "Coach", "age": 40, "appearance": _get_default_appearance()},
+            {"fn": "Assistant", "ln": "Coach 1", "age": 40, "appearance": _get_default_appearance()},
             team_id, 1, pos=2
+        ),
+        _generate_front_office_person(
+            {"fn": "Assistant", "ln": "Coach 2", "age": 38, "appearance": _get_default_appearance()},
+            team_id, 2, pos=2
+        ),
+        _generate_front_office_person(
+            {"fn": "Assistant", "ln": "Coach 3", "age": 35, "appearance": _get_default_appearance()},
+            team_id, 3, pos=2
         ),
     ]
     
     return {
-        "coins": 0,
+        "coins": 250,
         "condition": 0,
         "morale": 0,
         "fans": 0,
         "facilities": [
-            {"type": 0, "tier": 2, "upgrade": 0, "condition": 5},
-            {"type": 1, "tier": 2, "upgrade": 0, "condition": 5},
+            {"type": 0, "tier": 4, "upgrade": 0, "condition": 5},
+            {"type": 1, "tier": 4, "upgrade": 0, "condition": 5},
+            {"type": 2, "tier": 4, "upgrade": 0, "condition": 5},
+            {"type": 3, "tier": 2, "upgrade": 0, "condition": 5},
         ],
         "staff": team_staff,
         "announcers": _get_default_announcers(team_id),
@@ -772,6 +782,57 @@ def generate_uniforms(team_colors: List[str]) -> List[Dict[str, Any]]:
         "style": 0,
     }
 
+    return [home, away, alt1, alt2]
+
+
+def generate_ncaa_uniforms(team_colors: List[str]) -> List[Dict[str, Any]]:
+    """
+    Generate NCAA-format uniforms (different structure from NBA).
+    
+    NCAA uniforms use: jersey, jerseyStripe, jerseyCollar, jerseyNumber, 
+                       shorts, shortsStripe
+    (Not jerseyMain/jerseySecondary like NBA)
+    """
+    primary = team_colors[0] if team_colors else "CC0000"
+    secondary = team_colors[1] if len(team_colors) > 1 else "FFFFFF"
+    accent = team_colors[2] if len(team_colors) > 2 else "000000"
+    
+    home = {
+        "jersey": "FFFFFF",
+        "jerseyStripe": secondary,
+        "jerseyCollar": "PRI",
+        "jerseyNumber": "PRI",
+        "shorts": "FFFFFF",
+        "shortsStripe": "PRI"
+    }
+    
+    away = {
+        "jersey": "PRI",
+        "jerseyStripe": "SEC",
+        "jerseyCollar": "FFFFFF",
+        "jerseyNumber": "FFFFFF",
+        "shorts": "PRI",
+        "shortsStripe": "FFFFFF"
+    }
+    
+    alt1 = {
+        "jersey": "SEC",
+        "jerseyStripe": "PRI",
+        "jerseyCollar": "PRI",
+        "jerseyNumber": "PRI",
+        "shorts": "SEC",
+        "shortsStripe": "PRI"
+    }
+    
+    alt2 = {
+        "jersey": accent,
+        "jerseyStripe": primary,
+        "jerseyCollar": secondary,
+        "jerseyNumber": secondary,
+        "shorts": accent,
+        "shortsStripe": secondary
+    }
+    
     return [home, away, alt1, alt2]
 
 

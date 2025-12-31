@@ -507,11 +507,17 @@ class Generator:
             espn_abbrev = meta.get("shortName", f"T{str(tid)[-3:]}")
 
             ncaa_info = team_assets.get_ncaa_team_info(espn_team_name)
+            
+            if not ncaa_info.get("conference"):
+                logger.debug(f"Skipping {espn_team_name} - not in Power 6 conferences")
+                continue
+            
             school = ncaa_info.get("school", espn_team_name)
             mascot = ncaa_info.get("name", "Team")
             team_colors = ncaa_info.get("colors", ["CC0000", "FFFFFF", "000000"])
             team_tag = ncaa_info.get("tag", espn_abbrev)
             target_id = ncaa_info.get("target_id", int(tid) % 1000)
+            division = ncaa_info.get("division", 0)
 
             struct_roster = []
             player_id_counter = 0
@@ -571,13 +577,15 @@ class Generator:
                 player.linePos = idx
 
             logo_url = meta.get("logo", "")
+            if not logo_url and tid:
+                logo_url = f"https://a.espncdn.com/i/teamlogos/ncaa/500/{tid}.png"
             arena_name = meta.get("arena", "") or f"{school} Arena"
 
             front_office = team_assets.generate_ncaa_front_office(target_id, mascot)
             court = team_assets.generate_court(
                 team_colors, "", school, mascot, arena_name, current_team
             )
-            uniforms = team_assets.generate_uniforms(team_colors)
+            uniforms = team_assets.generate_ncaa_uniforms(team_colors)
             championships = team_assets.generate_ncaa_championships(school, year_int)
 
             t = structs.Team(
@@ -588,7 +596,8 @@ class Generator:
                 tag=team_tag,
                 arenaName=arena_name,
                 logoURL=logo_url,
-                division=0,
+                logoSize=256,
+                division=division,
                 location={"x": 0, "y": 0},
                 roster=struct_roster,
                 teamColors=team_colors,
@@ -602,7 +611,7 @@ class Generator:
                 draftPicks=[],
                 retiredNumbers=[],
                 season=[],
-                history={},
+                history={"season": [], "seasonHighs": {}, "playoffs": [], "playoffHighs": {}, "finals": [], "finalsHighs": {}},
                 headToHeads={},
                 scoringOptions={},
                 quickPlays=[],
@@ -616,9 +625,13 @@ class Generator:
         logger.info(f"NCAA league generation complete: {len(league_teams)} teams, {len(players)} players")
 
         return structs.League(
-            leagueName=f"NCAA {year}",
+            leagueName="Men's College Basketball",
             shortName="NCAA",
+            logoURL="https://i.imgur.com/MZbIqps.png",
+            logoSize=256,
             leagueType=1,
+            conferences=["Southern Conference", "Northern Conference"],
+            divisions=["SEC", "XII", "WCC", "B1G", "Big East", "ACC"],
             settings=self._get_default_settings(),
             teams=league_teams,
             meta=structs.Meta(

@@ -2,8 +2,8 @@ import argparse
 import logging
 import sys
 import os
-from src.hoopland.blocks.generator import Generator
-from src.hoopland.logger import setup_logger
+from hoopland.blocks.generator import Generator
+from hoopland.logger import setup_logger
 
 # Ensure logs directory exists (handled by logger now, but keeping for safety if needed before logger init)
 # os.makedirs("logs", exist_ok=True) 

@@ -49,7 +49,7 @@
       "A80532"
     ],
     "uuid": "95d43487-7441-483f-a65c-2627f618c35f",
-    "conference": "SEC",
+    "conference": "",
     "division": 0,
     "location": {
       "x": 0,
@@ -182,8 +182,8 @@
       "003559"
     ],
     "uuid": "7a7bbcd4-1363-43ca-a503-b65863528a6a",
-    "conference": "XII",
-    "division": 1,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -201,8 +201,8 @@
       "96203D"
     ],
     "uuid": "d5577ebd-b954-4526-aeee-aba5eb069fc4",
-    "conference": "XII",
-    "division": 1,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -220,7 +220,7 @@
       "CD1041"
     ],
     "uuid": "90c43bd9-c7b0-46e3-b42b-c7d5f7f36a62",
-    "conference": "SEC",
+    "conference": "",
     "division": 0,
     "location": {
       "x": 0,
@@ -315,7 +315,7 @@
       "172240"
     ],
     "uuid": "057ff504-2fa2-4e4e-8c2b-50f7a6a63773",
-    "conference": "SEC",
+    "conference": "",
     "division": 0,
     "location": {
       "x": 0,
@@ -372,8 +372,8 @@
       "008649"
     ],
     "uuid": "087000c8-44ac-4177-9040-34de231ccc81",
-    "conference": "XII",
-    "division": 1,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -467,8 +467,8 @@
       "000000"
     ],
     "uuid": "a9be0b4b-384e-4ee8-95ce-c791f2479eef",
-    "conference": "ACC",
-    "division": 5,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -638,8 +638,8 @@
       "0D1361"
     ],
     "uuid": "c2ed6884-5412-4a13-bf21-f89adff8e715",
-    "conference": "Big East",
-    "division": 4,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -733,8 +733,8 @@
       "003768"
     ],
     "uuid": "00600212-c227-4eee-bfe8-1ab3791332fd",
-    "conference": "ACC",
-    "division": 5,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -961,8 +961,8 @@
       "000000"
     ],
     "uuid": "07441489-67ed-4693-a7e9-6220332412be",
-    "conference": "XII",
-    "division": 1,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -999,8 +999,8 @@
       "F06014"
     ],
     "uuid": "1eb20295-6eeb-4be9-b356-714dcc0dca23",
-    "conference": "ACC",
-    "division": 5,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -1075,8 +1075,8 @@
       "D9C994"
     ],
     "uuid": "848a5afd-9068-46c0-8c34-42bb43ca5fc7",
-    "conference": "XII",
-    "division": 1,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -1189,8 +1189,8 @@
       "192DAA"
     ],
     "uuid": "e56f93ff-3f6d-4914-853d-c8d8b871fd4f",
-    "conference": "Big East",
-    "division": 4,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -1322,8 +1322,8 @@
       "BD0F10"
     ],
     "uuid": "745c8981-cdf0-4868-b241-0cb0ae1e3cca",
-    "conference": "Big East",
-    "division": 4,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -1398,8 +1398,8 @@
       "000000"
     ],
     "uuid": "e7f3d873-683a-41de-bd31-cdd3a8d7a6eb",
-    "conference": "ACC",
-    "division": 5,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -1626,7 +1626,7 @@
       "FF4208"
     ],
     "uuid": "64cd5b91-a527-4af5-9f9c-1fa4958ea59a",
-    "conference": "SEC",
+    "conference": "",
     "division": 0,
     "location": {
       "x": 0,
@@ -1721,8 +1721,8 @@
       "A8936B"
     ],
     "uuid": "d5fad8e8-d529-4092-aaf6-dd80aea9b6e6",
-    "conference": "ACC",
-    "division": 5,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -1854,8 +1854,8 @@
       "49487C"
     ],
     "uuid": "bad339f6-095d-466a-8879-d3a7f9b3f545",
-    "conference": "Big East",
-    "division": 4,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -1873,7 +1873,7 @@
       "A0000B"
     ],
     "uuid": "1195e791-a84f-4ebe-90ce-2588aa449846",
-    "conference": "SEC",
+    "conference": "",
     "division": 0,
     "location": {
       "x": 0,
@@ -1930,8 +1930,8 @@
       "160A06"
     ],
     "uuid": "0d037d79-eb69-445c-9d35-2dede27ff918",
-    "conference": "ACC",
-    "division": 5,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -1949,8 +1949,8 @@
       "2D2161"
     ],
     "uuid": "92eceb5b-61e4-4abb-81e2-b8cd727d3f65",
-    "conference": "WCC",
-    "division": 2,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -2139,8 +2139,8 @@
       "C90822"
     ],
     "uuid": "4a94b31a-3fd9-4e0f-85b8-2593d8c84511",
-    "conference": "XII",
-    "division": 1,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -2234,8 +2234,8 @@
       "F5873C"
     ],
     "uuid": "51d7c593-b2b8-4a4c-9318-06769bc3f4fe",
-    "conference": "B1G",
-    "division": 3,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -2291,8 +2291,8 @@
       "000000"
     ],
     "uuid": "2fe72ee5-efc5-4ffb-88ef-61bd0df77458",
-    "conference": "B1G",
-    "division": 3,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -2348,8 +2348,8 @@
       "000000"
     ],
     "uuid": "78456aee-253f-412c-9ca4-afd5b3318d2a",
-    "conference": "B1G",
-    "division": 3,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -2367,8 +2367,8 @@
       "840A2C"
     ],
     "uuid": "4a6d609b-9288-46dc-87b2-4033541db56a",
-    "conference": "XII",
-    "division": 1,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -2500,8 +2500,8 @@
       "FFFFFF"
     ],
     "uuid": "d08152ed-57f4-405d-a848-b6ccbbd59602",
-    "conference": "XII",
-    "division": 1,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -2519,8 +2519,8 @@
       "000000"
     ],
     "uuid": "253b5628-3efd-4d16-a31c-af8c4efe3662",
-    "conference": "XII",
-    "division": 1,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -2576,7 +2576,7 @@
       "003399"
     ],
     "uuid": "6e0969f7-ff48-4cba-94be-666fe125f150",
-    "conference": "SEC",
+    "conference": "",
     "division": 0,
     "location": {
       "x": 0,
@@ -2823,8 +2823,8 @@
       "070707"
     ],
     "uuid": "f98bc42b-c76f-4b87-951d-3ff318095a4c",
-    "conference": "ACC",
-    "division": 5,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -2880,8 +2880,8 @@
       "8C0029"
     ],
     "uuid": "339e1ffb-9e77-4266-a700-d0644da3914b",
-    "conference": "WCC",
-    "division": 2,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -2899,7 +2899,7 @@
       "33297B"
     ],
     "uuid": "dfd66584-8576-4cc1-85b9-d3fbf9bc4741",
-    "conference": "SEC",
+    "conference": "",
     "division": 0,
     "location": {
       "x": 0,
@@ -2975,8 +2975,8 @@
       "002F78"
     ],
     "uuid": "c7451335-082b-41cd-b074-aab88b93baa7",
-    "conference": "Big East",
-    "division": 4,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -3013,8 +3013,8 @@
       "FFFFFF"
     ],
     "uuid": "6433e300-0311-4d18-ac21-9da06c9de896",
-    "conference": "B1G",
-    "division": 3,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -3165,8 +3165,8 @@
       "272341"
     ],
     "uuid": "cec76c74-652b-4833-b40a-acab06687205",
-    "conference": "B1G",
-    "division": 3,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -3184,8 +3184,8 @@
       "1C453A"
     ],
     "uuid": "2aee418d-168d-4754-bae7-06f0f46391b1",
-    "conference": "B1G",
-    "division": 3,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -3241,8 +3241,8 @@
       "7F011B"
     ],
     "uuid": "31017841-4d59-4c3f-97d3-e1462c3d6583",
-    "conference": "B1G",
-    "division": 3,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -3279,7 +3279,7 @@
       "762123"
     ],
     "uuid": "5b0abacf-fe8d-4d70-baf7-00f73f2b2d6d",
-    "conference": "SEC",
+    "conference": "",
     "division": 0,
     "location": {
       "x": 0,
@@ -3317,7 +3317,7 @@
       "231F20"
     ],
     "uuid": "1e799a55-89c4-4a3c-a4aa-fec6efd5b645",
-    "conference": "SEC",
+    "conference": "",
     "division": 0,
     "location": {
       "x": 0,
@@ -3526,8 +3526,8 @@
       "000000"
     ],
     "uuid": "d0c73bcf-5a77-4e19-9863-08f0a32585da",
-    "conference": "B1G",
-    "division": 3,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -3697,8 +3697,8 @@
       "98BFE5"
     ],
     "uuid": "8ab4c96f-ba7a-4e0d-a773-91dd64e36e25",
-    "conference": "ACC",
-    "division": 5,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4001,8 +4001,8 @@
       "393996"
     ],
     "uuid": "07214056-ba88-450a-bf71-228112a2ee14",
-    "conference": "B1G",
-    "division": 3,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4039,8 +4039,8 @@
       "00122B"
     ],
     "uuid": "11e6ea12-deb8-40aa-9b42-f2ec45a33fbc",
-    "conference": "ACC",
-    "division": 5,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4096,8 +4096,8 @@
       "FFFFFF"
     ],
     "uuid": "b16600ed-ced4-44ad-b0eb-ea614f82cb87",
-    "conference": "B1G",
-    "division": 3,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4115,7 +4115,7 @@
       "BA0034"
     ],
     "uuid": "3c8b3941-4f2d-4eb9-8bdc-8bb95590962b",
-    "conference": "SEC",
+    "conference": "",
     "division": 0,
     "location": {
       "x": 0,
@@ -4134,8 +4134,8 @@
       "FF6500"
     ],
     "uuid": "7918ea86-51df-49c0-a51f-74265059d7c8",
-    "conference": "XII",
-    "division": 1,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4191,8 +4191,8 @@
       "044520"
     ],
     "uuid": "07a7134c-64e8-4456-bb44-1bf12ddddc12",
-    "conference": "B1G",
-    "division": 3,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4210,8 +4210,8 @@
       "000203"
     ],
     "uuid": "a3ee1f58-fbb8-4af1-8db6-c85720cb4952",
-    "conference": "WCC",
-    "division": 2,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4229,8 +4229,8 @@
       "F47820"
     ],
     "uuid": "fe792880-69b5-43b9-94f3-8117ebf1042e",
-    "conference": "WCC",
-    "division": 2,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4248,8 +4248,8 @@
       "000000"
     ],
     "uuid": "5a8b682a-0606-4d0b-ad6b-cf4ed4da9592",
-    "conference": "B1G",
-    "division": 3,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4286,8 +4286,8 @@
       "003A72"
     ],
     "uuid": "74348bf9-7b0a-40f2-a087-4ab40ca1b11f",
-    "conference": "WCC",
-    "division": 2,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4305,8 +4305,8 @@
       "003263"
     ],
     "uuid": "70425216-c0b3-419c-ae0b-aea45921c5bb",
-    "conference": "ACC",
-    "division": 5,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4324,8 +4324,8 @@
       "000000"
     ],
     "uuid": "55b3fb64-2ad3-4b18-af4f-57ae3c720630",
-    "conference": "WCC",
-    "division": 2,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4419,8 +4419,8 @@
       "000000"
     ],
     "uuid": "df29d106-8c22-4f23-ae7c-7e216cdbbba2",
-    "conference": "Big East",
-    "division": 4,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4438,8 +4438,8 @@
       "B89D29"
     ],
     "uuid": "2038d0d4-b5f3-4080-927c-4b059cd7f801",
-    "conference": "B1G",
-    "division": 3,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4590,8 +4590,8 @@
       "EE363D"
     ],
     "uuid": "b7882592-0869-4cde-8ada-e7bebb923c68",
-    "conference": "B1G",
-    "division": 3,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4742,8 +4742,8 @@
       "2f99d4"
     ],
     "uuid": "e5ba6397-786b-43ec-aa96-f7fa00b0717e",
-    "conference": "WCC",
-    "division": 2,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4780,8 +4780,8 @@
       "22523F"
     ],
     "uuid": "f6b5f571-04bf-4bc6-998e-c8c38e06cd7e",
-    "conference": "WCC",
-    "division": 2,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4818,8 +4818,8 @@
       "690B0B"
     ],
     "uuid": "0ac0f084-8d94-4b6a-9dab-21a8e8d0353e",
-    "conference": "WCC",
-    "division": 2,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4875,8 +4875,8 @@
       "0857B1"
     ],
     "uuid": "86bd6eea-e554-4e17-a82e-2fe9d835c7db",
-    "conference": "Big East",
-    "division": 4,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -4951,7 +4951,7 @@
       "CD0000"
     ],
     "uuid": "0eca9615-1c19-489d-ae21-7a8288e9dee6",
-    "conference": "SEC",
+    "conference": "",
     "division": 0,
     "location": {
       "x": 0,
@@ -5274,8 +5274,8 @@
       "000000"
     ],
     "uuid": "d363abd1-1e8d-4314-b4a1-85c85d6953c5",
-    "conference": "ACC",
-    "division": 5,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -5350,8 +5350,8 @@
       "002D62"
     ],
     "uuid": "f0acf0d7-607f-4493-bba7-bc5e557b376e",
-    "conference": "ACC",
-    "division": 5,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -5369,8 +5369,8 @@
       "EBEBEB"
     ],
     "uuid": "8b5a595c-da67-4fef-bcfe-3b395a7805a5",
-    "conference": "XII",
-    "division": 1,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -5407,7 +5407,7 @@
       "58595B"
     ],
     "uuid": "b0c9634c-ae2b-476f-b1bb-1c20269cd5c9",
-    "conference": "SEC",
+    "conference": "",
     "division": 0,
     "location": {
       "x": 0,
@@ -5483,7 +5483,7 @@
       "000000"
     ],
     "uuid": "87a426ab-cbd5-4c6b-bc13-bd4f37ff29a2",
-    "conference": "SEC",
+    "conference": "",
     "division": 0,
     "location": {
       "x": 0,
@@ -5578,8 +5578,8 @@
       "C80025"
     ],
     "uuid": "bc1ab8f2-05be-4825-85ff-3f38d1bec53e",
-    "conference": "XII",
-    "division": 1,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -5844,8 +5844,8 @@
       "231F20"
     ],
     "uuid": "122b0672-5e0d-469a-a83b-e77017919ffd",
-    "conference": "XII",
-    "division": 1,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -5863,8 +5863,8 @@
       "FFB325"
     ],
     "uuid": "e7384e50-1add-4337-8094-063a6ba07e4a",
-    "conference": "B1G",
-    "division": 3,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -5958,8 +5958,8 @@
       "AE2531"
     ],
     "uuid": "c52d8366-c94a-497c-9975-39c4a651fa72",
-    "conference": "B1G",
-    "division": 3,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -5996,8 +5996,8 @@
       "CD1041"
     ],
     "uuid": "4751100f-2ae0-40a0-a7a6-39370bdb83e1",
-    "conference": "XII",
-    "division": 1,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -6091,7 +6091,7 @@
       "000000"
     ],
     "uuid": "b00f3d13-096a-4668-a668-328bfc8884fb",
-    "conference": "SEC",
+    "conference": "",
     "division": 0,
     "location": {
       "x": 0,
@@ -6129,8 +6129,8 @@
       "123d7C"
     ],
     "uuid": "ff39a4e3-2cc6-48f5-ac58-ff3b661328bb",
-    "conference": "Big East",
-    "division": 4,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -6148,8 +6148,8 @@
       "00204E"
     ],
     "uuid": "ba7f81e4-b81a-431f-afaf-3f960d2dc4c2",
-    "conference": "ACC",
-    "division": 5,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -6205,8 +6205,8 @@
       "74232D"
     ],
     "uuid": "8b2a6fc4-7ada-4141-a49b-d00f767a6076",
-    "conference": "ACC",
-    "division": 5,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -6243,8 +6243,8 @@
       "000000"
     ],
     "uuid": "4bec8dec-c250-42c3-9fb0-e545aea5066f",
-    "conference": "ACC",
-    "division": 5,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -6262,8 +6262,8 @@
       "2B2F64"
     ],
     "uuid": "69de6ea7-9084-47cc-a95a-01418f3ae7b2",
-    "conference": "B1G",
-    "division": 3,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -6281,8 +6281,8 @@
       "000000"
     ],
     "uuid": "8318ceb9-e630-42b7-a746-a9220ffdf0d5",
-    "conference": "WCC",
-    "division": 2,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -6319,8 +6319,8 @@
       "FFC600"
     ],
     "uuid": "8347b465-296e-4bad-a97a-f6c489f9a5c8",
-    "conference": "XII",
-    "division": 1,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -6471,8 +6471,8 @@
       "A00000"
     ],
     "uuid": "dd62793f-2ef2-468f-8288-3363f3b497e3",
-    "conference": "B1G",
-    "division": 3,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
@@ -6547,8 +6547,8 @@
       "002144"
     ],
     "uuid": "ec4c5602-c04c-4aae-af22-b71d69b285ae",
-    "conference": "Big East",
-    "division": 4,
+    "conference": "",
+    "division": 0,
     "location": {
       "x": 0,
       "y": 0
