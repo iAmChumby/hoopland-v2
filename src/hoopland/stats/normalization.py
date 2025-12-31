@@ -568,41 +568,49 @@ def calculate_league_ratings(
 
 PROSPECT_ARCHETYPES = {
     "scorer": {
-        "INS": 1.3, "MID": 1.2, "TPT": 1.1, "LAY": 1.2, "DNK": 1.1,
-        "FTS": 1.1, "DRB": 0.9, "PAS": 0.85, "DRE": 0.8, "STL": 0.85,
+        "primary": ["INS", "MID", "TPT", "LAY"],
+        "secondary": ["DNK", "FTS", "SPD"],
+        "weak": ["PAS", "DRE", "BLK", "STL"],
     },
     "playmaker": {
-        "PAS": 1.4, "DRB": 1.3, "SPD": 1.15, "STL": 1.05, "LAY": 1.0,
-        "INS": 0.85, "BLK": 0.7, "DRE": 0.8, "STR": 0.85,
+        "primary": ["PAS", "DRB", "SPD"],
+        "secondary": ["STL", "LAY", "FTS", "MID"],
+        "weak": ["INS", "BLK", "DRE", "STR", "DNK"],
     },
     "rim_protector": {
-        "BLK": 1.5, "DRE": 1.3, "STR": 1.25, "ORE": 1.1, "INS": 0.9,
-        "LAY": 1.0, "DNK": 1.1, "TPT": 0.6, "DRB": 0.7, "PAS": 0.75,
+        "primary": ["BLK", "DRE", "STR", "DNK"],
+        "secondary": ["ORE", "INS", "LAY", "STM"],
+        "weak": ["TPT", "DRB", "PAS", "SPD", "MID"],
     },
     "stretch_big": {
-        "TPT": 1.35, "MID": 1.25, "DRE": 1.1, "BLK": 1.0, "FTS": 1.1,
-        "STR": 1.05, "INS": 0.85, "SPD": 0.85, "DRB": 0.8,
+        "primary": ["TPT", "MID", "FTS"],
+        "secondary": ["DRE", "BLK", "STR", "ORE"],
+        "weak": ["SPD", "DRB", "STL", "INS"],
     },
     "three_and_d": {
-        "TPT": 1.35, "STL": 1.25, "DRE": 1.15, "SPD": 1.05, "STM": 1.05,
-        "PAS": 0.85, "INS": 0.8, "DRB": 0.85, "ORE": 0.9,
+        "primary": ["TPT", "STL", "DRE"],
+        "secondary": ["SPD", "STM", "MID", "DRB"],
+        "weak": ["PAS", "INS", "ORE", "DNK"],
     },
     "slasher": {
-        "LAY": 1.35, "DNK": 1.35, "SPD": 1.25, "DRB": 1.1, "STM": 1.1,
-        "TPT": 0.75, "MID": 0.85, "BLK": 0.8, "STR": 0.95,
+        "primary": ["LAY", "DNK", "SPD", "DRB"],
+        "secondary": ["STM", "STL", "INS"],
+        "weak": ["TPT", "MID", "BLK", "PAS"],
     },
     "floor_general": {
-        "PAS": 1.45, "DRB": 1.2, "MID": 1.1, "FTS": 1.1, "STL": 1.0,
-        "SPD": 1.0, "INS": 0.8, "DNK": 0.7, "BLK": 0.6, "STR": 0.8,
+        "primary": ["PAS", "DRB", "MID", "FTS"],
+        "secondary": ["STL", "SPD", "TPT", "LAY"],
+        "weak": ["INS", "DNK", "BLK", "STR", "ORE", "DRE"],
     },
     "athletic_big": {
-        "DNK": 1.4, "BLK": 1.25, "ORE": 1.2, "DRE": 1.15, "STR": 1.2,
-        "SPD": 1.0, "STM": 1.05, "TPT": 0.6, "MID": 0.7, "PAS": 0.75,
+        "primary": ["DNK", "BLK", "ORE", "DRE", "STR"],
+        "secondary": ["SPD", "STM", "LAY", "INS"],
+        "weak": ["TPT", "MID", "PAS", "DRB", "FTS"],
     },
     "balanced": {
-        "LAY": 1.0, "DNK": 1.0, "INS": 1.0, "MID": 1.0, "TPT": 1.0,
-        "FTS": 1.0, "DRB": 1.0, "PAS": 1.0, "ORE": 1.0, "DRE": 1.0,
-        "STL": 1.0, "BLK": 1.0, "STR": 1.0, "SPD": 1.0, "STM": 1.0,
+        "primary": [],
+        "secondary": ["LAY", "DNK", "INS", "MID", "TPT", "FTS", "DRB", "PAS"],
+        "weak": ["ORE", "DRE", "STL", "BLK", "STR", "SPD", "STM"],
     },
 }
 
@@ -711,56 +719,132 @@ def calculate_prospect_attributes(
         college_stats = {}
 
     template = PROSPECT_ARCHETYPES.get(archetype, PROSPECT_ARCHETYPES["balanced"])
+    primary_attrs = set(template.get("primary", []))
+    secondary_attrs = set(template.get("secondary", []))
+    weak_attrs = set(template.get("weak", []))
 
-    base_current = int(rating * 1.8)
-    base_potential = int(potential * 1.9)
+    primary_base = 14
+    secondary_base = 12
+    weak_base = 10
 
-    base_current = max(6, min(16, base_current))
-    base_potential = max(10, min(19, base_potential))
+    rating_bonus = int((rating - 6.0) * 1.5)
+    primary_base = max(12, min(16, primary_base + rating_bonus))
+    secondary_base = max(11, min(14, secondary_base + rating_bonus))
+    weak_base = max(10, min(12, weak_base + (rating_bonus // 2)))
 
-    all_attrs = ["LAY", "DNK", "INS", "MID", "TPT", "FTS", "DRB", "PAS", "ORE", "DRE", "STL", "BLK", "STR", "SPD", "STM"]
-
-    attributes = {}
-    for attr in all_attrs:
-        mult = template.get(attr, 1.0)
-        current = int(base_current * mult)
-        pot = int(base_potential * mult)
-
-        current = max(4, min(18, current))
-        pot = max(current, min(20, pot))
-
-        attributes[attr] = [current, pot]
-
-    if height >= 82:
-        attributes["BLK"][0] = max(attributes["BLK"][0], 8)
-        attributes["DRE"][0] = max(attributes["DRE"][0], 8)
-        attributes["STR"][0] = max(attributes["STR"][0], 9)
-        attributes["SPD"][0] = min(attributes["SPD"][0], 14)
-    elif height <= 74:
-        attributes["SPD"][0] = max(attributes["SPD"][0], 10)
-        attributes["DRB"][0] = max(attributes["DRB"][0], 8)
-        attributes["BLK"][0] = min(attributes["BLK"][0], 8)
-        attributes["STR"][0] = min(attributes["STR"][0], 12)
+    pot_bonus = int((potential - 6.0) * 1.5)
+    primary_pot = max(14, min(19, primary_base + 3 + pot_bonus))
+    secondary_pot = max(13, min(18, secondary_base + 2 + pot_bonus))
+    weak_pot = max(12, min(16, weak_base + 2 + (pot_bonus // 2)))
 
     ppg = college_stats.get("PTS", college_stats.get("ppg", 0)) or 0
     apg = college_stats.get("AST", college_stats.get("apg", 0)) or 0
     rpg = college_stats.get("REB", college_stats.get("rpg", 0)) or 0
     spg = college_stats.get("STL", college_stats.get("spg", 0)) or 0
     bpg = college_stats.get("BLK", college_stats.get("bpg", 0)) or 0
+    tpp = college_stats.get("FG3_PCT", college_stats.get("tp_pct", 0)) or 0
+    ftp = college_stats.get("FT_PCT", college_stats.get("ft_pct", 0)) or 0
 
-    if ppg >= 18:
-        attributes["INS"][0] = min(18, attributes["INS"][0] + 2)
-        attributes["MID"][0] = min(18, attributes["MID"][0] + 1)
-    if apg >= 5:
-        attributes["PAS"][0] = min(18, attributes["PAS"][0] + 2)
-        attributes["DRB"][0] = min(18, attributes["DRB"][0] + 1)
-    if rpg >= 9:
-        attributes["DRE"][0] = min(18, attributes["DRE"][0] + 2)
-        attributes["ORE"][0] = min(18, attributes["ORE"][0] + 1)
-    if spg >= 1.8:
-        attributes["STL"][0] = min(18, attributes["STL"][0] + 2)
-    if bpg >= 2.0:
-        attributes["BLK"][0] = min(18, attributes["BLK"][0] + 2)
+    stat_boosts = {}
+
+    if ppg >= 20:
+        stat_boosts["INS"] = stat_boosts.get("INS", 0) + 3
+        stat_boosts["MID"] = stat_boosts.get("MID", 0) + 2
+        stat_boosts["LAY"] = stat_boosts.get("LAY", 0) + 2
+    elif ppg >= 15:
+        stat_boosts["INS"] = stat_boosts.get("INS", 0) + 2
+        stat_boosts["MID"] = stat_boosts.get("MID", 0) + 1
+        stat_boosts["LAY"] = stat_boosts.get("LAY", 0) + 1
+    elif ppg >= 10:
+        stat_boosts["INS"] = stat_boosts.get("INS", 0) + 1
+
+    if apg >= 6:
+        stat_boosts["PAS"] = stat_boosts.get("PAS", 0) + 3
+        stat_boosts["DRB"] = stat_boosts.get("DRB", 0) + 2
+    elif apg >= 4:
+        stat_boosts["PAS"] = stat_boosts.get("PAS", 0) + 2
+        stat_boosts["DRB"] = stat_boosts.get("DRB", 0) + 1
+    elif apg >= 2:
+        stat_boosts["PAS"] = stat_boosts.get("PAS", 0) + 1
+
+    if rpg >= 10:
+        stat_boosts["DRE"] = stat_boosts.get("DRE", 0) + 3
+        stat_boosts["ORE"] = stat_boosts.get("ORE", 0) + 2
+        stat_boosts["STR"] = stat_boosts.get("STR", 0) + 1
+    elif rpg >= 7:
+        stat_boosts["DRE"] = stat_boosts.get("DRE", 0) + 2
+        stat_boosts["ORE"] = stat_boosts.get("ORE", 0) + 1
+    elif rpg >= 5:
+        stat_boosts["DRE"] = stat_boosts.get("DRE", 0) + 1
+
+    if spg >= 2.0:
+        stat_boosts["STL"] = stat_boosts.get("STL", 0) + 3
+    elif spg >= 1.5:
+        stat_boosts["STL"] = stat_boosts.get("STL", 0) + 2
+    elif spg >= 1.0:
+        stat_boosts["STL"] = stat_boosts.get("STL", 0) + 1
+
+    if bpg >= 2.5:
+        stat_boosts["BLK"] = stat_boosts.get("BLK", 0) + 3
+    elif bpg >= 1.5:
+        stat_boosts["BLK"] = stat_boosts.get("BLK", 0) + 2
+    elif bpg >= 0.8:
+        stat_boosts["BLK"] = stat_boosts.get("BLK", 0) + 1
+
+    if tpp >= 0.38 or tpp >= 38:
+        stat_boosts["TPT"] = stat_boosts.get("TPT", 0) + 3
+    elif tpp >= 0.35 or tpp >= 35:
+        stat_boosts["TPT"] = stat_boosts.get("TPT", 0) + 2
+    elif tpp >= 0.32 or tpp >= 32:
+        stat_boosts["TPT"] = stat_boosts.get("TPT", 0) + 1
+
+    if ftp >= 0.85 or ftp >= 85:
+        stat_boosts["FTS"] = stat_boosts.get("FTS", 0) + 2
+        stat_boosts["MID"] = stat_boosts.get("MID", 0) + 1
+    elif ftp >= 0.75 or ftp >= 75:
+        stat_boosts["FTS"] = stat_boosts.get("FTS", 0) + 1
+
+    all_attrs = ["LAY", "DNK", "INS", "MID", "TPT", "FTS", "DRB", "PAS", "ORE", "DRE", "STL", "BLK", "STR", "SPD", "STM"]
+    attributes = {}
+
+    for attr in all_attrs:
+        if attr in primary_attrs:
+            base = primary_base
+            pot = primary_pot
+        elif attr in secondary_attrs:
+            base = secondary_base
+            pot = secondary_pot
+        elif attr in weak_attrs:
+            base = weak_base
+            pot = weak_pot
+        else:
+            base = secondary_base
+            pot = secondary_pot
+
+        boost = stat_boosts.get(attr, 0)
+        current = base + boost
+        pot_final = max(pot + (boost // 2), current)
+
+        current = max(10, min(18, current))
+        pot_final = max(current, min(20, pot_final))
+
+        attributes[attr] = [current, pot_final]
+
+    if height >= 82:
+        attributes["BLK"][0] = max(attributes["BLK"][0], 11)
+        attributes["DRE"][0] = max(attributes["DRE"][0], 11)
+        attributes["STR"][0] = max(attributes["STR"][0], 12)
+        attributes["DNK"][0] = max(attributes["DNK"][0], 11)
+        attributes["SPD"][0] = min(attributes["SPD"][0], 13)
+        attributes["DRB"][0] = min(attributes["DRB"][0], 12)
+    elif height >= 79:
+        attributes["STR"][0] = max(attributes["STR"][0], 11)
+        attributes["DRE"][0] = max(attributes["DRE"][0], 10)
+    elif height <= 74:
+        attributes["SPD"][0] = max(attributes["SPD"][0], 12)
+        attributes["DRB"][0] = max(attributes["DRB"][0], 11)
+        attributes["BLK"][0] = min(attributes["BLK"][0], 11)
+        attributes["STR"][0] = min(attributes["STR"][0], 12)
 
     for attr in all_attrs:
         attributes[attr][1] = max(attributes[attr][0], attributes[attr][1])

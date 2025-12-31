@@ -223,7 +223,7 @@ class Generator:
                 age = self._parse_age(raw_stats)
                 ht_val = self._parse_height(raw_stats)
                 wt_val = self._parse_weight(raw_stats)
-                pos_val = self._parse_position(raw_stats)
+                pos_val = self._parse_position_nba(raw_stats)
                 ctry_val = self._parse_country(raw_stats)
 
                 # Use pre-calculated attributes and league-wide ratings
@@ -1003,19 +1003,6 @@ class Generator:
             )
 
             college_stats = raw.get("COLLEGE_STATS", {})
-            archetype = normalization.detect_prospect_archetype(
-                height=78,
-                college_stats=college_stats,
-                position=3,
-            )
-
-            base_attrs = normalization.calculate_prospect_attributes(
-                rating=rating_val,
-                potential=pot_val,
-                archetype=archetype,
-                college_stats=college_stats,
-                height=78,
-            )
 
             skin_val = app_data.get("skin_tone", 1) if app_data else 1
             if app_data and app_data.get("skin_tone") and app_data.get("hair", 0) != 0:
@@ -1046,9 +1033,8 @@ class Generator:
             pid = int(p.source_id)
             player_combine = combine_data.get(pid, {})
 
-            # Fetch common info for Age and College
             try:
-                common_info = self.nba_client.get_player_common_info(pid)
+                common_info = self.repo.nba_client.get_player_common_info(pid)
             except Exception:
                 common_info = {}
 
@@ -1096,7 +1082,6 @@ class Generator:
             if not college_name:
                 college_name = "Uncommitted"
 
-            # Age Logic
             age = 20
             if common_info.get("BIRTHDATE"):
                 try:
@@ -1106,6 +1091,30 @@ class Generator:
                 except:
                     pass
 
+            jersey_num = 0
+            try:
+                jersey_num = int(common_info.get("JERSEY", 0) or 0)
+            except (ValueError, TypeError):
+                pass
+
+            position = self._parse_position(
+                common_info.get("POSITION", ""), height_inches
+            )
+
+            archetype = normalization.detect_prospect_archetype(
+                height=height_inches,
+                college_stats=college_stats,
+                position=position,
+            )
+
+            base_attrs = normalization.calculate_prospect_attributes(
+                rating=rating_val,
+                potential=pot_val,
+                archetype=archetype,
+                college_stats=college_stats,
+                height=height_inches,
+            )
+
             round_num = raw.get("ROUND_NUMBER", 1)
 
             draft_player = structs.Player(
@@ -1113,11 +1122,12 @@ class Generator:
                 tid=-1,
                 fn=p.name.split(" ")[0] if " " in p.name else p.name,
                 ln=" ".join(p.name.split(" ")[1:]) if " " in p.name else "",
+                num=jersey_num,
                 age=age,
                 yrs=0,
                 ht=height_inches,
                 wt=weight_lbs,
-                pos=3,
+                pos=position,
                 ctry=0,
                 rating=rating_val,
                 pot=pot_val,
@@ -1203,6 +1213,26 @@ class Generator:
         except:
             return 200
 
+    def _parse_position(self, pos_str: str, height: int = 78) -> int:
+        if not pos_str:
+            return 3
+        pos_lower = pos_str.lower()
+        if "center" in pos_lower:
+            return 4
+        if "power forward" in pos_lower:
+            return 3
+        if "small forward" in pos_lower:
+            return 2
+        if "shooting guard" in pos_lower:
+            return 1
+        if "point guard" in pos_lower:
+            return 0
+        if "guard" in pos_lower:
+            return 0 if height <= 75 else 1
+        if "forward" in pos_lower:
+            return 2 if height <= 80 else 3
+        return 3
+
     def _parse_weight_ncaa(self, stats: dict) -> int:
         w_str = stats.get("displayWeight", "")
         try:
@@ -1212,7 +1242,7 @@ class Generator:
         except:
             return 200
 
-    def _parse_position(self, stats: dict) -> int:
+    def _parse_position_nba(self, stats: dict) -> int:
         pos_str = stats.get("ROSTER_POSITION", stats.get("POSITION", ""))
         if not pos_str:
             return 1
