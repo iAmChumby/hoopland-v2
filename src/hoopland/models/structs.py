@@ -85,7 +85,7 @@ class Player:
 
     # Ratings
     rating: float = 0.0  # Overall rating (float in target)
-    pot: int = 0  # Potential
+    pot: float = 0.0  # Potential
     minutes: List[float] = field(default_factory=list)  # Minutes by position
     usage: float = 0.0
     pri: int = 0  # Primary position

@@ -8,11 +8,14 @@ import os
 import json
 import time
 import logging
+import math
+import random
+from typing import Dict, List, Optional, Tuple
 from collections import defaultdict
 from dataclasses import asdict
 
 from ..models import structs
-from ..data import repository
+from ..data import repository, stars_db
 from ..data import historical_loader
 from ..data import awards_loader
 from ..data.college_client import CollegeClient
@@ -602,7 +605,9 @@ class Generator:
                 player_accessories = team_assets.generate_player_accessories(skin_val)
                 player_suits = team_assets.generate_player_suits()
 
-                attributes = self._calculate_ncaa_attributes(raw, ht_val, wt_val)
+                attributes = self._calculate_ncaa_attributes(
+                    raw, ht_val, wt_val, player_name=p.name, season_year=year
+                )
 
                 tends = tendencies.generate_player_tendencies(
                     stats=raw, height=ht_val, position=pos_val, distribution={}
@@ -610,6 +615,8 @@ class Generator:
 
                 skills = team_assets.generate_skills(attributes, raw)
                 game_status = team_assets.generate_game_status()
+
+                calc_rating, calc_pot = self._calculate_overall_ratings(attributes)
 
                 struct_player = structs.Player(
                     id=p.id,
@@ -622,9 +629,9 @@ class Generator:
                     ht=ht_val,
                     wt=wt_val,
                     pos=pos_val,
-                    ctry=0,
-                    rating=5.0,
-                    pot=7,
+                    ctry=42,  # Fixed Country ID
+                    rating=calc_rating,
+                    pot=calc_pot,
                     appearance=player_appearance,
                     accessories=player_accessories,
                     suits=player_suits,
@@ -1233,32 +1240,185 @@ class Generator:
             return 18 + int(years) if years else 20
         return 20
 
-    def _calculate_ncaa_attributes(self, stats: dict, height: int, weight: int) -> dict:
-        base = 5
-        pot = 8
+    def _calculate_ncaa_attributes(
+        self,
+        stats: dict,
+        height: int,
+        weight: int,
+        player_name: str = "",
+        season_year: str = "",
+    ) -> dict:
+        """
+        Calculate attributes for NCAA players with weighted distribution.
 
-        spd = max(3, min(12, 15 - max(0, (height - 74))))
-        strength = max(3, min(12, 6 + (weight - 180) // 15))
+        Tiers:
+        - Future Star (List bypass): Base 7-9, Pot 9-10
+        - Star (5%): Base 6-8, Pot 8-10
+        - Starter (20%): Base 4-6, Pot 6-8
+        - Role (40%): Base 3-5, Pot 4-7
+        - Bench (35%): Base 1-3, Pot 2-5
+        """
+
+        # 1. Determine Tier
+        tier = "Role"  # Default
+
+        # Check explicit star list
+        is_star = False
+        if season_year and season_year in stars_db.STARS:
+            for star_name in stars_db.STARS[season_year]:
+                # Simple loose matching
+                if star_name.lower() in player_name.lower():
+                    is_star = True
+                    break
+
+        if is_star:
+            tier = "Future Star"
+        else:
+            # Weighted random distribution
+            r = random.random()
+            if r < 0.05:
+                tier = "Star"
+            elif r < 0.25:
+                tier = "Starter"
+            elif r < 0.65:
+                tier = "Role"
+            else:
+                tier = "Bench"
+
+        # 2. Set Range based on Tier (on 1-20 scale to match NBA)
+        if tier == "Future Star":
+            # Pot 18-20, Base within 2 points
+            pot = random.choice([18, 19, 20])
+            base = random.randint(pot - 2, pot)
+        elif tier == "Star":
+            base_min, base_max = 14, 17
+            pot_min, pot_max = 17, 20
+            base = random.randint(base_min, base_max)
+            pot = random.randint(pot_min, pot_max)
+        elif tier == "Starter":
+            base_min, base_max = 10, 14
+            pot_min, pot_max = 14, 17
+            base = random.randint(base_min, base_max)
+            pot = random.randint(pot_min, pot_max)
+        elif tier == "Role":
+            base_min, base_max = 6, 10
+            pot_min, pot_max = 10, 14
+            base = random.randint(base_min, base_max)
+            pot = random.randint(pot_min, pot_max)
+        else:  # Bench
+            base_min, base_max = 2, 6
+            pot_min, pot_max = 6, 10
+            base = random.randint(base_min, base_max)
+            pot = random.randint(pot_min, pot_max)
+
+        # Ensure potential is at least base
+        if pot < base:
+            pot = base
+
+        # 3. Position checks for specific attribute tweaks
+        # (Keeping it simple for now, relying on tendencies for differentiation,
+        # but scaling physicals slightly by size is good)
+
+        # Speed: 1-20 scale, guards faster than bigs
+        spd = max(6, min(20, 18 - max(0, (height - 74))))
+        # Small boost for athletic wing profiles in high tiers
+        if tier in ["Future Star", "Star"] and height < 80:
+            spd += 2
+
+        # Strength: 1-20 scale
+        strength = max(6, min(20, 8 + (weight - 160) // 10))
 
         attrs = {
             "LAY": [base, pot],
-            "DNK": [max(3, min(10, base + max(0, (height - 76) // 2))), pot],
+            "DNK": [
+                max(1, min(20, base + int((height - 75)))),
+                pot,
+            ],  # Height dependency for dunk
             "INS": [base, pot],
             "MID": [base, pot],
             "TPT": [base, pot],
             "FTS": [base, pot],
             "DRB": [base, pot],
             "PAS": [base, pot],
-            "ORE": [max(3, min(10, base + max(0, (height - 76) // 3))), pot],
-            "DRE": [max(3, min(10, base + max(0, (height - 74) // 2))), pot],
+            "BLK": [max(1, min(20, base + int((height - 78)))), pot],
             "STL": [base, pot],
-            "BLK": [max(3, min(10, base + max(0, (height - 78) // 2))), pot],
+            "ORE": [base, pot],
+            "DRE": [base, pot],
             "STR": [strength, pot],
             "SPD": [spd, pot],
-            "STM": [base + 2, pot],
+            "STM": [min(20, base + 2), pot],
         }
 
-        return attrs
+        # Slight positional variance (Guard vs Big)
+        # Using height as proxy to keep it stateless relative to position enum
+        if height < 76:  # Guard-ish
+            attrs["TPT"][0] = min(20, attrs["TPT"][0] + 2)
+            attrs["PAS"][0] = min(20, attrs["PAS"][0] + 2)
+            attrs["BLK"][0] = max(1, attrs["BLK"][0] - 4)
+            attrs["ORE"][0] = max(1, attrs["ORE"][0] - 4)
+        elif height > 80:  # Big
+            attrs["INS"][0] = min(20, attrs["INS"][0] + 2)
+            attrs["BLK"][0] = min(20, attrs["BLK"][0] + 2)
+            attrs["ORE"][0] = min(20, attrs["ORE"][0] + 2)
+            attrs["TPT"][0] = max(1, attrs["TPT"][0] - 4)
+
+        # Assign calculated distinct values
+        final_attrs = {}
+        for k, v in attrs.items():
+            # Add some noise (-2 to +2) to individual stats so they aren't all identical "base"
+            noise = random.randint(-2, 2)
+            val = max(1, min(20, v[0] + noise))
+            final_attrs[k] = [val, v[1]]
+
+        # Final enforcement for Future Stars: Ensure Rating is within 1 star of Potential
+        # 1 star = 4.0 attribute points (on 1-20 scale)
+        if tier == "Future Star":
+            avg_base = sum(v[0] for v in final_attrs.values()) / len(final_attrs)
+            avg_pot = sum(v[1] for v in final_attrs.values()) / len(final_attrs)
+
+            diff = avg_pot - avg_base
+            if diff > 4.0:  # Gap > 1 star
+                boost_needed = int(
+                    math.ceil(diff - 3.0)
+                )  # Close gap to ~0.75 stars (3 pts)
+                if boost_needed > 0:
+                    for k in final_attrs:
+                        # Don't boost beyond potential
+                        new_val = min(
+                            final_attrs[k][1], final_attrs[k][0] + boost_needed
+                        )
+                        final_attrs[k][0] = max(1, min(20, new_val))
+
+        return final_attrs
+
+    def _calculate_overall_ratings(self, attributes: dict) -> Tuple[float, float]:
+        total_base = 0
+        total_pot = 0
+        count = 0
+        for key, val in attributes.items():
+            total_base += val[0]
+            total_pot += val[1]
+            count += 1
+
+        if count == 0:
+            return 2.5, 5.0
+
+        avg_base = total_base / count
+        avg_pot = total_pot / count
+
+        # Helper for rounding up to nearest 0.5
+        def round_up_half(x):
+            return math.ceil(x * 2) / 2
+
+        # Attributes are on 1-20 scale, convert to rating on 0-10 scale
+        base_val = round_up_half(avg_base)
+        pot_val = round_up_half(avg_pot)
+
+        # Rating: divide by 2 to get 0.5-10.0 scale (since attrs are 1-20)
+        rating = base_val / 2
+        pot = pot_val / 2
+
+        return rating, pot
 
     def _parse_country(self, stats: dict) -> int:
         c_str = stats.get("ROSTER_COUNTRY", "USA")
