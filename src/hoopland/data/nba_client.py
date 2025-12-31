@@ -138,6 +138,8 @@ class NBAClient:
                 "hand_width": row.get("HAND_WIDTH"),
             }
 
+        return measurements
+
     def find_player_id_by_name(self, full_name: str) -> Optional[int]:
         """
         Find NBA player ID by full name using static players list.
