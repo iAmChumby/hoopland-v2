@@ -10,20 +10,30 @@ import os
 from typing import Dict, List, Any, Optional
 
 # Load team data from JSON
-_TEAM_DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "team_data.json")
+_TEAM_DATA_PATH = os.path.join(
+    os.path.dirname(__file__), "..", "data", "team_data.json"
+)
 _TEAM_DATA: Dict[str, Dict] = {}
 
-_NCAA_TEAM_DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "ncaa_team_data.json")
+_NCAA_TEAM_DATA_PATH = os.path.join(
+    os.path.dirname(__file__), "..", "data", "ncaa_team_data.json"
+)
 _NCAA_TEAM_DATA: Dict[str, Dict] = {}
 _NCAA_TEAM_BY_ID: Dict[str, Dict] = {}
 
-_CHAMPIONSHIPS_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "championships.json")
+_CHAMPIONSHIPS_PATH = os.path.join(
+    os.path.dirname(__file__), "..", "data", "championships.json"
+)
 _CHAMPIONSHIPS_DATA: Dict[str, Dict] = {}
 
-_ANNOUNCERS_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "announcers.json")
+_ANNOUNCERS_PATH = os.path.join(
+    os.path.dirname(__file__), "..", "data", "announcers.json"
+)
 _ANNOUNCERS_DATA: Dict[str, Any] = {}
 
-_NCAA_CHAMPIONSHIPS_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "ncaa_championships.json")
+_NCAA_CHAMPIONSHIPS_PATH = os.path.join(
+    os.path.dirname(__file__), "..", "data", "ncaa_championships.json"
+)
 _NCAA_CHAMPIONSHIPS_DATA: Dict[str, Any] = {}
 
 
@@ -81,39 +91,41 @@ def _load_ncaa_team_data() -> Dict[str, Dict]:
 def get_ncaa_team_by_name(team_name: str) -> Optional[Dict]:
     """
     Look up NCAA team data by name or partial match.
-    
+
     Args:
         team_name: Full team name, school name, or mascot (e.g., "Duke", "Duke Blue Devils")
-    
+
     Returns:
         Team data dict or None if not found
     """
     data = _load_ncaa_team_data()
-    team_name_lower = team_name.lower().replace(" ", "_").replace("-", "_").replace("'", "")
-    
+    team_name_lower = (
+        team_name.lower().replace(" ", "_").replace("-", "_").replace("'", "")
+    )
+
     if team_name_lower in data:
         return data[team_name_lower]
-    
+
     for slug, team in data.items():
         if team.get("full_name", "").lower() == team_name.lower():
             return team
         if team.get("school", "").lower() == team_name.lower():
             return team
-    
+
     for slug, team in data.items():
         if team_name_lower in slug:
             return team
-    
+
     return None
 
 
 def get_ncaa_team_by_espn_id(espn_id: str) -> Optional[Dict]:
     """
     Look up NCAA team data by ESPN team ID.
-    
+
     Args:
         espn_id: ESPN API team ID
-    
+
     Returns:
         Team data dict or None if not found
     """
@@ -148,6 +160,7 @@ def get_ncaa_team_info(team_name: str) -> Dict[str, Any]:
             "tag": team.get("tag", "TM"),
             "colors": team.get("colors", ["CC0000", "FFFFFF", "000000"]),
             "target_id": team.get("target_id", 0),
+            "conference": team.get("conference", ""),
         }
     return {
         "school": team_name,
@@ -241,28 +254,30 @@ def _load_ncaa_championships_data() -> Dict[str, Any]:
     return _NCAA_CHAMPIONSHIPS_DATA
 
 
-def generate_ncaa_championships(school_name: str, current_year: int = 9999) -> Dict[str, Any]:
+def generate_ncaa_championships(
+    school_name: str, current_year: int = 9999
+) -> Dict[str, Any]:
     """
     Generate championships object for an NCAA team.
-    
+
     Args:
         school_name: School name to look up (e.g., "Duke", "North Carolina")
         current_year: Filter championships to years before this
-    
+
     Returns:
         Championships dict with yearsWon list
     """
     data = _load_ncaa_championships_data()
     team_champs = data.get("team_championships", {})
-    
+
     name_lower = school_name.lower()
     years_won = []
-    
+
     for team, years in team_champs.items():
         if team.lower() == name_lower or name_lower in team.lower():
             years_won = [y for y in years if y < current_year]
             break
-    
+
     return {
         "id": 1,
         "league": 1,
@@ -275,23 +290,51 @@ def generate_ncaa_front_office(team_id: int, team_name: str) -> Dict[str, Any]:
     """Generate front office structure for an NCAA team."""
     team_staff = [
         _generate_front_office_person(
-            {"fn": "Head", "ln": "Coach", "age": 50, "appearance": _get_default_appearance()},
-            team_id, 0, pos=1
+            {
+                "fn": "Head",
+                "ln": "Coach",
+                "age": 50,
+                "appearance": _get_default_appearance(),
+            },
+            team_id,
+            0,
+            pos=1,
         ),
         _generate_front_office_person(
-            {"fn": "Assistant", "ln": "Coach 1", "age": 40, "appearance": _get_default_appearance()},
-            team_id, 1, pos=2
+            {
+                "fn": "Assistant",
+                "ln": "Coach 1",
+                "age": 40,
+                "appearance": _get_default_appearance(),
+            },
+            team_id,
+            1,
+            pos=2,
         ),
         _generate_front_office_person(
-            {"fn": "Assistant", "ln": "Coach 2", "age": 38, "appearance": _get_default_appearance()},
-            team_id, 2, pos=2
+            {
+                "fn": "Assistant",
+                "ln": "Coach 2",
+                "age": 38,
+                "appearance": _get_default_appearance(),
+            },
+            team_id,
+            2,
+            pos=2,
         ),
         _generate_front_office_person(
-            {"fn": "Assistant", "ln": "Coach 3", "age": 35, "appearance": _get_default_appearance()},
-            team_id, 3, pos=2
+            {
+                "fn": "Assistant",
+                "ln": "Coach 3",
+                "age": 35,
+                "appearance": _get_default_appearance(),
+            },
+            team_id,
+            3,
+            pos=2,
         ),
     ]
-    
+
     return {
         "coins": 250,
         "condition": 0,
@@ -396,10 +439,38 @@ def _generate_staff(
     from ..data.nba_client import NBAClient
 
     staff_defaults = [
-        {"fn": "Head", "ln": "Coach", "pos": 1, "gender": 0, "age": 55, "is_assistant": 1},
-        {"fn": "Assistant", "ln": "Coach", "pos": 2, "gender": 0, "age": 45, "is_assistant": 2},
-        {"fn": "Team", "ln": "Trainer", "pos": 3, "gender": 0, "age": 50, "is_assistant": 3},
-        {"fn": "Team", "ln": "Scout", "pos": 4, "gender": 0, "age": 45, "is_assistant": None},
+        {
+            "fn": "Head",
+            "ln": "Coach",
+            "pos": 1,
+            "gender": 0,
+            "age": 55,
+            "is_assistant": 1,
+        },
+        {
+            "fn": "Assistant",
+            "ln": "Coach",
+            "pos": 2,
+            "gender": 0,
+            "age": 45,
+            "is_assistant": 2,
+        },
+        {
+            "fn": "Team",
+            "ln": "Trainer",
+            "pos": 3,
+            "gender": 0,
+            "age": 50,
+            "is_assistant": 3,
+        },
+        {
+            "fn": "Team",
+            "ln": "Scout",
+            "pos": 4,
+            "gender": 0,
+            "age": 45,
+            "is_assistant": None,
+        },
     ]
 
     coaches_by_type: Dict[int, Dict[str, str]] = {}
@@ -669,7 +740,7 @@ def generate_court(
     city: str = "",
     team_name: str = "",
     arena_name: str = "",
-    team_index: int = 0
+    team_index: int = 0,
 ) -> Dict[str, Any]:
     """Generate court design matching game format with variety across teams."""
     wood_patterns = ["lines", "tiled", "parque", "comb", "lines"]
@@ -788,51 +859,51 @@ def generate_uniforms(team_colors: List[str]) -> List[Dict[str, Any]]:
 def generate_ncaa_uniforms(team_colors: List[str]) -> List[Dict[str, Any]]:
     """
     Generate NCAA-format uniforms (different structure from NBA).
-    
-    NCAA uniforms use: jersey, jerseyStripe, jerseyCollar, jerseyNumber, 
+
+    NCAA uniforms use: jersey, jerseyStripe, jerseyCollar, jerseyNumber,
                        shorts, shortsStripe
     (Not jerseyMain/jerseySecondary like NBA)
     """
     primary = team_colors[0] if team_colors else "CC0000"
     secondary = team_colors[1] if len(team_colors) > 1 else "FFFFFF"
     accent = team_colors[2] if len(team_colors) > 2 else "000000"
-    
+
     home = {
         "jersey": "FFFFFF",
         "jerseyStripe": secondary,
         "jerseyCollar": "PRI",
         "jerseyNumber": "PRI",
         "shorts": "FFFFFF",
-        "shortsStripe": "PRI"
+        "shortsStripe": "PRI",
     }
-    
+
     away = {
         "jersey": "PRI",
         "jerseyStripe": "SEC",
         "jerseyCollar": "FFFFFF",
         "jerseyNumber": "FFFFFF",
         "shorts": "PRI",
-        "shortsStripe": "FFFFFF"
+        "shortsStripe": "FFFFFF",
     }
-    
+
     alt1 = {
         "jersey": "SEC",
         "jerseyStripe": "PRI",
         "jerseyCollar": "PRI",
         "jerseyNumber": "PRI",
         "shorts": "SEC",
-        "shortsStripe": "PRI"
+        "shortsStripe": "PRI",
     }
-    
+
     alt2 = {
         "jersey": accent,
         "jerseyStripe": primary,
         "jerseyCollar": secondary,
         "jerseyNumber": secondary,
         "shorts": accent,
-        "shortsStripe": secondary
+        "shortsStripe": secondary,
     }
-    
+
     return [home, away, alt1, alt2]
 
 
@@ -987,7 +1058,9 @@ def generate_skills(attributes: Dict[str, List[int]], stats: Dict) -> List[Dict]
 
     # Check for shooting badges
     if attributes.get("TPT", [0])[0] >= 7:
-        skills.append({"id": 1, "xp": 100, "level": 2, "equipped": True})  # Sharpshooter
+        skills.append(
+            {"id": 1, "xp": 100, "level": 2, "equipped": True}
+        )  # Sharpshooter
         skill_id += 1
 
     if attributes.get("LAY", [0])[0] >= 7:
@@ -1003,7 +1076,9 @@ def generate_skills(attributes: Dict[str, List[int]], stats: Dict) -> List[Dict]
         skill_id += 1
 
     if attributes.get("DRE", [0])[0] >= 7:
-        skills.append({"id": 5, "xp": 100, "level": 2, "equipped": True})  # Rim Protector
+        skills.append(
+            {"id": 5, "xp": 100, "level": 2, "equipped": True}
+        )  # Rim Protector
         skill_id += 1
 
     if attributes.get("STL", [0])[0] >= 7:
@@ -1076,7 +1151,9 @@ def generate_player_history(
     }
 
 
-def generate_championships(nba_team_id: str = "", current_year: int = 9999) -> Dict[str, Any]:
+def generate_championships(
+    nba_team_id: str = "", current_year: int = 9999
+) -> Dict[str, Any]:
     """Generate championships object for a team, filtered to years before current_year."""
     championships_data = _load_championships_data()
     team_id = str(nba_team_id)

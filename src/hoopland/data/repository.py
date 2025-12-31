@@ -33,17 +33,15 @@ class DataRepository:
         logger.info(f"Syncing NCAA stats for {season} [{mode_str}]...")
 
         # 1. Fetch Teams
-        all_teams = self.espn_client.get_all_teams()
-        logger.info(f"Found {len(all_teams)} total NCAA teams.")
-
-        # 2. Filter for tournament mode (top 64 teams by roster size or first 64)
+        # 1. Fetch Teams
         if tournament_only:
-            # Note: ESP API doesn't provide rankings, so we take first 64 teams
-            # These are typically the major programs (alphabetically or by ID)
-            teams = all_teams[:64]
-            logger.info(f"Tournament mode: Limited to {len(teams)} teams.")
+            teams = self.espn_client.get_tournament_teams(season=season, limit=64)
+            logger.info(f"Tournament mode: Found {len(teams)} teams via ESPN API.")
         else:
-            teams = all_teams
+            teams = self.espn_client.get_all_teams()
+            logger.info(f"Found {len(teams)} total NCAA teams.")
+
+        # 2. Filter done above
 
         current = 0
         total = len(teams)
@@ -53,8 +51,8 @@ class DataRepository:
             current += 1
             tid = team.get("id")
             if tid:
-                 processed_team_ids.append(str(tid))
-            
+                processed_team_ids.append(str(tid))
+
             slug = team.get("slug", tid)
             name = team.get("displayName", "Unknown")
 
@@ -70,14 +68,21 @@ class DataRepository:
                     pass
                     # logger.info(f"Skipping NCAA Team {current}/{total} (Data exists)...")
                 continue
-            
+
             print(f"Syncing NCAA Team {current}/{total}: {name}...")
 
             try:
                 time.sleep(0.5)  # Politeness
-                roster_data = self.espn_client.get_team_roster(
-                    tid
-                )  # Using ID preferred
+
+                # If we have a game_id (from tournament mode), try fetching from boxscore
+                if team.get("game_id"):
+                    roster_list = self.espn_client.get_game_roster(team["game_id"], tid)
+                    roster_data = {"athletes": roster_list} if roster_list else None
+                else:
+                    roster_data = self.espn_client.get_team_roster(
+                        tid, season=season
+                    )  # Using ID preferred
+
                 if not roster_data or "athletes" not in roster_data:
                     continue
 
@@ -124,7 +129,7 @@ class DataRepository:
             except Exception as e:
                 logger.error(f"Failed to sync NCAA team {name}: {e}")
                 self.session.rollback()
-        
+
         return processed_team_ids
 
     def sync_nba_season_stats(self, season="2023-24"):
@@ -136,13 +141,13 @@ class DataRepository:
         existing_count = (
             self.session.query(Player).filter_by(season=season, league="NBA").count()
         )
-        
+
         if existing_count > 400:
             logger.info(
                 f"Season {season} already cached ({existing_count} players). Skipping fetch."
             )
             return
-        
+
         # New season or incomplete data - fetch from API
         logger.info(f"[SYNC] Fetching NBA {season} player stats from API...")
 
@@ -156,9 +161,9 @@ class DataRepository:
         if total == 0:
             logger.warning(f"NBA API returned 0 players for season {season}")
             return
-            
+
         logger.info(f"[SYNC] Processing {total} NBA players for {season}...")
-        
+
         count = 0
         for index, row in df.iterrows():
             if index % 100 == 0 and index > 0:
@@ -190,9 +195,7 @@ class DataRepository:
             count += 1
 
         self.session.commit()
-        logger.info(
-            f"[SYNC] Complete: {count} players stored for {season}."
-        )
+        logger.info(f"[SYNC] Complete: {count} players stored for {season}.")
 
     def sync_nba_roster_data(self, season="2023-24"):
         """
@@ -280,11 +283,13 @@ class DataRepository:
 
         logger.info(f"[SYNC] Roster metadata complete for {season}.")
 
-    def backfill_appearance(self, cv_engine_func, season=None, league=None, team_ids=None):
+    def backfill_appearance(
+        self, cv_engine_func, season=None, league=None, team_ids=None
+    ):
         """
         Iterates over players with missing appearance data and fills it.
         Supports both NBA and NCAA players.
-        
+
         Args:
             cv_engine_func: Function to analyze player headshot
             season: Optional season filter (e.g. '2024', 'draft-2003')
@@ -299,7 +304,7 @@ class DataRepository:
             query = query.filter_by(league=league)
         if team_ids:
             query = query.filter(Player.team_id.in_(team_ids))
-        
+
         all_players = query.all()
         players = [
             p
@@ -308,7 +313,9 @@ class DataRepository:
         ]
 
         if not players:
-            logger.info("All players already have appearance data. Skipping CV analysis.")
+            logger.info(
+                "All players already have appearance data. Skipping CV analysis."
+            )
             return
 
         total = len(players)
@@ -317,20 +324,35 @@ class DataRepository:
         for i, p in enumerate(players):
             # Progress update every 25 players
             if i > 0 and i % 25 == 0:
-                logger.info(f"[CV] Progress: {i}/{total} players analyzed ({(i/total*100):.0f}%)")
+                logger.info(
+                    f"[CV] Progress: {i}/{total} players analyzed ({(i/total*100):.0f}%)"
+                )
 
             try:
                 url = None
-                
+
                 if p.league == "NBA":
-                    year = int(season.split("-")[0]) if season and "-" in season else None
-                    url = self.nba_client.fetch_player_headshot_url(p.source_id, team_id=p.team_id, year=year)
+                    year = (
+                        int(season.split("-")[0]) if season and "-" in season else None
+                    )
+                    url = self.nba_client.fetch_player_headshot_url(
+                        p.source_id, team_id=p.team_id, year=year
+                    )
                 elif p.league == "NCAA":
                     # NCAA headshot URL is stored in raw_stats from ESPN API
                     raw = p.raw_stats if p.raw_stats else {}
                     headshot = raw.get("headshot", {})
                     url = headshot.get("href") if isinstance(headshot, dict) else None
-                
+
+                if not url and p.league == "NCAA":
+                    # Fallback: Check if player exists in NBA database (e.g. drafted players)
+                    nba_id = self.nba_client.find_player_id_by_name(p.name)
+                    if nba_id:
+                        logger.info(
+                            f"[CV] Found NBA fallback for {p.name} (ID: {nba_id})"
+                        )
+                        url = self.nba_client.fetch_player_headshot_url(nba_id)
+
                 if not url:
                     logger.info(f"[CV] Skipping {p.name} (no headshot URL)")
                     continue
@@ -346,16 +368,17 @@ class DataRepository:
 
                 p.appearance = appearance_data
                 self.session.commit()
-                
+
                 # Verbose log with appearance results
-                skin = appearance_data.get('skin_tone', '?')
-                hair = appearance_data.get('hair', '?')
-                beard = appearance_data.get('facial_hair', '?')
-                accessory = appearance_data.get('accessory', '?')
-                logger.info(f"[CV] {p.name}: skin={skin}, hair={hair}, beard={beard}, acc={accessory}")
-                
+                skin = appearance_data.get("skin_tone", "?")
+                hair = appearance_data.get("hair", "?")
+                beard = appearance_data.get("facial_hair", "?")
+                accessory = appearance_data.get("accessory", "?")
+                logger.info(
+                    f"[CV] {p.name}: skin={skin}, hair={hair}, beard={beard}, acc={accessory}"
+                )
+
             except Exception as e:
                 logger.warning(f"[CV] Could not analyze {p.name}: {e}")
 
         logger.info(f"[CV] Appearance analysis complete for {total} players.")
-

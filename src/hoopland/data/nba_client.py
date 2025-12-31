@@ -12,8 +12,8 @@ from nba_api.stats.static import teams
 import pandas as pd
 
 
-
 from .utils import retry_api_call
+
 
 class NBAClient:
     def __init__(self):
@@ -105,7 +105,7 @@ class NBAClient:
                     season=season,
                     stat_category_abbreviation=stat_cat,
                     per_mode48="PerGame",
-                    timeout=10
+                    timeout=10,
                 )
                 df = leaders.get_data_frames()[0]
                 top_ids = df.head(top_n)["PLAYER_ID"].tolist()
@@ -138,4 +138,16 @@ class NBAClient:
                 "hand_width": row.get("HAND_WIDTH"),
             }
 
-        return measurements
+    def find_player_id_by_name(self, full_name: str) -> Optional[int]:
+        """
+        Find NBA player ID by full name using static players list.
+        Useful for finding headshots for players who went pro.
+        """
+        from nba_api.stats.static import players
+
+        matches = players.find_players_by_full_name(full_name)
+        if matches:
+            # Return the first exact match or just the first result
+            # Ideally verify active status if needed, but for headshots any match is good
+            return matches[0]["id"]
+        return None

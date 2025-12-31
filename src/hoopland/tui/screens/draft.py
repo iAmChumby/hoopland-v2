@@ -1,7 +1,16 @@
 from textual.app import ComposeResult
 from textual.screen import Screen
 
-from textual.widgets import Header, Footer, Button, Input, Label, Static, RichLog
+from textual.widgets import (
+    Header,
+    Footer,
+    Button,
+    Input,
+    Label,
+    Static,
+    RichLog,
+    ProgressBar,
+)
 from textual.containers import Container, Vertical, Horizontal
 from textual import work
 from ...blocks.generator import Generator
@@ -22,15 +31,27 @@ class DraftConfig(Screen):
                 Vertical(
                     Label("Enter Draft Year (e.g., 2024):"),
                     Input(placeholder="2024", id="input_year"),
-                    Button("Generate Draft Class", id="btn_generate", variant="success"),
+                    Button(
+                        "Generate Draft Class", id="btn_generate", variant="success"
+                    ),
+                    ProgressBar(
+                        id="progress_bar",
+                        total=100,
+                        show_eta=False,
+                        show_percentage=True,
+                    ),
                     Button("Back", id="btn_back", variant="primary"),
                     classes="left-panel",
                 ),
                 # Right Panel: Logs
                 Vertical(
                     Label("Real-time Logs", classes="log_label"),
-                    RichLog(highlight=True, markup=True, id="log_view", classes="log_box"),
-                    Button("Copy Logs to Clipboard", id="btn_copy_logs", classes="copy_btn"),
+                    RichLog(
+                        highlight=True, markup=True, id="log_view", classes="log_box"
+                    ),
+                    Button(
+                        "Copy Logs to Clipboard", id="btn_copy_logs", classes="copy_btn"
+                    ),
                     classes="right-panel",
                 ),
                 classes="split-layout",
@@ -59,13 +80,17 @@ class DraftConfig(Screen):
 
     @work(thread=True)
     def run_generation(self, year: str) -> None:
+        def progress_func(progress: int, message: str) -> None:
+            self.app.call_from_thread(self.update_progress, progress, message)
+
         self.app.call_from_thread(
             self.notify, f"Generating Draft Class for {year}...", title="Status"
         )
+        self.app.call_from_thread(self.reset_progress)
         try:
             setup_logger(mode="Draft", year=year)
             gen = Generator()
-            league = gen.generate_draft_class(year)
+            league = gen.generate_draft_class(year, progress_callback=progress_func)
 
             # Save to file
             filename = f"NBA_{year}_Draft.txt"
@@ -82,6 +107,15 @@ class DraftConfig(Screen):
 
     def enable_button(self) -> None:
         self.query_one("#btn_generate", Button).disabled = False
+
+    def update_progress(self, progress: int, message: str) -> None:
+        bar = self.query_one("#progress_bar", ProgressBar)
+        bar.update(progress=progress)
+        logging.info(f"[Progress {progress}%] {message}")
+
+    def reset_progress(self) -> None:
+        bar = self.query_one("#progress_bar", ProgressBar)
+        bar.update(progress=0)
 
     def on_mount(self) -> None:
         # Setup logging handler

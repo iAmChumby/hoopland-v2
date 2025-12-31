@@ -11,8 +11,10 @@ class ESPNClient:
         pass
 
     @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
-    def get_team_roster(self, team_id_or_slug):
+    def get_team_roster(self, team_id_or_slug, season: str = None):
         url = f"{self.BASE_URL}/teams/{team_id_or_slug}/roster"
+        if season:
+            url += f"?season={season}"
         resp = requests.get(url)
         if resp.status_code != 200:
             return None
@@ -87,18 +89,105 @@ class ESPNClient:
             if rank_list.get("type") == "ap":
                 for r in rank_list.get("ranks", []):
                     team = r.get("team", {})
-                    rankings.append({
-                        "rank": r.get("current"),
-                        "team_id": team.get("id"),
-                        "team_name": team.get("name"),
-                        "logo": team.get("logo"),
-                    })
+                    rankings.append(
+                        {
+                            "rank": r.get("current"),
+                            "team_id": team.get("id"),
+                            "team_name": team.get("name"),
+                            "logo": team.get("logo"),
+                        }
+                    )
                 break
         return rankings
 
     def get_tournament_teams(self, season: str = None, limit: int = 68) -> List[Dict]:
+        # For 2016, use precise dates for First Round to ensure correct field
+        if season == "2016":
+            dates = ["20160317", "20160318"]
+            teams_map = {}
+            for date in dates:
+                url = f"{self.BASE_URL}/scoreboard?dates={date}&limit=100"
+                try:
+                    resp = requests.get(url)
+                    if resp.status_code == 200:
+                        events = resp.json().get("events", [])
+                        for event in events:
+                            for competition in event.get("competitions", []):
+                                for competitor in competition.get("competitors", []):
+                                    team = competitor.get("team", {})
+                                    tid = team.get("id")
+                                    if tid and tid not in teams_map:
+                                        # Normalize team object to match get_all_teams structure
+                                        t_obj = {
+                                            "id": tid,
+                                            "displayName": team.get("displayName"),
+                                            "abbreviation": team.get("abbreviation"),
+                                            "shortDisplayName": team.get(
+                                                "shortDisplayName"
+                                            ),
+                                            "location": team.get("location"),
+                                            "color": team.get("color"),
+                                            "alternateColor": team.get(
+                                                "alternateColor"
+                                            ),
+                                            "logos": [
+                                                l.get("href")
+                                                for l in team.get("logos", [])
+                                            ],
+                                            "slug": (
+                                                team.get("uid", "").split(":")[-1]
+                                                if "uid" in team
+                                                else tid
+                                            ),
+                                            "game_id": event.get("id"),
+                                        }
+                                        teams_map[tid] = t_obj
+                except Exception:
+                    pass
+
+            if teams_map:
+                return list(teams_map.values())
+
+        # Fallback to rankings or all teams
         rankings = self.get_rankings(season)
         if rankings:
             return rankings[:limit]
         teams = self.get_all_teams()
         return teams[:limit]
+
+    @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
+    def get_game_roster(self, game_id: str, team_id: str) -> List[Dict]:
+        """Fetch roster from a specific game boxscore."""
+        url = f"{self.BASE_URL}/summary?event={game_id}"
+        resp = requests.get(url)
+        if resp.status_code != 200:
+            return []
+
+        data = resp.json()
+        boxscore = data.get("boxscore", {})
+
+        # Checking 'boxscore' -> 'players' structure in summary endpoint
+        roster = []
+        players_section = boxscore.get("players", [])
+        for section in players_section:
+            if str(section.get("team", {}).get("id")) == str(team_id):
+                stats = section.get("statistics", [])
+                if stats:
+                    athletes = stats[0].get("athletes", [])
+                    for ath in athletes:
+                        ath_obj = ath.get("athlete", {})
+                        if ath_obj:
+                            roster.append(
+                                {
+                                    "id": ath_obj.get("id"),
+                                    "fullName": ath_obj.get("displayName"),
+                                    "displayName": ath_obj.get("displayName"),
+                                    "position": ath_obj.get("position", {}).get(
+                                        "abbreviation", "G"
+                                    ),
+                                    "jersey": ath_obj.get("jersey"),
+                                    "height": ath_obj.get("displayHeight"),
+                                    "weight": ath_obj.get("displayWeight"),
+                                }
+                            )
+        return roster

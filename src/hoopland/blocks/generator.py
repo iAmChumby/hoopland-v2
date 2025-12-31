@@ -32,19 +32,25 @@ class Generator:
         self.repo = repository.DataRepository(self.session)
         self.college_client = CollegeClient()
 
-    def generate_league(self, year: str) -> structs.League:
+    def generate_league(self, year: str, progress_callback=None) -> structs.League:
         """Generate NBA league data for a specific year."""
+        if progress_callback:
+            progress_callback(0, "Initializing...")
         logger.info(f"Generating NBA league for year: {year}")
         print(f"Generating NBA {year}...")
 
         # 1. Sync Data (Performance Stats)
         season_str = self._year_to_season(year)
+        if progress_callback:
+            progress_callback(5, "Syncing season stats...")
         try:
             self.repo.sync_nba_season_stats(season=season_str)
         except Exception as e:
             logger.error(f"Failed to sync stats: {e}")
 
         # 2. Sync Roster Metadata (Age, Ht, Wt, Pos, Country)
+        if progress_callback:
+            progress_callback(15, "Syncing roster metadata...")
         try:
             self.repo.sync_nba_roster_data(season=season_str)
         except Exception as e:
@@ -52,6 +58,8 @@ class Generator:
 
         # 3. Backfill Appearance
         logger.info("Backfilling appearance data...")
+        if progress_callback:
+            progress_callback(25, "Processing player appearance...")
         try:
             self.repo.backfill_appearance(
                 appearance.analyze_player_appearance, season=season_str, league="NBA"
@@ -60,6 +68,8 @@ class Generator:
             logger.error(f"Failed to backfill appearance: {e}")
 
         # 4. Fetch Players from DB
+        if progress_callback:
+            progress_callback(35, "Fetching players...")
         players = (
             self.session.query(Player).filter_by(season=season_str, league="NBA").all()
         )
@@ -92,6 +102,8 @@ class Generator:
 
         # 6. Pre-calculate league-wide ratings using percentile distribution
         print("Calculating league-wide player ratings...")
+        if progress_callback:
+            progress_callback(45, "Calculating player ratings...")
         player_attributes_list = []
         player_stats_list = []
         player_id_to_attrs = {}
@@ -124,18 +136,27 @@ class Generator:
         print("Fetching stat leaders for award prioritization...")
         try:
             priority_player_ids = self.repo.nba_client.get_league_leaders(season_str)
-            logger.info(f"Identified {len(priority_player_ids)} priority players for awards")
+            logger.info(
+                f"Identified {len(priority_player_ids)} priority players for awards"
+            )
         except Exception as e:
             logger.warning(f"Could not fetch league leaders: {e}")
             priority_player_ids = set()
 
         print("Building Teams...")
+        if progress_callback:
+            progress_callback(55, "Building teams...")
         player_awards_queue = []
 
         for tid, roster in team_map.items():
             current_team += 1
             if current_team % 5 == 0:
                 print(f"Built {current_team}/{total_teams} teams...")
+                if progress_callback:
+                    pct = 55 + int((current_team / total_teams) * 25)  # 55% to 80%
+                    progress_callback(
+                        pct, f"Building Team {current_team}/{total_teams}..."
+                    )
 
             # Get Team Info - use historical data for accurate names/cities
             tid_str = str(tid)
@@ -151,7 +172,11 @@ class Generator:
             else:
                 team_info = self.repo.nba_client.get_team_by_id(int(tid))
                 city = team_info.get("city", "Unknown") if team_info else "Unknown"
-                name = team_info.get("nickname", f"Team {tid}") if team_info else f"Team {tid}"
+                name = (
+                    team_info.get("nickname", f"Team {tid}")
+                    if team_info
+                    else f"Team {tid}"
+                )
                 short_name = team_info.get("abbreviation", "TM") if team_info else "TM"
                 arena_name = team_assets.get_team_arena(tid_str)
                 team_colors = team_assets.get_team_colors(tid_str)
@@ -194,7 +219,9 @@ class Generator:
 
                 # Appearance (full object)
                 skin_val = app_data.get("skin_tone", 1)
-                player_appearance = team_assets.generate_player_appearance(app_data, skin_val)
+                player_appearance = team_assets.generate_player_appearance(
+                    app_data, skin_val
+                )
 
                 # Accessories (4 uniform-specific dicts)
                 player_accessories = team_assets.generate_player_accessories(skin_val)
@@ -207,7 +234,7 @@ class Generator:
                     stats=raw_stats,
                     height=ht_val,
                     position=pos_val,
-                    distribution=distribution
+                    distribution=distribution,
                 )
 
                 # Skills/badges
@@ -231,7 +258,9 @@ class Generator:
                     years_exp = max(0, age - 22)
 
                 source_id = raw_stats.get("PLAYER_ID", p.source_id)
-                is_priority = int(source_id) in priority_player_ids if source_id else False
+                is_priority = (
+                    int(source_id) in priority_player_ids if source_id else False
+                )
 
                 # History
                 history = team_assets.generate_player_history(years_exp=years_exp)
@@ -262,20 +291,27 @@ class Generator:
                     contract=contract,
                     history=history,
                     stats=raw_stats,
-                    careerStats={"season": [], "playoffs": [], "finals": [], "highs": {}},
+                    careerStats={
+                        "season": [],
+                        "playoffs": [],
+                        "finals": [],
+                        "highs": {},
+                    },
                     awards=[],
                 )
                 struct_roster.append(struct_player)
                 player_id_counter += 1
 
                 if source_id:
-                    player_awards_queue.append({
-                        "player": struct_player,
-                        "source_id": int(source_id),
-                        "name": p.name,
-                        "is_priority": is_priority,
-                        "rating": rating_val,
-                    })
+                    player_awards_queue.append(
+                        {
+                            "player": struct_player,
+                            "source_id": int(source_id),
+                            "name": p.name,
+                            "is_priority": is_priority,
+                            "rating": rating_val,
+                        }
+                    )
 
             # Assign lineup positions based on minutes played
             roster_with_minutes = []
@@ -294,7 +330,9 @@ class Generator:
                     starting_lineup_ids.append(player.id)
 
             # Generate team assets
-            front_office = team_assets.generate_front_office(target_id, name, tid_str, year_int)
+            front_office = team_assets.generate_front_office(
+                target_id, name, tid_str, year_int
+            )
             court = team_assets.generate_court(
                 team_colors, logo_url, city, name, arena_name, current_team
             )
@@ -337,6 +375,8 @@ class Generator:
 
         # 8. Fetch awards for priority players first, then others if time permits
         print("Fetching player awards (prioritizing stat leaders)...")
+        if progress_callback:
+            progress_callback(80, "Fetching awards...")
         player_awards_queue.sort(key=lambda x: (not x["is_priority"], -x["rating"]))
 
         awards_start_time = time.time()
@@ -347,22 +387,37 @@ class Generator:
         for entry in player_awards_queue:
             if time.time() - awards_start_time >= MAX_AWARDS_TIME:
                 if awards_skipped == 0:
-                    logger.info(f"Awards timeout reached after {awards_fetched} players")
+                    logger.info(
+                        f"Awards timeout reached after {awards_fetched} players"
+                    )
                 awards_skipped += 1
                 continue
 
             try:
                 priority_str = " [PRIORITY]" if entry["is_priority"] else ""
-                logger.info(f"Fetching awards for {entry['name']}{priority_str} ({awards_fetched + 1} fetched)")
+                logger.info(
+                    f"Fetching awards for {entry['name']}{priority_str} ({awards_fetched + 1} fetched)"
+                )
                 awards_df = self.repo.nba_client.get_player_awards(entry["source_id"])
                 player_awards = awards_loader.process_player_awards(awards_df, year_int)
                 entry["player"].awards = player_awards
                 awards_fetched += 1
+                if progress_callback and awards_fetched % 5 == 0:
+                    # Map loop progress to 80-95%
+                    # We don't know exactly how many we will fetch due to timeout, but let's estimate based on queue
+                    total_q = len(player_awards_queue)
+                    if total_q > 0:
+                        prog = 80 + int((awards_fetched / total_q) * 15)
+                        progress_callback(
+                            min(95, prog), f"Fetching awards ({awards_fetched})..."
+                        )
                 time.sleep(0.6)
             except Exception as e:
                 logger.debug(f"Could not fetch awards for {entry['name']}: {e}")
 
-        logger.info(f"Awards complete: {awards_fetched} fetched, {awards_skipped} skipped")
+        logger.info(
+            f"Awards complete: {awards_fetched} fetched, {awards_skipped} skipped"
+        )
 
         # Generate league-level data
         meta = structs.Meta(
@@ -430,7 +485,9 @@ class Generator:
             currentGame=None,
         )
 
-    def generate_ncaa_league(self, year: str, tournament_mode: bool = False) -> structs.League:
+    def generate_ncaa_league(
+        self, year: str, tournament_mode: bool = False
+    ) -> structs.League:
         """Generate NCAA league data."""
         mode_str = "Tournament (64 teams)" if tournament_mode else "Full"
         logger.info(f"Generating NCAA league for year: {year} [{mode_str}]")
@@ -438,7 +495,9 @@ class Generator:
         # 1. Sync NCAA Data
         team_ids = []
         try:
-            team_ids = self.repo.sync_ncaa_season_stats(season=year, tournament_only=tournament_mode)
+            team_ids = self.repo.sync_ncaa_season_stats(
+                season=year, tournament_only=tournament_mode
+            )
         except Exception as e:
             logger.error(f"Failed to sync NCAA stats: {e}")
 
@@ -449,7 +508,7 @@ class Generator:
                 appearance.analyze_player_appearance,
                 season=year,
                 league="NCAA",
-                team_ids=team_ids if tournament_mode else None
+                team_ids=team_ids if tournament_mode else None,
             )
         except Exception as e:
             logger.error(f"Failed to backfill appearance: {e}")
@@ -481,7 +540,9 @@ class Generator:
                 logos = t.get("logos", [])
                 logo_url = logos[0] if logos else ""
                 venue = t.get("venue", {})
-                arena_name = venue.get("fullName", "") if isinstance(venue, dict) else ""
+                arena_name = (
+                    venue.get("fullName", "") if isinstance(venue, dict) else ""
+                )
                 tid_to_meta[tid] = {
                     "name": t.get("displayName", f"Team {tid}"),
                     "shortName": t.get("abbreviation", f"T{tid[-3:]}"),
@@ -507,17 +568,22 @@ class Generator:
             espn_abbrev = meta.get("shortName", f"T{str(tid)[-3:]}")
 
             ncaa_info = team_assets.get_ncaa_team_info(espn_team_name)
-            
-            if not ncaa_info.get("conference"):
-                logger.debug(f"Skipping {espn_team_name} - not in Power 6 conferences")
-                continue
-            
+
+            # Allow all teams, regardless of conference
+            # if not ncaa_info.get("conference"):
+            #     logger.debug(f"Skipping {espn_team_name} - not in Power 6 conferences")
+            #     continue
+
             school = ncaa_info.get("school", espn_team_name)
             mascot = ncaa_info.get("name", "Team")
             team_colors = ncaa_info.get("colors", ["CC0000", "FFFFFF", "000000"])
             team_tag = ncaa_info.get("tag", espn_abbrev)
             target_id = ncaa_info.get("target_id", int(tid) % 1000)
-            division = ncaa_info.get("division", 0)
+
+            if not ncaa_info.get("conference"):
+                division = 6  # Independents
+            else:
+                division = ncaa_info.get("division", 0)
 
             struct_roster = []
             player_id_counter = 0
@@ -530,17 +596,16 @@ class Generator:
                 pos_val = self._parse_position_ncaa(raw)
 
                 skin_val = app_data.get("skin_tone", 1)
-                player_appearance = team_assets.generate_player_appearance(app_data, skin_val)
+                player_appearance = team_assets.generate_player_appearance(
+                    app_data, skin_val
+                )
                 player_accessories = team_assets.generate_player_accessories(skin_val)
                 player_suits = team_assets.generate_player_suits()
 
                 attributes = self._calculate_ncaa_attributes(raw, ht_val, wt_val)
 
                 tends = tendencies.generate_player_tendencies(
-                    stats=raw,
-                    height=ht_val,
-                    position=pos_val,
-                    distribution={}
+                    stats=raw, height=ht_val, position=pos_val, distribution={}
                 )
 
                 skills = team_assets.generate_skills(attributes, raw)
@@ -572,7 +637,11 @@ class Generator:
                 struct_roster.append(struct_player)
                 player_id_counter += 1
 
-            starting_lineup_ids = [p.id for p in struct_roster[:5]] if len(struct_roster) >= 5 else [p.id for p in struct_roster]
+            starting_lineup_ids = (
+                [p.id for p in struct_roster[:5]]
+                if len(struct_roster) >= 5
+                else [p.id for p in struct_roster]
+            )
             for idx, player in enumerate(struct_roster):
                 player.linePos = idx
 
@@ -596,7 +665,6 @@ class Generator:
                 tag=team_tag,
                 arenaName=arena_name,
                 logoURL=logo_url,
-                logoSize=256,
                 division=division,
                 location={"x": 0, "y": 0},
                 roster=struct_roster,
@@ -611,7 +679,14 @@ class Generator:
                 draftPicks=[],
                 retiredNumbers=[],
                 season=[],
-                history={"season": [], "seasonHighs": {}, "playoffs": [], "playoffHighs": {}, "finals": [], "finalsHighs": {}},
+                history={
+                    "season": [],
+                    "seasonHighs": {},
+                    "playoffs": [],
+                    "playoffHighs": {},
+                    "finals": [],
+                    "finalsHighs": {},
+                },
                 headToHeads={},
                 scoringOptions={},
                 quickPlays=[],
@@ -622,7 +697,9 @@ class Generator:
             )
             league_teams.append(t)
 
-        logger.info(f"NCAA league generation complete: {len(league_teams)} teams, {len(players)} players")
+        logger.info(
+            f"NCAA league generation complete: {len(league_teams)} teams, {len(players)} players"
+        )
 
         return structs.League(
             leagueName="Men's College Basketball",
@@ -631,7 +708,7 @@ class Generator:
             logoSize=256,
             leagueType=1,
             conferences=["Southern Conference", "Northern Conference"],
-            divisions=["SEC", "XII", "WCC", "B1G", "Big East", "ACC"],
+            divisions=["SEC", "XII", "WCC", "B1G", "Big East", "ACC", "Independents"],
             settings=self._get_default_settings(),
             teams=league_teams,
             meta=structs.Meta(
@@ -641,13 +718,17 @@ class Generator:
             ),
         )
 
-    def generate_draft_class(self, year: str) -> structs.League:
+    def generate_draft_class(self, year: str, progress_callback=None) -> structs.League:
         """Generate draft class data."""
         logger.info(f"Generating draft class for year: {year}")
+        if progress_callback:
+            progress_callback(0, "Initializing draft class...")
 
         # Fetch draft history
         try:
             logger.info(f"Fetching draft history for {year}...")
+            if progress_callback:
+                progress_callback(10, "Fetching draft history...")
             df = self.repo.nba_client.get_draft_history(
                 league_id="00", season_year=year
             )
@@ -677,7 +758,11 @@ class Generator:
         combine_data = {}
         try:
             logger.info(f"Fetching draft combine measurements for {year}...")
-            combine_data = self.repo.nba_client.get_draft_combine_measurements(int(year))
+            if progress_callback:
+                progress_callback(20, "Fetching combine measurements...")
+            combine_data = self.repo.nba_client.get_draft_combine_measurements(
+                int(year)
+            )
             logger.info(f"Found combine data for {len(combine_data)} players")
         except Exception as e:
             logger.warning(f"Could not fetch combine data: {e}")
@@ -698,7 +783,11 @@ class Generator:
                 continue
 
             org = row.get("ORGANIZATION", "") if "ORGANIZATION" in row.index else ""
-            org_type = row.get("ORGANIZATION_TYPE", "") if "ORGANIZATION_TYPE" in row.index else ""
+            org_type = (
+                row.get("ORGANIZATION_TYPE", "")
+                if "ORGANIZATION_TYPE" in row.index
+                else ""
+            )
 
             player = Player(
                 source_id=pid,
@@ -710,7 +799,9 @@ class Generator:
                     "PERSON_ID": int(row["PERSON_ID"]),
                     "PLAYER_NAME": p_name,
                     "OVERALL_PICK": int(row["OVERALL_PICK"]),
-                    "ROUND_NUMBER": int(row["ROUND_NUMBER"]) if "ROUND_NUMBER" in row else 1,
+                    "ROUND_NUMBER": (
+                        int(row["ROUND_NUMBER"]) if "ROUND_NUMBER" in row else 1
+                    ),
                     "DRAFT_YEAR": year,
                     "ORGANIZATION": org,
                     "ORGANIZATION_TYPE": org_type,
@@ -729,7 +820,11 @@ class Generator:
             .all()
         )
 
-        logger.info(f"Processing {len(players)} draft picks for stats and appearance...")
+        logger.info(
+            f"Processing {len(players)} draft picks for stats and appearance..."
+        )
+        if progress_callback:
+            progress_callback(30, "Processing players...")
 
         for i, p in enumerate(players):
             raw = p.raw_stats if p.raw_stats else {}
@@ -741,6 +836,10 @@ class Generator:
 
             if i % 10 == 0:
                 logger.info(f"Processing draft pick {i+1}/{len(players)}...")
+                if progress_callback:
+                    # 30% to 90%
+                    pct = 30 + int((i / len(players)) * 60)
+                    progress_callback(pct, f"Processing player {i+1}/{len(players)}...")
 
             time.sleep(0.8)
 
@@ -804,9 +903,7 @@ class Generator:
 
             try:
                 college_stats = self.college_client.search_player_by_name(
-                    player_name=p.name,
-                    college_name=college_name,
-                    draft_year=int(year)
+                    player_name=p.name, college_name=college_name, draft_year=int(year)
                 )
                 if college_stats:
                     raw["COLLEGE_STATS"] = college_stats
@@ -818,7 +915,9 @@ class Generator:
                 logger.debug(f"College stats not found for {p.name}: {e}")
 
             if i % 20 == 0:
-                logger.info(f"Processed college stats for {i+1}/{len(players)} players...")
+                logger.info(
+                    f"Processed college stats for {i+1}/{len(players)} players..."
+                )
 
         logger.info(f"Found college stats for {college_stats_count} players")
 
@@ -843,8 +942,12 @@ class Generator:
             raw = p.raw_stats if p.raw_stats else {}
             college_stats = raw.get("COLLEGE_STATS")
             if college_stats:
-                tendency_input = tendencies.map_college_stats_to_tendency_input(college_stats)
-                all_derived.append(tendencies.calculate_derived_stats(tendency_input, height=78))
+                tendency_input = tendencies.map_college_stats_to_tendency_input(
+                    college_stats
+                )
+                all_derived.append(
+                    tendencies.calculate_derived_stats(tendency_input, height=78)
+                )
             else:
                 all_derived.append(tendencies.calculate_derived_stats(raw, height=78))
         distribution = tendencies.calculate_distribution(all_derived)
@@ -887,11 +990,26 @@ class Generator:
                     pot_val = 5
 
             # Calculate attributes
-            base_attrs = {k: [3, pot_val] for k in [
-                "LAY", "DNK", "INS", "MID", "TPT", "FTS",
-                "DRB", "PAS", "ORE", "DRE", "STL", "BLK",
-                "STR", "SPD", "STM"
-            ]}
+            base_attrs = {
+                k: [3, pot_val]
+                for k in [
+                    "LAY",
+                    "DNK",
+                    "INS",
+                    "MID",
+                    "TPT",
+                    "FTS",
+                    "DRB",
+                    "PAS",
+                    "ORE",
+                    "DRE",
+                    "STL",
+                    "BLK",
+                    "STR",
+                    "SPD",
+                    "STM",
+                ]
+            }
 
             if "ROOKIE_PPG" in raw:
                 ppg = raw["ROOKIE_PPG"]
@@ -913,24 +1031,25 @@ class Generator:
 
             # Appearance
             skin_val = app_data.get("skin_tone", 1)
-            player_appearance = team_assets.generate_player_appearance(app_data, skin_val)
+            player_appearance = team_assets.generate_player_appearance(
+                app_data, skin_val
+            )
             player_accessories = team_assets.generate_player_accessories(skin_val)
 
             college_stats = raw.get("COLLEGE_STATS")
             if college_stats:
-                tendency_input = tendencies.map_college_stats_to_tendency_input(college_stats)
+                tendency_input = tendencies.map_college_stats_to_tendency_input(
+                    college_stats
+                )
                 tends = tendencies.generate_player_tendencies(
                     stats=tendency_input,
                     height=78,
                     position=3,
-                    distribution=distribution
+                    distribution=distribution,
                 )
             else:
                 tends = tendencies.generate_player_tendencies(
-                    stats=raw,
-                    height=78,
-                    position=3,
-                    distribution=distribution
+                    stats=raw, height=78, position=3, distribution=distribution
                 )
 
             pid = int(p.source_id)
@@ -942,7 +1061,7 @@ class Generator:
                 try:
                     ht_str = str(player_combine["height_with_shoes"])
                     if "'" in ht_str:
-                        parts = ht_str.replace('"', '').split("'")
+                        parts = ht_str.replace('"', "").split("'")
                         feet = int(parts[0])
                         inches = float(parts[1]) if len(parts) > 1 and parts[1] else 0
                         height_inches = int(feet * 12 + inches)
@@ -1044,11 +1163,13 @@ class Generator:
         try:
             if not h_str:
                 return 72
-            h_str = str(h_str).replace('"', '').replace("'", '-')
-            if '-' in h_str:
-                parts = h_str.split('-')
+            h_str = str(h_str).replace('"', "").replace("'", "-")
+            if "-" in h_str:
+                parts = h_str.split("-")
                 ft = int(parts[0].strip())
-                inches = int(parts[1].strip()) if len(parts) > 1 and parts[1].strip() else 0
+                inches = (
+                    int(parts[1].strip()) if len(parts) > 1 and parts[1].strip() else 0
+                )
                 return ft * 12 + inches
             return 72
         except:
@@ -1085,7 +1206,11 @@ class Generator:
         pos_data = stats.get("position", "")
         if not pos_data:
             return 3
-        abbrev = pos_data.get("abbreviation", "") if isinstance(pos_data, dict) else str(pos_data)
+        abbrev = (
+            pos_data.get("abbreviation", "")
+            if isinstance(pos_data, dict)
+            else str(pos_data)
+        )
         abbrev = abbrev.upper()
         if "C" in abbrev:
             return 5
@@ -1163,12 +1288,30 @@ class Generator:
         return ["Atlantic", "Central", "Southeast", "Pacific", "Northwest", "Southwest"]
 
     def to_json(self, league_obj: structs.League, filename: str):
-        try:
-            year = league_obj.leagueName.split(" ")[1]
-        except:
-            year = "unknown"
-        output_dir = os.path.join("output", year)
+        # Infer year from filename first, e.g. NCAA_2016_Tournament.txt
+        year = "unknown"
+        parts = filename.replace(".txt", "").split("_")
+        for part in parts:
+            if part.isdigit() and len(part) == 4:
+                year = part
+                break
+
+        if year == "unknown":
+            try:
+                year = league_obj.leagueName.split(" ")[1]
+            except:
+                pass
+
+        # Resolve project root from this file: src/hoopland/blocks/generator.py -> root
+        project_root = os.path.dirname(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        )
+        output_dir = os.path.join(project_root, "output", year)
         os.makedirs(output_dir, exist_ok=True)
         filepath = os.path.join(output_dir, filename)
+
         data = asdict(league_obj)
-        save_compact_json(data, filepath)
+
+        # Save as human-readable JSON
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4)

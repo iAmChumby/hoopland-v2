@@ -1,4 +1,23 @@
 {
+  "abilene_christian_wildcats": {
+    "target_id": 0,
+    "name": "Wildcats",
+    "school": "Abilene Christian",
+    "full_name": "Abilene Christian Wildcats",
+    "tag": "ACU",
+    "colors": [
+      "FFFFFF",
+      "4E2583",
+      "000000"
+    ],
+    "uuid": "fake-uuid-acu",
+    "conference": "",
+    "division": 6,
+    "location": {
+      "x": 0,
+      "y": 0
+    }
+  },
   "air_force_falcons": {
     "target_id": 1,
     "name": "Falcons",
