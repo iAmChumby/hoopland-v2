@@ -18,6 +18,7 @@ from dataclasses import asdict
 
 from ..models import structs
 from ..data import repository, stars_db
+from ..data.coordinate_utils import get_school_coordinates
 from ..data import historical_loader
 from ..data import awards_loader
 from ..data.college_client import CollegeClient
@@ -666,6 +667,13 @@ class Generator:
                     tendencies=tends,
                     skills=skills,
                     gameStatus=game_status,
+                    stats=raw,
+                    careerStats={
+                        "season": [],
+                        "playoffs": [],
+                        "finals": [],
+                        "highs": {},
+                    },
                     history=team_assets.generate_player_history(),
                 )
                 struct_roster.append(struct_player)
@@ -687,10 +695,16 @@ class Generator:
 
             front_office = team_assets.generate_ncaa_front_office(target_id, mascot)
             court = team_assets.generate_court(
-                team_colors, "", school, mascot, arena_name, current_team
+                team_colors, logo_url, school, mascot, arena_name, current_team
             )
             uniforms = team_assets.generate_ncaa_uniforms(team_colors)
             championships = team_assets.generate_ncaa_championships(school, year_int)
+
+            # Get coordinates for the school
+            school_coords = get_school_coordinates(school)
+            if not school_coords:
+                # Fallback to origin if coordinates not found
+                school_coords = {"x": 0, "y": 0}
 
             t = structs.Team(
                 id=target_id,
@@ -701,7 +715,7 @@ class Generator:
                 arenaName=arena_name,
                 logoURL=logo_url,
                 division=division,
-                location={"x": 0, "y": 0},
+                location=school_coords,
                 roster=struct_roster,
                 teamColors=team_colors,
                 frontOffice=front_office,
@@ -736,21 +750,59 @@ class Generator:
             f"NCAA league generation complete: {len(league_teams)} teams, {len(players)} players"
         )
 
+        commissioner = {
+            "fn": "Charlie",
+            "ln": "Baker",
+            "age": 68,
+            "ctry": 0,
+            "appearance": {},
+        }
+        referee = {
+            "fn": "John",
+            "ln": "Higgins",
+            "age": 55,
+            "ctry": 0,
+            "appearance": {},
+        }
+
         return structs.League(
             leagueName="Men's College Basketball",
             shortName="NCAA",
             logoURL=f"{CDN_BASE_URL}/logos/leagues/ncaa.png",
             logoSize=256,
             leagueType=1,
-            conferences=["Southern Conference", "Northern Conference"],
-            divisions=["SEC", "XII", "WCC", "B1G", "Big East", "ACC", "Independents"],
-            settings=self._get_default_settings(),
-            teams=league_teams,
             meta=structs.Meta(
                 saveName=f"NCAA {year}",
                 dataType=1,
                 generatedCountries=[0],
             ),
+            conferences=["Southern Conference", "Northern Conference"],
+            divisions=["SEC", "XII", "WCC", "B1G", "Big East", "ACC", "Independents"],
+            teams=league_teams,
+            freeAgents=[],
+            draftClass=[],
+            retirees=[],
+            hallOfFame=[],
+            coaches=[],
+            referee=referee,
+            commissioner=commissioner,
+            starTeams=[],
+            gameballs=[],
+            media={},
+            threePointContestants=[],
+            contractOffers=[],
+            awards=[],
+            records={},
+            settings=self._get_default_settings(),
+            rules=self._get_ncaa_rules(),
+            sliders={},
+            difficulty={"level": 2},
+            simulationSliders={},
+            optimization={},
+            coachSettings={},
+            career={},
+            season={},
+            currentGame=None,
         )
 
     def generate_draft_class(self, year: str, progress_callback=None) -> structs.League:
@@ -1483,6 +1535,13 @@ class Generator:
             "foulsToFoulOut": 6,
             "threePointLine": True,
             "defensiveThreeSeconds": True,
+        }
+
+    def _get_ncaa_rules(self) -> dict:
+        return {
+            "foulsToFoulOut": 5,
+            "threePointLine": True,
+            "defensiveThreeSeconds": False,
         }
 
     def _get_default_conferences(self) -> list:

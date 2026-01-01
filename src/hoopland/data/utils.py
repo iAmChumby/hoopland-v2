@@ -5,44 +5,67 @@ import requests
 
 logger = logging.getLogger(__name__)
 
+
+class CircuitBreaker:
+    def __init__(self, failure_threshold=3, reset_timeout=60):
+        self.failure_count = 0
+        self.failure_threshold = failure_threshold
+        self.reset_timeout = reset_timeout
+        self.last_failure_time = 0
+        self.is_open = False
+
+    def record_failure(self):
+        self.failure_count += 1
+        self.last_failure_time = time.time()
+        if self.failure_count >= self.failure_threshold:
+            if not self.is_open:
+                logger.warning(
+                    f"Circuit breaker opened after {self.failure_count} consecutive failures. "
+                    f"Skipping API calls for {self.reset_timeout}s."
+                )
+            self.is_open = True
+
+    def record_success(self):
+        self.failure_count = 0
+        self.is_open = False
+
+    def should_allow_request(self):
+        if not self.is_open:
+            return True
+        if time.time() - self.last_failure_time >= self.reset_timeout:
+            logger.info("Circuit breaker reset. Allowing API calls again.")
+            self.is_open = False
+            self.failure_count = 0
+            return True
+        return False
+
+
+circuit_breaker = CircuitBreaker()
+
 def retry_api_call(max_retries=3, initial_backoff=10.0, backoff_factor=1.5):
-    """
-    Decorator to retry a function call upon raising an exception or returning None/failures.
-    
-    :param max_retries: Maximum number of retries before giving up.
-    :param initial_backoff: Initial sleep time in seconds.
-    :param backoff_factor: Multiplier for sleep time after each failure.
-    """
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
+            if not circuit_breaker.should_allow_request():
+                logger.debug(f"Circuit breaker open, skipping {func.__name__}")
+                raise ConnectionError("Circuit breaker is open - API unavailable")
+
             retries = 0
             backoff = initial_backoff
-            
+
             while retries <= max_retries:
                 try:
                     result = func(*args, **kwargs)
-                    # For requests based functions, we might want to check for None or specific errors if they swallow them
-                    # But assuming the function raises exceptions on real failure, or returns None if we want to retry on None?
-                    # The clients currently return empty structs or None on failure often. 
-                    # Let's assume exceptions are the primary trigger, but we could also inspect result?
-                    # Based on existing code, clients catch exceptions and return None/Empty. 
-                    # We might need to modify clients to RAISE exceptions so this wrapper can catch them, 
-                    # OR we check if result is None/Empty.
-                    # LET'S CHECK:
-                    # NBA Client methods often return DataFrames or generic objects. If they fail inside, they likely crash (nba_api does).
-                    # ESPN Client returns None on non-200.
-                    
                     if result is None:
-                         raise ValueError("API returned None (likely non-200 status)")
-                         
+                        raise ValueError("API returned None (likely non-200 status)")
+                    circuit_breaker.record_success()
                     return result
                 except Exception as e:
                     retries += 1
                     if retries > max_retries:
+                        circuit_breaker.record_failure()
                         logger.error(f"Function {func.__name__} failed after {max_retries} retries. Error: {e}")
-                        raise e # Re-raise the last exception
-                    
+                        raise e
                     logger.warning(f"Function {func.__name__} failed (Attempt {retries}/{max_retries}). Retrying in {backoff:.2f}s... Error: {e}")
                     time.sleep(backoff)
                     backoff *= backoff_factor

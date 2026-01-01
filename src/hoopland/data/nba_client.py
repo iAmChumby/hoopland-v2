@@ -42,19 +42,19 @@ class NBAClient:
         # Ideally, we just hope it returns. The hang might be rate limiting.
         # Let's try to just proceed but adds logging.
         roster = commonteamroster.CommonTeamRoster(
-            team_id=team_id, season=season, timeout=10
+            team_id=team_id, season=season, timeout=30
         )
         return roster.get_data_frames()[0]
 
     @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_league_stats(self, season="2023-24"):
-        stats = leaguedashplayerstats.LeagueDashPlayerStats(season=season, timeout=10)
+        stats = leaguedashplayerstats.LeagueDashPlayerStats(season=season, timeout=30)
         return stats.get_data_frames()[0]
 
     @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_draft_history(self, league_id="00", season_year=None):
         draft = drafthistory.DraftHistory(
-            league_id=league_id, season_year_nullable=season_year, timeout=10
+            league_id=league_id, season_year_nullable=season_year, timeout=30
         )
         return draft.get_data_frames()[0]
 
@@ -62,7 +62,7 @@ class NBAClient:
     def get_player_career_stats(self, player_id):
         try:
             career = playercareerstats.PlayerCareerStats(
-                player_id=player_id, timeout=10
+                player_id=player_id, timeout=30
             )
             dfs = career.get_data_frames()
             return {
@@ -78,7 +78,7 @@ class NBAClient:
 
     @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_player_awards(self, player_id: int) -> pd.DataFrame:
-        awards = playerawards.PlayerAwards(player_id=player_id, timeout=10)
+        awards = playerawards.PlayerAwards(player_id=player_id, timeout=30)
         dfs = awards.get_data_frames()
         if dfs and len(dfs) > 0:
             return dfs[0]
@@ -92,7 +92,7 @@ class NBAClient:
     @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_coaches(self, team_id: int, season: str) -> Optional[pd.DataFrame]:
         roster = commonteamroster.CommonTeamRoster(
-            team_id=team_id, season=season, timeout=10
+            team_id=team_id, season=season, timeout=30
         )
         dfs = roster.get_data_frames()
         if len(dfs) > 1:
@@ -115,7 +115,7 @@ class NBAClient:
                     season=season,
                     stat_category_abbreviation=stat_cat,
                     per_mode48="PerGame",
-                    timeout=10,
+                    timeout=30,
                 )
                 df = leaders.get_data_frames()[0]
                 top_ids = df.head(top_n)["PLAYER_ID"].tolist()
@@ -127,7 +127,7 @@ class NBAClient:
     @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_draft_combine_measurements(self, year: int) -> Dict[int, Dict[str, Any]]:
         combine = draftcombineplayeranthro.DraftCombinePlayerAnthro(
-            season_year=year, timeout=10
+            season_year=year, timeout=30
         )
         df = combine.get_data_frames()[0]
 
@@ -167,7 +167,7 @@ class NBAClient:
     @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_player_common_info(self, player_id: int) -> Dict[str, Any]:
         try:
-            info = commonplayerinfo.CommonPlayerInfo(player_id=player_id, timeout=10)
+            info = commonplayerinfo.CommonPlayerInfo(player_id=player_id, timeout=30)
             dfs = info.get_data_frames()
             if dfs and len(dfs) > 0 and not dfs[0].empty:
                 return dfs[0].iloc[0].to_dict()

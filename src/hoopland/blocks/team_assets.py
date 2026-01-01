@@ -435,8 +435,8 @@ def _get_default_announcers(team_id: int = 0) -> List[Dict[str, Any]]:
 def _generate_staff(
     team_id: int, nba_team_id: str = "", year: int = 2024
 ) -> List[Dict[str, Any]]:
-    """Generate 4 staff members as full person objects with real names from NBA API."""
     from ..data.nba_client import NBAClient
+    from ..data.utils import circuit_breaker
 
     staff_defaults = [
         {
@@ -474,7 +474,7 @@ def _generate_staff(
     ]
 
     coaches_by_type: Dict[int, Dict[str, str]] = {}
-    if nba_team_id:
+    if nba_team_id and circuit_breaker.should_allow_request():
         try:
             client = NBAClient()
             season_str = f"{year-1}-{str(year)[2:]}"
@@ -858,50 +858,61 @@ def generate_uniforms(team_colors: List[str]) -> List[Dict[str, Any]]:
 
 def generate_ncaa_uniforms(team_colors: List[str]) -> List[Dict[str, Any]]:
     """
-    Generate NCAA-format uniforms (different structure from NBA).
+    Generate NCAA uniforms using NBA schema for consistency.
 
-    NCAA uniforms use: jersey, jerseyStripe, jerseyCollar, jerseyNumber,
-                       shorts, shortsStripe
-    (Not jerseyMain/jerseySecondary like NBA)
+    Uses same structure as NBA: jerseyMain, jerseySecondary, jerseyStripe,
+    shortsMain, shortsSecondary, shortsStripe, numberC, nameC, style
     """
     primary = team_colors[0] if team_colors else "CC0000"
     secondary = team_colors[1] if len(team_colors) > 1 else "FFFFFF"
     accent = team_colors[2] if len(team_colors) > 2 else "000000"
 
     home = {
-        "jersey": "FFFFFF",
-        "jerseyStripe": secondary,
-        "jerseyCollar": "PRI",
-        "jerseyNumber": "PRI",
-        "shorts": "FFFFFF",
-        "shortsStripe": "PRI",
+        "jerseyMain": "FFFFFF",
+        "jerseySecondary": primary,
+        "jerseyStripe": primary,
+        "shortsMain": "FFFFFF",
+        "shortsSecondary": primary,
+        "shortsStripe": primary,
+        "numberC": primary,
+        "nameC": primary,
+        "style": 0,
     }
 
     away = {
-        "jersey": "PRI",
-        "jerseyStripe": "SEC",
-        "jerseyCollar": "FFFFFF",
-        "jerseyNumber": "FFFFFF",
-        "shorts": "PRI",
-        "shortsStripe": "FFFFFF",
+        "jerseyMain": primary,
+        "jerseySecondary": "FFFFFF",
+        "jerseyStripe": secondary,
+        "shortsMain": primary,
+        "shortsSecondary": "FFFFFF",
+        "shortsStripe": secondary,
+        "numberC": "FFFFFF",
+        "nameC": "FFFFFF",
+        "style": 0,
     }
 
     alt1 = {
-        "jersey": "SEC",
-        "jerseyStripe": "PRI",
-        "jerseyCollar": "PRI",
-        "jerseyNumber": "PRI",
-        "shorts": "SEC",
-        "shortsStripe": "PRI",
+        "jerseyMain": secondary,
+        "jerseySecondary": primary,
+        "jerseyStripe": accent,
+        "shortsMain": secondary,
+        "shortsSecondary": primary,
+        "shortsStripe": accent,
+        "numberC": accent,
+        "nameC": accent,
+        "style": 0,
     }
 
     alt2 = {
-        "jersey": accent,
-        "jerseyStripe": primary,
-        "jerseyCollar": secondary,
-        "jerseyNumber": secondary,
-        "shorts": accent,
+        "jerseyMain": accent,
+        "jerseySecondary": primary,
+        "jerseyStripe": secondary,
+        "shortsMain": accent,
+        "shortsSecondary": primary,
         "shortsStripe": secondary,
+        "numberC": primary,
+        "nameC": primary,
+        "style": 0,
     }
 
     return [home, away, alt1, alt2]
