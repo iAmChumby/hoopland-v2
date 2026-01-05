@@ -79,18 +79,16 @@ class DataRepository:
                     logger.info(f"Fetching roster from Game Boxscore (Game ID: {team['game_id']})")
                     roster_list = self.espn_client.get_game_roster(team["game_id"], tid)
                     roster_data = {"athletes": roster_list} if roster_list else None
-                else:
-                    logger.info(f"Fetching roster from Season Roster (Season: {season})")
-                # If we have a game_id (from tournament mode), try fetching from boxscore
-                if team.get("game_id"):
-                    logger.info(f"Fetching roster from Game Boxscore (Game ID: {team['game_id']})")
-                    roster_list = self.espn_client.get_game_roster(team["game_id"], tid)
-                    roster_data = {"athletes": roster_list} if roster_list else None
+                elif tournament_only:
+                    # In tournament mode, skip teams without game_id to prevent current roster contamination
+                    logger.warning(f"Skipping team {tid} ({name}) - no game_id available in tournament mode")
+                    continue
                 else:
                     logger.info(f"Fetching roster from Season Roster (Season: {season})")
                     roster_data = self.espn_client.get_team_roster(
                         tid, season=season
                     )  # Using ID preferred
+
 
                 if not roster_data or "athletes" not in roster_data:
                     continue
