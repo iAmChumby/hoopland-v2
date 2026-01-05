@@ -580,6 +580,53 @@ def _empty_front_office_career_stats() -> Dict[str, Any]:
     }
 
 
+def empty_player_stats_block() -> Dict[str, Any]:
+    """Generate empty stats block for player (used in careerStats, gameStats, history)."""
+    return {
+        "tid": 0,
+        "num": -1,
+        "GP": 0,
+        "GS": 0,
+        "DNP": 0,
+        "INJ": 0,
+        "W": 0,
+        "L": 0,
+        "MIN": [0, 0, 0, 0, 0, 0],
+        "PM": 0,
+        "POS": 0,
+        "PTS": 0,
+        "FGM": 0,
+        "FGA": 0,
+        "TPM": 0,
+        "TPA": 0,
+        "FTM": 0,
+        "FTA": 0,
+        "REB": 0,
+        "ORB": 0,
+        "AST": 0,
+        "STL": 0,
+        "BLK": 0,
+        "TO": 0,
+        "PF": 0,
+        "GW": 0,
+        "DD": 0,
+        "TD": 0,
+        "POTG": 0,
+    }
+
+
+def generate_player_career_stats() -> Dict[str, Any]:
+    """Generate full careerStats structure for a player."""
+    return {
+        "season": empty_player_stats_block(),
+        "seasonHighs": empty_player_stats_block(),
+        "playoffs": empty_player_stats_block(),
+        "playoffHighs": empty_player_stats_block(),
+        "finals": empty_player_stats_block(),
+        "finalsHighs": empty_player_stats_block(),
+    }
+
+
 def _generate_front_office_person(
     person_data: Dict[str, Any], team_id: int, person_id: int = 0, pos: int = 0
 ) -> Dict[str, Any]:
@@ -1192,12 +1239,18 @@ def generate_game_status() -> Dict[str, Any]:
     """Generate default game status for a player."""
     return {
         "startPos": 0,
-        "stamina": 100.0,
+        "stamina": 0,
         "gradePoints": 0,
-        "healthy": True,
+        "grade": 5,
+        "streak": 0,
+        "matchup": 0,
+        "pressure": 0,
+        "doubleTeam": 0,
+        "xpEarned": 0,
+        "relationship": 0,
+        "onBench": False,
         "injured": False,
-        "injuryType": 0,
-        "injuryGames": 0,
+        "isPlayer": False,
     }
 
 
@@ -1232,7 +1285,7 @@ def generate_empty_stats_block() -> Dict[str, Any]:
 
 
 def generate_player_history(
-    college: str = "",
+    college_tid: int = 0,
     draft_year: int = 0,
     draft_rd: int = 0,
     draft_pk: int = 0,
@@ -1240,14 +1293,30 @@ def generate_player_history(
 ) -> Dict[str, Any]:
     """Generate player history object."""
     return {
-        "coll": college,
-        "collegeStats": [],
-        "draftYear": draft_year,
-        "draftRd": draft_rd,
-        "draftPk": draft_pk,
-        "draftTid": -1,
-        "yearsExp": years_exp,
+        "coll": college_tid,
+        "collegeStats": {
+            "season": empty_player_stats_block(),
+            "seasonHighs": empty_player_stats_block(),
+            "playoffs": empty_player_stats_block(),
+            "playoffHighs": empty_player_stats_block(),
+            "finals": empty_player_stats_block(),
+            "finalsHighs": empty_player_stats_block(),
+        },
+        "id": 0,
+        "tid": 0,
+        "draft": {
+            "pk": draft_pk,
+            "rd": draft_rd,
+            "tid": -1,
+            "otid": -1,
+            "yr": draft_year,
+        },
+        "fantasyDrafts": [],
+        "expansionDrafts": [],
         "injuries": [],
+        "yearRetired": 0,
+        "yearInducted": 0,
+        "causeOfDeath": 0,
     }
 
 

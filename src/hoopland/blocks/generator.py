@@ -309,15 +309,11 @@ class Generator:
                     tendencies=tends,
                     skills=skills,
                     gameStatus=game_status,
+                    gameStats=team_assets.empty_player_stats_block(),
                     contract=contract,
                     history=history,
-                    stats=raw_stats,
-                    careerStats={
-                        "season": [],
-                        "playoffs": [],
-                        "finals": [],
-                        "highs": {},
-                    },
+                    stats=[],
+                    careerStats=team_assets.generate_player_career_stats(),
                     awards=[],
                 )
                 struct_roster.append(struct_player)
@@ -667,13 +663,9 @@ class Generator:
                     tendencies=tends,
                     skills=skills,
                     gameStatus=game_status,
-                    stats=raw,
-                    careerStats={
-                        "season": [],
-                        "playoffs": [],
-                        "finals": [],
-                        "highs": {},
-                    },
+                    gameStats=team_assets.empty_player_stats_block(),
+                    stats=[],
+                    careerStats=team_assets.generate_player_career_stats(),
                     history=team_assets.generate_player_history(),
                 )
                 struct_roster.append(struct_player)
@@ -1187,8 +1179,12 @@ class Generator:
                 accessories=player_accessories,
                 attributes=base_attrs,
                 tendencies=tends,
+                gameStatus=team_assets.generate_game_status(),
+                gameStats=team_assets.empty_player_stats_block(),
+                stats=[],
+                careerStats=team_assets.generate_player_career_stats(),
                 history=team_assets.generate_player_history(
-                    college=college_name,
+                    college_tid=0,
                     draft_year=int(year),
                     draft_rd=round_num,
                     draft_pk=pick,
@@ -1575,6 +1571,5 @@ class Generator:
 
         data = asdict(league_obj)
 
-        # Save as human-readable JSON
         with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=4)
+            json.dump(data, f, separators=(",", ":"))

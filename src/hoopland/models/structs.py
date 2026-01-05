@@ -69,6 +69,7 @@ class Player:
     num: int = 0  # Jersey number
     gender: int = 0  # 0=male, 1=female
     league: int = 0  # League ID
+    loc: Dict[str, int] = field(default_factory=lambda: {"x": 0, "y": 0})
 
     # Biography
     age: int = 0
@@ -86,7 +87,7 @@ class Player:
     # Ratings
     rating: float = 0.0  # Overall rating (float in target)
     pot: float = 0.0  # Potential
-    minutes: List[float] = field(default_factory=list)  # Minutes by position
+    minutes: List[float] = field(default_factory=lambda: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
     usage: float = 0.0
     pri: int = 0  # Primary position
     sec: int = 0  # Secondary position
