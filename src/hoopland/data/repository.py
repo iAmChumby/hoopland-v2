@@ -76,9 +76,18 @@ class DataRepository:
 
                 # If we have a game_id (from tournament mode), try fetching from boxscore
                 if team.get("game_id"):
+                    logger.info(f"Fetching roster from Game Boxscore (Game ID: {team['game_id']})")
                     roster_list = self.espn_client.get_game_roster(team["game_id"], tid)
                     roster_data = {"athletes": roster_list} if roster_list else None
                 else:
+                    logger.info(f"Fetching roster from Season Roster (Season: {season})")
+                # If we have a game_id (from tournament mode), try fetching from boxscore
+                if team.get("game_id"):
+                    logger.info(f"Fetching roster from Game Boxscore (Game ID: {team['game_id']})")
+                    roster_list = self.espn_client.get_game_roster(team["game_id"], tid)
+                    roster_data = {"athletes": roster_list} if roster_list else None
+                else:
+                    logger.info(f"Fetching roster from Season Roster (Season: {season})")
                     roster_data = self.espn_client.get_team_roster(
                         tid, season=season
                     )  # Using ID preferred
@@ -93,12 +102,14 @@ class DataRepository:
                 # We need to handle the response safely.
 
                 athletes = roster_data.get("athletes", [])
-                # Sometimes it's nested like athletes:[ {items: []} ] or just athletes:[]
-                # Let's assume list of dicts for now based on typical ESPN V2 API.
+                
+                # Safety: Track valid player IDs for this team/season to cleanup dirty data (e.g. current players in historical season)
+                valid_source_ids = set()
 
                 for ath in athletes:
                     # Athlete fields: id, fullName, height, weight, position, birthPlace
                     player_id = str(ath.get("id"))
+                    valid_source_ids.add(player_id)
                     p_name = ath.get("fullName", "Unknown")
 
                     p = (
@@ -109,6 +120,35 @@ class DataRepository:
 
                     # Convert stats/metadata
                     raw_dump = ath  # Store full object
+
+                    # Fix: Check for missing physical attributes and backfill via Bio API
+                    # Game boxscores (used for historical tournaments) often lack height/weight
+                    h_val = raw_dump.get("displayHeight") or raw_dump.get("height")
+                    w_val = raw_dump.get("displayWeight") or raw_dump.get("weight")
+
+                    if not h_val or not w_val:
+                        try:
+                            # Only fetch if we really need it to avoid API spam
+                            logger.info(f"Fetching missing bio for {p_name} (ID: {player_id})...")
+                            bio_data = self.espn_client.get_athlete_bio(player_id)
+                            if bio_data and "athlete" in bio_data:
+                                athlete_bio = bio_data["athlete"]
+                                # Merge useful fields
+                                if "displayHeight" in athlete_bio:
+                                    raw_dump["displayHeight"] = athlete_bio["displayHeight"]
+                                if "displayWeight" in athlete_bio:
+                                    raw_dump["displayWeight"] = athlete_bio["displayWeight"]
+                                if "position" in athlete_bio:
+                                    # Boxscores might have simplified position (e.g. "F"), bio might be better
+                                    if "position" not in raw_dump:
+                                        raw_dump["position"] = athlete_bio["position"]
+                                
+                                # Store date of birth if available
+                                if "dateOfBirth" in athlete_bio:
+                                    raw_dump["dateOfBirth"] = athlete_bio["dateOfBirth"]
+                                    
+                        except Exception as e:
+                            logger.warning(f"Could not fetch bio for {p_name}: {e}")
 
                     if not p:
                         p = Player(
@@ -123,6 +163,18 @@ class DataRepository:
                         self.session.add(p)
                     else:
                         p.raw_stats = raw_dump
+                
+                # Cleanup: Remove players associated with this team/season that were NOT in the fetched roster
+                if valid_source_ids:
+                    invalid_players = (
+                        self.session.query(Player)
+                        .filter_by(team_id=str(tid), season=season, league="NCAA")
+                        .filter(Player.source_id.notin_(valid_source_ids))
+                    )
+                    count_deleted = invalid_players.count()
+                    if count_deleted > 0:
+                        logger.info(f"Removing {count_deleted} invalid/stale players from Team {tid}")
+                        invalid_players.delete(synchronize_session=False)
 
                 self.session.commit()
 

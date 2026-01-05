@@ -234,10 +234,10 @@ class EditorScreen(Screen):
             pot = str(p.get("pot", "?"))
             
             # Appearance data
-            skin = str(p.get("appearance", "?"))
-            acc = p.get("accessories", {})
-            hair = str(acc.get("hair", "?"))
-            beard = str(acc.get("beard", "?"))
+            app = p.get("appearance", {})
+            skin = str(app.get("skinC", "?")) if isinstance(app, dict) else "?"
+            hair = str(app.get("hair", "?")) if isinstance(app, dict) else "?"
+            beard = str(app.get("fHair", "?")) if isinstance(app, dict) else "?"
             
             table.add_row(name, pos, age, ht, wt, pot, skin, hair, beard, key=str(p.get("id", "")))
 
@@ -272,11 +272,14 @@ class EditorScreen(Screen):
             elif col_key == "Pot":
                 return p.get("pot", 0)
             elif col_key == "Skin":
-                return p.get("appearance", 0)
+                app = p.get("appearance", {})
+                return app.get("skinC", "") if isinstance(app, dict) else ""
             elif col_key == "Hair":
-                return p.get("accessories", {}).get("hair", 0)
+                app = p.get("appearance", {})
+                return app.get("hair", "") if isinstance(app, dict) else ""
             elif col_key == "Beard":
-                return p.get("accessories", {}).get("facial_hair", 0)
+                app = p.get("appearance", {})
+                return app.get("fHair", "") if isinstance(app, dict) else ""
             return 0
 
         # Sort in-place

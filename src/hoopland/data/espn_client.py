@@ -3,9 +3,11 @@ from typing import Dict, List, Any, Optional
 
 from .utils import retry_api_call
 
+REQUEST_TIMEOUT = 30  # seconds - timeout for all ESPN API requests
+
 
 class ESPNClient:
-    BASE_URL = "http://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball"
+    BASE_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball"
 
     def __init__(self):
         pass
@@ -15,7 +17,7 @@ class ESPNClient:
         url = f"{self.BASE_URL}/teams/{team_id_or_slug}/roster"
         if season:
             url += f"?season={season}"
-        resp = requests.get(url)
+        resp = requests.get(url, timeout=REQUEST_TIMEOUT)
         if resp.status_code != 200:
             return None
         return resp.json()
@@ -23,7 +25,7 @@ class ESPNClient:
     @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_team_info(self, team_id: str) -> Optional[Dict[str, Any]]:
         url = f"{self.BASE_URL}/teams/{team_id}"
-        resp = requests.get(url)
+        resp = requests.get(url, timeout=REQUEST_TIMEOUT)
         if resp.status_code != 200:
             return None
         data = resp.json()
@@ -45,15 +47,15 @@ class ESPNClient:
         url = f"{self.BASE_URL}/teams/{team_id}/statistics"
         if season:
             url += f"?season={season}"
-        resp = requests.get(url)
+        resp = requests.get(url, timeout=REQUEST_TIMEOUT)
         if resp.status_code != 200:
             return None
         return resp.json()
 
     @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_player_stats(self, athlete_id: str) -> Optional[Dict]:
-        url = f"http://site.api.espn.com/apis/common/v3/sports/basketball/mens-college-basketball/athletes/{athlete_id}/stats"
-        resp = requests.get(url)
+        url = f"https://site.api.espn.com/apis/common/v3/sports/basketball/mens-college-basketball/athletes/{athlete_id}/stats"
+        resp = requests.get(url, timeout=REQUEST_TIMEOUT)
         if resp.status_code != 200:
             return None
         return resp.json()
@@ -61,7 +63,7 @@ class ESPNClient:
     @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_all_teams(self) -> List[Dict]:
         url = f"{self.BASE_URL}/teams?limit=1000"
-        resp = requests.get(url)
+        resp = requests.get(url, timeout=REQUEST_TIMEOUT)
         if resp.status_code != 200:
             return []
         data = resp.json()
@@ -80,7 +82,7 @@ class ESPNClient:
         url = f"{self.BASE_URL}/rankings"
         if season:
             url += f"?season={season}"
-        resp = requests.get(url)
+        resp = requests.get(url, timeout=REQUEST_TIMEOUT)
         if resp.status_code != 200:
             return []
         data = resp.json()
@@ -108,7 +110,7 @@ class ESPNClient:
             for date in dates:
                 url = f"{self.BASE_URL}/scoreboard?dates={date}&limit=100"
                 try:
-                    resp = requests.get(url)
+                    resp = requests.get(url, timeout=REQUEST_TIMEOUT)
                     if resp.status_code == 200:
                         events = resp.json().get("events", [])
                         for event in events:
@@ -146,9 +148,11 @@ class ESPNClient:
                     pass
 
             if teams_map:
+                print(f"DEBUG: Found {len(teams_map)} tournament teams via scoreboard dates.")
                 return list(teams_map.values())
 
         # Fallback to rankings or all teams
+        print(f"DEBUG: Falling back to rankings/all teams (season={season})")
         rankings = self.get_rankings(season)
         if rankings:
             return rankings[:limit]
@@ -156,10 +160,28 @@ class ESPNClient:
         return teams[:limit]
 
     @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
+    def get_athlete_bio(self, athlete_id: str) -> Optional[Dict]:
+        """Fetch detailed athlete bio (height, weight, etc.) from common API."""
+        url = f"https://site.api.espn.com/apis/common/v3/sports/basketball/mens-college-basketball/athletes/{athlete_id}"
+        resp = requests.get(url, timeout=REQUEST_TIMEOUT)
+        if resp.status_code != 200:
+            return None
+        return resp.json()
+
+    @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
+    def get_athlete_bio(self, athlete_id: str) -> Optional[Dict]:
+        """Fetch detailed athlete bio (height, weight, etc.) from common API."""
+        url = f"https://site.api.espn.com/apis/common/v3/sports/basketball/mens-college-basketball/athletes/{athlete_id}"
+        resp = requests.get(url, timeout=REQUEST_TIMEOUT)
+        if resp.status_code != 200:
+            return None
+        return resp.json()
+
+    @retry_api_call(max_retries=3, initial_backoff=10, backoff_factor=1.5)
     def get_game_roster(self, game_id: str, team_id: str) -> List[Dict]:
         """Fetch roster from a specific game boxscore."""
         url = f"{self.BASE_URL}/summary?event={game_id}"
-        resp = requests.get(url)
+        resp = requests.get(url, timeout=REQUEST_TIMEOUT)
         if resp.status_code != 200:
             return []
 

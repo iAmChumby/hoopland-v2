@@ -153,7 +153,9 @@ class Team:
     tag: str = ""  # Abbreviation (e.g., "ATL")
     arenaName: str = ""
     logoURL: str = ""
+    logoSize: int = 0
     division: int = 0
+    following: bool = False
 
     # Location for travel/scheduling
     location: Dict[str, int] = field(default_factory=dict)  # {x, y}
@@ -225,6 +227,19 @@ class League:
     logoSize: int = 0
     leagueType: int = 0  # 0=NBA, 1=NCAA, etc.
 
+    # Workshop metadata
+    workshop: Dict[str, Any] = field(default_factory=lambda: {
+        "id": 0,
+        "title": "",
+        "description": "",
+        "changelog": "",
+        "previewPath": "",
+        "folderPath": "",
+        "visibility": 0,
+        "time": "",
+        "subscribed": False,
+    })
+
     # Metadata
     meta: Meta = field(default_factory=Meta)
 
@@ -241,7 +256,7 @@ class League:
 
     # Staff
     coaches: List[Dict[str, Any]] = field(default_factory=list)
-    referee: Dict[str, Any] = field(default_factory=dict)
+    referees: List[Dict[str, Any]] = field(default_factory=list)
     commissioner: Dict[str, Any] = field(default_factory=dict)
 
     # Star/All-Star teams

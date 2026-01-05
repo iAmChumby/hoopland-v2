@@ -99,17 +99,20 @@ def get_ncaa_team_by_name(team_name: str) -> Optional[Dict]:
         Team data dict or None if not found
     """
     data = _load_ncaa_team_data()
+
+    normalized_name = COLLEGE_NAME_ALIASES.get(team_name, team_name)
+
     team_name_lower = (
-        team_name.lower().replace(" ", "_").replace("-", "_").replace("'", "")
+        normalized_name.lower().replace(" ", "_").replace("-", "_").replace("'", "")
     )
 
     if team_name_lower in data:
         return data[team_name_lower]
 
     for slug, team in data.items():
-        if team.get("full_name", "").lower() == team_name.lower():
+        if team.get("full_name", "").lower() == normalized_name.lower():
             return team
-        if team.get("school", "").lower() == team_name.lower():
+        if team.get("school", "").lower() == normalized_name.lower():
             return team
 
     for slug, team in data.items():
@@ -149,7 +152,7 @@ def get_ncaa_team_info(team_name: str) -> Dict[str, Any]:
         team_name: Team name to look up
 
     Returns:
-        Dict with school, name, tag, colors, target_id
+        Dict with school, name, tag, colors, target_id, conference, division
     """
     team = get_ncaa_team_by_name(team_name)
     if team:
@@ -161,6 +164,7 @@ def get_ncaa_team_info(team_name: str) -> Dict[str, Any]:
             "colors": team.get("colors", ["CC0000", "FFFFFF", "000000"]),
             "target_id": team.get("target_id", 0),
             "conference": team.get("conference", ""),
+            "division": team.get("division", 6),
         }
     return {
         "school": team_name,
@@ -169,6 +173,7 @@ def get_ncaa_team_info(team_name: str) -> Dict[str, Any]:
         "tag": team_name[:3].upper(),
         "colors": ["CC0000", "FFFFFF", "000000"],
         "target_id": 0,
+        "division": 6,
     }
 
 
@@ -197,6 +202,14 @@ COLLEGE_NAME_ALIASES = {
     "MSU": "Michigan State",
     "St. John's (NY)": "St. John's",
     "Saint John's": "St. John's",
+    "VCU": "Virginia Commonwealth",
+    "Virginia Commonwealth": "Virginia Commonwealth",
+    "UNC Wilmington": "North Carolina Wilmington",
+    "NC Wilmington": "North Carolina Wilmington",
+    "UNC Asheville": "North Carolina Asheville",
+    "NC Asheville": "North Carolina Asheville",
+    "Hawai'i": "Hawaii",
+    "Hawaii": "Hawaii",
 }
 
 SKIP_ORGANIZATIONS = {
