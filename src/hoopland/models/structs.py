@@ -180,7 +180,7 @@ class Team:
 
     # Lineups
     startingLineup: List[int] = field(default_factory=list)
-    currentLineup: List[int] = field(default_factory=list)
+    currentLineup: int = 0
     lineupPreset: int = 0
 
     # Draft picks owned
@@ -194,11 +194,11 @@ class Team:
 
     # Historical data
     history: Dict[str, Any] = field(default_factory=dict)
-    headToHeads: Dict[str, Any] = field(default_factory=dict)
+    headToHeads: List[Any] = field(default_factory=list)
 
     # Playbook
-    scoringOptions: Dict[str, Any] = field(default_factory=dict)
-    quickPlays: List[int] = field(default_factory=list)
+    scoringOptions: List[Any] = field(default_factory=list)
+    quickPlays: Dict[str, Any] = field(default_factory=lambda: {"positions": []})
 
     # Misc
     coinFlip: int = 0
@@ -228,17 +228,19 @@ class League:
     leagueType: int = 0  # 0=NBA, 1=NCAA, etc.
 
     # Workshop metadata
-    workshop: Dict[str, Any] = field(default_factory=lambda: {
-        "id": 0,
-        "title": "",
-        "description": "",
-        "changelog": "",
-        "previewPath": "",
-        "folderPath": "",
-        "visibility": 0,
-        "time": "",
-        "subscribed": False,
-    })
+    workshop: Dict[str, Any] = field(
+        default_factory=lambda: {
+            "id": 0,
+            "title": "",
+            "description": "",
+            "changelog": "",
+            "previewPath": "",
+            "folderPath": "",
+            "visibility": 0,
+            "time": "",
+            "subscribed": False,
+        }
+    )
 
     # Metadata
     meta: Meta = field(default_factory=Meta)
@@ -264,7 +266,7 @@ class League:
 
     # Media/presentation
     gameballs: List[Dict[str, Any]] = field(default_factory=list)
-    media: Dict[str, Any] = field(default_factory=dict)
+    media: List[Any] = field(default_factory=list)
     threePointContestants: List[int] = field(default_factory=list)
 
     # Contracts/offers

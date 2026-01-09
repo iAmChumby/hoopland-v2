@@ -1,0 +1,280 @@
+Loading Reference: data/authoratative/test-college-league.txt
+Loading Target:    output/2016/NCAA_2016_Tournament_League.txt
+Comparing...
+
+Found 3312 issues:
+[EXTRA] root.difficulty.level
+[EXTRA] root.rules.defensiveThreeSeconds
+[EXTRA] root.rules.foulsToFoulOut
+[EXTRA] root.rules.threePointLine
+[EXTRA] root.settings.overtimeLength
+[EXTRA] root.teams[].roster[].accessories[].shoeC1
+[EXTRA] root.teams[].roster[].accessories[].shoeC2
+[EXTRA] root.teams[].roster[].accessories[].shoeC3
+[EXTRA] root.teams[].roster[].accessories[].shoeType
+[EXTRA] root.teams[].uniforms[].jerseyMain
+[EXTRA] root.teams[].uniforms[].jerseySecondary
+[EXTRA] root.teams[].uniforms[].nameC
+[EXTRA] root.teams[].uniforms[].numberC
+[EXTRA] root.teams[].uniforms[].shortsMain
+[EXTRA] root.teams[].uniforms[].shortsSecondary
+[EXTRA] root.teams[].uniforms[].style
+[MISSING] root.career.coins
+[MISSING] root.career.fame
+[MISSING] root.career.fans
+[MISSING] root.career.gamesPlayed
+[MISSING] root.career.gamesSimulated
+[MISSING] root.career.inbox
+[MISSING] root.career.minutes
+[MISSING] root.career.tradeTargets
+[MISSING] root.coachSettings.P1Control
+[MISSING] root.coachSettings.defensiveCones
+[MISSING] root.coachSettings.defensivePlayCalling
+[MISSING] root.coachSettings.homeUniform
+[MISSING] root.coachSettings.lateGameFouling
+[MISSING] root.coachSettings.offensivePlayCalling
+[MISSING] root.coachSettings.playIcons
+[MISSING] root.coachSettings.positionLock
+[MISSING] root.coachSettings.roadUniform
+[MISSING] root.coachSettings.substitutions
+[MISSING] root.coachSettings.timeouts
+[MISSING] root.commissioner.accessories
+[MISSING] root.commissioner.appearance.browC
+[MISSING] root.commissioner.appearance.eyeC
+[MISSING] root.commissioner.appearance.fHair
+[MISSING] root.commissioner.appearance.fHairC
+[MISSING] root.commissioner.appearance.hair
+[MISSING] root.commissioner.appearance.hairC
+[MISSING] root.commissioner.appearance.skinC
+[MISSING] root.commissioner.appearance.unibrow
+[MISSING] root.commissioner.arc
+[MISSING] root.commissioner.attributes
+[MISSING] root.commissioner.awards
+[MISSING] root.commissioner.careerGoals
+[MISSING] root.commissioner.careerStats
+[MISSING] root.commissioner.contract
+[MISSING] root.commissioner.gameStats
+[MISSING] root.commissioner.gameStatus
+[MISSING] root.commissioner.gender
+[MISSING] root.commissioner.history
+[MISSING] root.commissioner.home
+[MISSING] root.commissioner.ht
+[MISSING] root.commissioner.id
+[MISSING] root.commissioner.league
+[MISSING] root.commissioner.linePos
+[MISSING] root.commissioner.loc
+[MISSING] root.commissioner.minutes
+[MISSING] root.commissioner.num
+[MISSING] root.commissioner.pos
+[MISSING] root.commissioner.posRnk
+[MISSING] root.commissioner.pot
+[MISSING] root.commissioner.pri
+[MISSING] root.commissioner.rating
+[MISSING] root.commissioner.records
+[MISSING] root.commissioner.regressionAge
+[MISSING] root.commissioner.season
+[MISSING] root.commissioner.sec
+[MISSING] root.commissioner.skills
+[MISSING] root.commissioner.stats
+[MISSING] root.commissioner.status
+[MISSING] root.commissioner.suits
+[MISSING] root.commissioner.tag
+[MISSING] root.commissioner.teamPos
+[MISSING] root.commissioner.tendencies
+[MISSING] root.commissioner.tid
+[MISSING] root.commissioner.usage
+[MISSING] root.commissioner.wt
+[MISSING] root.commissioner.yrs
+[MISSING] root.difficulty.CPUPlayerSpeed
+[MISSING] root.difficulty.CPUReactionTime
+[MISSING] root.difficulty.CPUShotTiming
+[MISSING] root.difficulty.defensiveAssistance
+[MISSING] root.difficulty.offensiveAssistance
+[MISSING] root.difficulty.shotSpeed
+[MISSING] root.difficulty.shotStyle
+[MISSING] root.meta.teams
+[MISSING] root.optimization.courts
+[MISSING] root.optimization.disableBoxScores
+[MISSING] root.optimization.playerStatsHistory
+[MISSING] root.optimization.restrictImageSizes
+[MISSING] root.optimization.tableGraphics
+[MISSING] root.optimization.teamLogos
+[MISSING] root.records.finals
+[MISSING] root.records.playoffs
+[MISSING] root.records.season
+[MISSING] root.rules.backcourt
+[MISSING] root.rules.blockingFouls
+[MISSING] root.rules.bonus
+[MISSING] root.rules.defGoaltending
+[MISSING] root.rules.foulOut
+[MISSING] root.rules.offFouls
+[MISSING] root.rules.offGoaltending
+[MISSING] root.rules.offThreeSeconds
+[MISSING] root.rules.oneAndOne
+[MISSING] root.rules.partialShotClock
+[MISSING] root.rules.shootingFouls
+[MISSING] root.settings.gameBall
+[MISSING] root.settings.gameStyle
+[MISSING] root.settings.referee
+[MISSING] root.settings.rules
+[MISSING] root.settings.totalPeriods
+[MISSING] root.simulationSliders.blockSuccessRate
+[MISSING] root.simulationSliders.contestedShotStrength
+[MISSING] root.simulationSliders.dunkAccuracy
+[MISSING] root.simulationSliders.fatigueStrength
+[MISSING] root.simulationSliders.freeThrowAccuracy
+[MISSING] root.simulationSliders.homeCourtAdvantage
+[MISSING] root.simulationSliders.insideAccuracy
+[MISSING] root.simulationSliders.layupAccuracy
+[MISSING] root.simulationSliders.midrangeAccuracy
+[MISSING] root.simulationSliders.shootingFoulFrequency
+[MISSING] root.simulationSliders.stealSuccessRate
+[MISSING] root.simulationSliders.threePointAccuracy
+[MISSING] root.sliders.blockSuccessRate
+[MISSING] root.sliders.contestedShotStrength
+[MISSING] root.sliders.dunkAccuracy
+[MISSING] root.sliders.fatigueStrength
+[MISSING] root.sliders.freeThrowAccuracy
+[MISSING] root.sliders.homeCourtAdvantage
+[MISSING] root.sliders.insideAccuracy
+[MISSING] root.sliders.layupAccuracy
+[MISSING] root.sliders.midrangeAccuracy
+[MISSING] root.sliders.shootingFoulFrequency
+[MISSING] root.sliders.stealSuccessRate
+[MISSING] root.sliders.threePointAccuracy
+[MISSING] root.teams[].frontOffice.scoutAssignment
+[MISSING] root.teams[].history.finalsHighs.AST
+[MISSING] root.teams[].history.finalsHighs.AWAY
+[MISSING] root.teams[].history.finalsHighs.BLK
+[MISSING] root.teams[].history.finalsHighs.CONF
+[MISSING] root.teams[].history.finalsHighs.DIV
+[MISSING] root.teams[].history.finalsHighs.FGA
+[MISSING] root.teams[].history.finalsHighs.FGM
+[MISSING] root.teams[].history.finalsHighs.FTA
+[MISSING] root.teams[].history.finalsHighs.FTM
+[MISSING] root.teams[].history.finalsHighs.GP
+[MISSING] root.teams[].history.finalsHighs.GS
+[MISSING] root.teams[].history.finalsHighs.HOME
+[MISSING] root.teams[].history.finalsHighs.L
+[MISSING] root.teams[].history.finalsHighs.L10
+[MISSING] root.teams[].history.finalsHighs.MIN
+[MISSING] root.teams[].history.finalsHighs.OPP
+[MISSING] root.teams[].history.finalsHighs.ORB
+[MISSING] root.teams[].history.finalsHighs.PF
+[MISSING] root.teams[].history.finalsHighs.POS
+[MISSING] root.teams[].history.finalsHighs.PTS
+[MISSING] root.teams[].history.finalsHighs.REB
+[MISSING] root.teams[].history.finalsHighs.STL
+[MISSING] root.teams[].history.finalsHighs.STRK
+[MISSING] root.teams[].history.finalsHighs.TO
+[MISSING] root.teams[].history.finalsHighs.TPA
+[MISSING] root.teams[].history.finalsHighs.TPM
+[MISSING] root.teams[].history.finalsHighs.W
+[MISSING] root.teams[].history.finalsHighs.tid
+[MISSING] root.teams[].history.playoffHighs.AST
+[MISSING] root.teams[].history.playoffHighs.AWAY
+[MISSING] root.teams[].history.playoffHighs.BLK
+[MISSING] root.teams[].history.playoffHighs.CONF
+[MISSING] root.teams[].history.playoffHighs.DIV
+[MISSING] root.teams[].history.playoffHighs.FGA
+[MISSING] root.teams[].history.playoffHighs.FGM
+[MISSING] root.teams[].history.playoffHighs.FTA
+[MISSING] root.teams[].history.playoffHighs.FTM
+[MISSING] root.teams[].history.playoffHighs.GP
+[MISSING] root.teams[].history.playoffHighs.GS
+[MISSING] root.teams[].history.playoffHighs.HOME
+[MISSING] root.teams[].history.playoffHighs.L
+[MISSING] root.teams[].history.playoffHighs.L10
+[MISSING] root.teams[].history.playoffHighs.MIN
+[MISSING] root.teams[].history.playoffHighs.OPP
+[MISSING] root.teams[].history.playoffHighs.ORB
+[MISSING] root.teams[].history.playoffHighs.PF
+[MISSING] root.teams[].history.playoffHighs.POS
+[MISSING] root.teams[].history.playoffHighs.PTS
+[MISSING] root.teams[].history.playoffHighs.REB
+[MISSING] root.teams[].history.playoffHighs.STL
+[MISSING] root.teams[].history.playoffHighs.STRK
+[MISSING] root.teams[].history.playoffHighs.TO
+[MISSING] root.teams[].history.playoffHighs.TPA
+[MISSING] root.teams[].history.playoffHighs.TPM
+[MISSING] root.teams[].history.playoffHighs.W
+[MISSING] root.teams[].history.playoffHighs.tid
+[MISSING] root.teams[].history.seasonHighs.AST
+[MISSING] root.teams[].history.seasonHighs.AWAY
+[MISSING] root.teams[].history.seasonHighs.BLK
+[MISSING] root.teams[].history.seasonHighs.CONF
+[MISSING] root.teams[].history.seasonHighs.DIV
+[MISSING] root.teams[].history.seasonHighs.FGA
+[MISSING] root.teams[].history.seasonHighs.FGM
+[MISSING] root.teams[].history.seasonHighs.FTA
+[MISSING] root.teams[].history.seasonHighs.FTM
+[MISSING] root.teams[].history.seasonHighs.GP
+[MISSING] root.teams[].history.seasonHighs.GS
+[MISSING] root.teams[].history.seasonHighs.HOME
+[MISSING] root.teams[].history.seasonHighs.L
+[MISSING] root.teams[].history.seasonHighs.L10
+[MISSING] root.teams[].history.seasonHighs.MIN
+[MISSING] root.teams[].history.seasonHighs.OPP
+[MISSING] root.teams[].history.seasonHighs.ORB
+[MISSING] root.teams[].history.seasonHighs.PF
+[MISSING] root.teams[].history.seasonHighs.POS
+[MISSING] root.teams[].history.seasonHighs.PTS
+[MISSING] root.teams[].history.seasonHighs.REB
+[MISSING] root.teams[].history.seasonHighs.STL
+[MISSING] root.teams[].history.seasonHighs.STRK
+[MISSING] root.teams[].history.seasonHighs.TO
+[MISSING] root.teams[].history.seasonHighs.TPA
+[MISSING] root.teams[].history.seasonHighs.TPM
+[MISSING] root.teams[].history.seasonHighs.W
+[MISSING] root.teams[].history.seasonHighs.tid
+[MISSING] root.teams[].roster[].accessories[].headAccC
+[MISSING] root.teams[].roster[].accessories[].laceC
+[MISSING] root.teams[].roster[].accessories[].shoeC
+[MISSING] root.teams[].roster[].accessories[].sockC
+[MISSING] root.teams[].roster[].accessories[].soleC
+[MISSING] root.teams[].roster[].careerGoals.career
+[MISSING] root.teams[].roster[].careerGoals.game
+[MISSING] root.teams[].roster[].careerGoals.season
+[MISSING] root.teams[].roster[].contract.canExt
+[MISSING] root.teams[].roster[].contract.ext
+[MISSING] root.teams[].roster[].contract.noTrd
+[MISSING] root.teams[].roster[].contract.opt
+[MISSING] root.teams[].roster[].contract.pid
+[MISSING] root.teams[].roster[].contract.sal
+[MISSING] root.teams[].roster[].contract.tid
+[MISSING] root.teams[].roster[].contract.type
+[MISSING] root.teams[].roster[].contract.yrs
+[MISSING] root.teams[].roster[].suits[].headAccC
+[MISSING] root.teams[].roster[].suits[].laceC
+[MISSING] root.teams[].roster[].suits[].soleC
+[MISSING] root.teams[].uniforms[].jersey
+[MISSING] root.teams[].uniforms[].jerseyCollar
+[MISSING] root.teams[].uniforms[].jerseyNumber
+[MISSING] root.teams[].uniforms[].shorts
+[TYPE] root.commissioner.ctry: Expected str, got int
+[TYPE] root.currentGame: Expected dict, got NoneType
+[TYPE] root.media: Expected list, got dict
+[TYPE] root.meta.generatedCountries[]: Expected dict, got int
+[TYPE] root.teams[].currentLineup: Expected int, got list
+[TYPE] root.teams[].headToHeads: Expected list, got dict
+[TYPE] root.teams[].history.finals: Expected dict, got list
+[TYPE] root.teams[].history.playoffs: Expected dict, got list
+[TYPE] root.teams[].history.season: Expected dict, got list
+[TYPE] root.teams[].quickPlays: Expected dict, got list
+[TYPE] root.teams[].roster[].accessories[].L_Elbow: Expected str, got int
+[TYPE] root.teams[].roster[].accessories[].L_Knee: Expected str, got int
+[TYPE] root.teams[].roster[].accessories[].L_Shin: Expected str, got int
+[TYPE] root.teams[].roster[].accessories[].L_Shoulder: Expected str, got int
+[TYPE] root.teams[].roster[].accessories[].L_Wrist: Expected str, got int
+[TYPE] root.teams[].roster[].accessories[].R_Elbow: Expected str, got int
+[TYPE] root.teams[].roster[].accessories[].R_Knee: Expected str, got int
+[TYPE] root.teams[].roster[].accessories[].R_Shin: Expected str, got int
+[TYPE] root.teams[].roster[].accessories[].R_Shoulder: Expected str, got int
+[TYPE] root.teams[].roster[].accessories[].R_Wrist: Expected str, got int
+[TYPE] root.teams[].roster[].accessories[].headAcc: Expected str, got int
+[TYPE] root.teams[].roster[].arc: Expected str, got int
+[TYPE] root.teams[].roster[].ctry: Expected str, got int
+[TYPE] root.teams[].roster[].records: Expected int, got dict
+[TYPE] root.teams[].roster[].season: Expected dict, got list
+[TYPE] root.teams[].roster[].suits[].headAcc: Expected str, got int
+[TYPE] root.teams[].scoringOptions: Expected list, got dict

@@ -915,63 +915,54 @@ def generate_uniforms(team_colors: List[str]) -> List[Dict[str, Any]]:
 
     return [home, away, alt1, alt2]
 
+    return [home, away, alt1, alt2]
+
 
 def generate_ncaa_uniforms(team_colors: List[str]) -> List[Dict[str, Any]]:
     """
-    Generate NCAA uniforms using NBA schema for consistency.
-
-    Uses same structure as NBA: jerseyMain, jerseySecondary, jerseyStripe,
-    shortsMain, shortsSecondary, shortsStripe, numberC, nameC, style
+    Generate NCAA uniforms matching legacy schema.
     """
     primary = team_colors[0] if team_colors else "CC0000"
     secondary = team_colors[1] if len(team_colors) > 1 else "FFFFFF"
     accent = team_colors[2] if len(team_colors) > 2 else "000000"
 
     home = {
-        "jerseyMain": "FFFFFF",
-        "jerseySecondary": primary,
+        "jersey": "FFFFFF",
+        "jerseyCollar": primary,
         "jerseyStripe": primary,
-        "shortsMain": "FFFFFF",
-        "shortsSecondary": primary,
+        "jerseyNumber": primary,
+        "shorts": "FFFFFF",
         "shortsStripe": primary,
-        "numberC": primary,
-        "nameC": primary,
         "style": 0,
     }
 
     away = {
-        "jerseyMain": primary,
-        "jerseySecondary": "FFFFFF",
+        "jersey": primary,
+        "jerseyCollar": "FFFFFF",
         "jerseyStripe": secondary,
-        "shortsMain": primary,
-        "shortsSecondary": "FFFFFF",
+        "jerseyNumber": "FFFFFF",
+        "shorts": primary,
         "shortsStripe": secondary,
-        "numberC": "FFFFFF",
-        "nameC": "FFFFFF",
         "style": 0,
     }
 
     alt1 = {
-        "jerseyMain": secondary,
-        "jerseySecondary": primary,
+        "jersey": secondary,
+        "jerseyCollar": primary,
         "jerseyStripe": accent,
-        "shortsMain": secondary,
-        "shortsSecondary": primary,
+        "jerseyNumber": accent,
+        "shorts": secondary,
         "shortsStripe": accent,
-        "numberC": accent,
-        "nameC": accent,
         "style": 0,
     }
 
     alt2 = {
-        "jerseyMain": accent,
-        "jerseySecondary": primary,
+        "jersey": accent,
+        "jerseyCollar": primary,
         "jerseyStripe": secondary,
-        "shortsMain": accent,
-        "shortsSecondary": primary,
+        "jerseyNumber": primary,
+        "shorts": accent,
         "shortsStripe": secondary,
-        "numberC": primary,
-        "nameC": primary,
         "style": 0,
     }
 
@@ -1122,21 +1113,23 @@ def generate_player_accessories(skin_val: int = 1) -> List[Dict[str, Any]]:
         List of 4 accessory dicts
     """
     base_accessory = {
-        "headAcc": 0,
-        "L_Shoulder": 0,
-        "R_Shoulder": 0,
-        "L_Elbow": 0,
-        "R_Elbow": 0,
-        "L_Wrist": 0,
-        "R_Wrist": 0,
-        "L_Knee": 0,
-        "R_Knee": 0,
-        "L_Shin": 0,
-        "R_Shin": 0,
-        "shoeC1": "FFFFFF",
-        "shoeC2": "000000",
-        "shoeC3": "FF0000",
-        "shoeType": 0,
+        "headAcc": "0000",
+        "headAccC": "FFFFFF",
+        "L_Shoulder": "0000",
+        "R_Shoulder": "0000",
+        "L_Elbow": "0000",
+        "R_Elbow": "0000",
+        "L_Wrist": "0000",
+        "R_Wrist": "0000",
+        "L_Knee": "0000",
+        "R_Knee": "0000",
+        "L_Shin": "0000",
+        "R_Shin": "0000",
+        "shoeC": "FFFFFF",
+        "sockC": "FFFFFF",
+        "laceC": "000000",
+        "soleC": "000000",
+        "shoeType": "0000",
     }
 
     # Return 4 copies (one for each uniform)

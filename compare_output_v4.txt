@@ -1,0 +1,211 @@
+Loading Reference: data/authoratative/test-college-league.txt
+Loading Target:    output/2016/NCAA_2016_Tournament_League.txt
+Comparing...
+
+Found 616 issues:
+[EXTRA] root.commissioner.attributes.development
+[EXTRA] root.commissioner.attributes.leadership
+[EXTRA] root.commissioner.attributes.motivation
+[EXTRA] root.commissioner.season.AST
+[EXTRA] root.commissioner.season.BLK
+[EXTRA] root.commissioner.season.DD
+[EXTRA] root.commissioner.season.DNP
+[EXTRA] root.commissioner.season.FGA
+[EXTRA] root.commissioner.season.FGM
+[EXTRA] root.commissioner.season.FTA
+[EXTRA] root.commissioner.season.FTM
+[EXTRA] root.commissioner.season.GP
+[EXTRA] root.commissioner.season.GS
+[EXTRA] root.commissioner.season.GW
+[EXTRA] root.commissioner.season.INJ
+[EXTRA] root.commissioner.season.L
+[EXTRA] root.commissioner.season.MIN
+[EXTRA] root.commissioner.season.ORB
+[EXTRA] root.commissioner.season.PF
+[EXTRA] root.commissioner.season.PM
+[EXTRA] root.commissioner.season.POS
+[EXTRA] root.commissioner.season.POTG
+[EXTRA] root.commissioner.season.PTS
+[EXTRA] root.commissioner.season.REB
+[EXTRA] root.commissioner.season.STL
+[EXTRA] root.commissioner.season.TD
+[EXTRA] root.commissioner.season.TO
+[EXTRA] root.commissioner.season.TPA
+[EXTRA] root.commissioner.season.TPM
+[EXTRA] root.commissioner.season.W
+[EXTRA] root.commissioner.season.num
+[EXTRA] root.commissioner.season.tid
+[EXTRA] root.records.finals.DD
+[EXTRA] root.records.finals.DNP
+[EXTRA] root.records.finals.FGA
+[EXTRA] root.records.finals.FTA
+[EXTRA] root.records.finals.GP
+[EXTRA] root.records.finals.GS
+[EXTRA] root.records.finals.GW
+[EXTRA] root.records.finals.INJ
+[EXTRA] root.records.finals.L
+[EXTRA] root.records.finals.MIN
+[EXTRA] root.records.finals.ORB
+[EXTRA] root.records.finals.PF
+[EXTRA] root.records.finals.PM
+[EXTRA] root.records.finals.POS
+[EXTRA] root.records.finals.POTG
+[EXTRA] root.records.finals.TD
+[EXTRA] root.records.finals.TPA
+[EXTRA] root.records.finals.W
+[EXTRA] root.records.finals.num
+[EXTRA] root.records.finals.tid
+[EXTRA] root.records.playoffs.DD
+[EXTRA] root.records.playoffs.DNP
+[EXTRA] root.records.playoffs.FGA
+[EXTRA] root.records.playoffs.FTA
+[EXTRA] root.records.playoffs.GP
+[EXTRA] root.records.playoffs.GS
+[EXTRA] root.records.playoffs.GW
+[EXTRA] root.records.playoffs.INJ
+[EXTRA] root.records.playoffs.L
+[EXTRA] root.records.playoffs.MIN
+[EXTRA] root.records.playoffs.ORB
+[EXTRA] root.records.playoffs.PF
+[EXTRA] root.records.playoffs.PM
+[EXTRA] root.records.playoffs.POS
+[EXTRA] root.records.playoffs.POTG
+[EXTRA] root.records.playoffs.TD
+[EXTRA] root.records.playoffs.TPA
+[EXTRA] root.records.playoffs.W
+[EXTRA] root.records.playoffs.num
+[EXTRA] root.records.playoffs.tid
+[EXTRA] root.records.season.DD
+[EXTRA] root.records.season.DNP
+[EXTRA] root.records.season.FGA
+[EXTRA] root.records.season.FTA
+[EXTRA] root.records.season.GP
+[EXTRA] root.records.season.GS
+[EXTRA] root.records.season.GW
+[EXTRA] root.records.season.INJ
+[EXTRA] root.records.season.L
+[EXTRA] root.records.season.MIN
+[EXTRA] root.records.season.ORB
+[EXTRA] root.records.season.PF
+[EXTRA] root.records.season.PM
+[EXTRA] root.records.season.POS
+[EXTRA] root.records.season.POTG
+[EXTRA] root.records.season.TD
+[EXTRA] root.records.season.TPA
+[EXTRA] root.records.season.W
+[EXTRA] root.records.season.num
+[EXTRA] root.records.season.tid
+[EXTRA] root.rules.defensiveThreeSeconds
+[EXTRA] root.rules.foulsToFoulOut
+[EXTRA] root.rules.threePointLine
+[EXTRA] root.settings.overtimeLength
+[EXTRA] root.teams[].roster[].accessories[].shoeType
+[EXTRA] root.teams[].roster[].contract.bir
+[EXTRA] root.teams[].uniforms[].style
+[MISSING] root.commissioner.appearance.browC
+[MISSING] root.commissioner.appearance.eyeC
+[MISSING] root.commissioner.appearance.fHair
+[MISSING] root.commissioner.appearance.fHairC
+[MISSING] root.commissioner.appearance.hair
+[MISSING] root.commissioner.appearance.hairC
+[MISSING] root.commissioner.appearance.skinC
+[MISSING] root.commissioner.appearance.unibrow
+[MISSING] root.commissioner.arc
+[MISSING] root.commissioner.gender
+[MISSING] root.commissioner.history.collegeStats
+[MISSING] root.commissioner.home
+[MISSING] root.commissioner.ht
+[MISSING] root.commissioner.league
+[MISSING] root.commissioner.linePos
+[MISSING] root.commissioner.loc
+[MISSING] root.commissioner.minutes
+[MISSING] root.commissioner.num
+[MISSING] root.commissioner.pos
+[MISSING] root.commissioner.posRnk
+[MISSING] root.commissioner.pot
+[MISSING] root.commissioner.pri
+[MISSING] root.commissioner.rating
+[MISSING] root.commissioner.regressionAge
+[MISSING] root.commissioner.season.ap
+[MISSING] root.commissioner.season.condition
+[MISSING] root.commissioner.season.focus
+[MISSING] root.commissioner.season.following
+[MISSING] root.commissioner.season.gameHistory
+[MISSING] root.commissioner.season.gpa
+[MISSING] root.commissioner.season.injury
+[MISSING] root.commissioner.season.legacy
+[MISSING] root.commissioner.season.legacyPoints
+[MISSING] root.commissioner.season.morale
+[MISSING] root.commissioner.season.onTradeBlock
+[MISSING] root.commissioner.season.progress
+[MISSING] root.commissioner.season.protect
+[MISSING] root.commissioner.season.regimen
+[MISSING] root.commissioner.season.relationship
+[MISSING] root.commissioner.season.restDay
+[MISSING] root.commissioner.season.retiring
+[MISSING] root.commissioner.season.scout
+[MISSING] root.commissioner.season.watch
+[MISSING] root.commissioner.season.xp
+[MISSING] root.commissioner.sec
+[MISSING] root.commissioner.skills
+[MISSING] root.commissioner.stats
+[MISSING] root.commissioner.status
+[MISSING] root.commissioner.suits
+[MISSING] root.commissioner.tag
+[MISSING] root.commissioner.teamPos
+[MISSING] root.commissioner.usage
+[MISSING] root.commissioner.wt
+[MISSING] root.commissioner.yrs
+[MISSING] root.meta.teams
+[MISSING] root.optimization.courts
+[MISSING] root.optimization.disableBoxScores
+[MISSING] root.optimization.playerStatsHistory
+[MISSING] root.optimization.restrictImageSizes
+[MISSING] root.optimization.tableGraphics
+[MISSING] root.optimization.teamLogos
+[MISSING] root.teams[].frontOffice.scoutAssignment
+[MISSING] root.teams[].roster[].suits[].headAccC
+[MISSING] root.teams[].roster[].suits[].laceC
+[MISSING] root.teams[].roster[].suits[].soleC
+[TYPE] root.career.tradeTargets: Expected dict, got list
+[TYPE] root.commissioner.careerGoals.career: Expected dict, got int
+[TYPE] root.commissioner.careerGoals.game: Expected dict, got int
+[TYPE] root.commissioner.careerGoals.season: Expected dict, got int
+[TYPE] root.currentGame: Expected dict, got NoneType
+[TYPE] root.meta.generatedCountries[]: Expected dict, got int
+[TYPE] root.records.finals.AST: Expected list, got int
+[TYPE] root.records.finals.BLK: Expected list, got int
+[TYPE] root.records.finals.FGM: Expected list, got int
+[TYPE] root.records.finals.FTM: Expected list, got int
+[TYPE] root.records.finals.PTS: Expected list, got int
+[TYPE] root.records.finals.REB: Expected list, got int
+[TYPE] root.records.finals.STL: Expected list, got int
+[TYPE] root.records.finals.TO: Expected list, got int
+[TYPE] root.records.finals.TPM: Expected list, got int
+[TYPE] root.records.playoffs.AST: Expected list, got int
+[TYPE] root.records.playoffs.BLK: Expected list, got int
+[TYPE] root.records.playoffs.FGM: Expected list, got int
+[TYPE] root.records.playoffs.FTM: Expected list, got int
+[TYPE] root.records.playoffs.PTS: Expected list, got int
+[TYPE] root.records.playoffs.REB: Expected list, got int
+[TYPE] root.records.playoffs.STL: Expected list, got int
+[TYPE] root.records.playoffs.TO: Expected list, got int
+[TYPE] root.records.playoffs.TPM: Expected list, got int
+[TYPE] root.records.season.AST: Expected list, got int
+[TYPE] root.records.season.BLK: Expected list, got int
+[TYPE] root.records.season.FGM: Expected list, got int
+[TYPE] root.records.season.FTM: Expected list, got int
+[TYPE] root.records.season.PTS: Expected list, got int
+[TYPE] root.records.season.REB: Expected list, got int
+[TYPE] root.records.season.STL: Expected list, got int
+[TYPE] root.records.season.TO: Expected list, got int
+[TYPE] root.records.season.TPM: Expected list, got int
+[TYPE] root.settings.rules: Expected int, got dict
+[TYPE] root.teams[].roster[].arc: Expected str, got int
+[TYPE] root.teams[].roster[].careerGoals.career: Expected dict, got int
+[TYPE] root.teams[].roster[].careerGoals.game: Expected dict, got int
+[TYPE] root.teams[].roster[].careerGoals.season: Expected dict, got int
+[TYPE] root.teams[].roster[].contract.ext: Expected dict, got int
+[TYPE] root.teams[].roster[].ctry: Expected str, got int
+[TYPE] root.teams[].roster[].season: Expected dict, got list
+[TYPE] root.teams[].roster[].suits[].headAcc: Expected str, got int
